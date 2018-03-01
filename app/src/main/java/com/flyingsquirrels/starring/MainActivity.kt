@@ -1,5 +1,6 @@
 package com.flyingsquirrels.starring
 
+import android.opengl.Visibility
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
@@ -44,10 +45,10 @@ class MainActivity : AppCompatActivity() {
             lateinit var type:MovieLists
 
             when(position){
-                0 -> type=MovieLists.POPULAR
-                1 -> type=MovieLists.TOP_RATED
-                2 -> type=MovieLists.NOW_PLAYING
-                3 -> type=MovieLists.UPCOMING
+                0 -> type=MovieLists.NOW_PLAYING
+                1 -> type=MovieLists.UPCOMING
+                2 -> type=MovieLists.POPULAR
+                3 -> type=MovieLists.TOP_RATED
             }
 
             args.putParcelable(MediaListFragment.TYPE_KEY,type)
@@ -58,10 +59,10 @@ class MainActivity : AppCompatActivity() {
         override fun getCount() = 4
 
         override fun getPageTitle(position: Int) = when(position){
-            0 -> this@MainActivity.getString(R.string.popular)
-            1 -> this@MainActivity.getString(R.string.top_rated)
-            2 -> this@MainActivity.getString(R.string.now_playing)
-            3 -> this@MainActivity.getString(R.string.upcoming)
+            0 -> this@MainActivity.getString(R.string.now_playing)
+            1 -> this@MainActivity.getString(R.string.upcoming)
+            2 -> this@MainActivity.getString(R.string.top_rated)
+            3 -> this@MainActivity.getString(R.string.popular)
             else -> ""
         }
     }
@@ -107,29 +108,47 @@ class MediaListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        list.layoutManager = GridLayoutManager(context, 2)
 
-         val movieListRequest = when(type){
+        val grid = GridLayoutManager(context, 2)
+        list.layoutManager = grid
+
+        view.viewTreeObserver.addOnGlobalLayoutListener({
+
+            val spanCount: Int = if(context!=null
+                    && (view.width / context!!.resources.displayMetrics.density + 0.5f)>=480){
+                4
+            }else{
+                2
+            }
+            grid.spanCount = spanCount
+        })
+
+        val movieListRequest = when(type){
             MovieLists.POPULAR -> tmdb.getPopularMovies()
             MovieLists.TOP_RATED -> tmdb.getTopRatedMovies()
             MovieLists.NOW_PLAYING -> tmdb.getNowPlayingMovies()
             MovieLists.UPCOMING -> tmdb.getUpcomingMovies()
             else->null
-         }
+        }
 
 
         val requestCallback = object : Callback<TMDBMovieResponse> {
             override fun onFailure(call: Call<TMDBMovieResponse>?, t: Throwable?) {
                 Log.e("", "error", t)
-                swipe_refresh.isRefreshing = false
+                finishLoading()
             }
 
             override fun onResponse(call: Call<TMDBMovieResponse>?, response: Response<TMDBMovieResponse>?) {
                 if (response != null) {
-                    val tmdbResponse = response.body()!!
-                    list.adapter = FilmsAdapter(tmdbResponse.results)
-                    swipe_refresh.isRefreshing = false
+                    val tmdbResponse = response.body()
+                    list.adapter = tmdbResponse?.results?.let { FilmsAdapter(it) }
+                    finishLoading()
                 }
+            }
+
+            private fun finishLoading() {
+                swipe_refresh.isRefreshing = false
+                loading.visibility = View.GONE
             }
 
 
@@ -138,6 +157,7 @@ class MediaListFragment : Fragment() {
         swipe_refresh.setOnRefreshListener { movieListRequest?.clone()?.enqueue(requestCallback) }
 
         movieListRequest?.enqueue(requestCallback)
+        loading.visibility = View.VISIBLE
 
     }
 }
