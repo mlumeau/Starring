@@ -10,5 +10,11 @@ import retrofit2.http.GET
 
 interface TMDBRetrofitService {
     @GET("movie/top_rated")
-    fun getTopRated(): Call<TMDBMovieResponse>
+    fun getTopRatedMovies(): Call<TMDBMovieResponse>
+    @GET("movie/popular")
+    fun getPopularMovies(): Call<TMDBMovieResponse>
+    @GET("movie/now_playing")
+    fun getNowPlayingMovies(): Call<TMDBMovieResponse>
+    @GET("movie/upcoming")
+    fun getUpcomingMovies(): Call<TMDBMovieResponse>
 }

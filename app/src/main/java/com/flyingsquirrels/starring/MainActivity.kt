@@ -1,6 +1,11 @@
 package com.flyingsquirrels.starring
 
 import android.os.Bundle
+import android.os.Parcel
+import android.os.Parcelable
+import android.support.v4.app.Fragment
+import android.support.v4.app.FragmentManager
+import android.support.v4.app.FragmentStatePagerAdapter
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -13,6 +18,7 @@ import com.squareup.picasso.Picasso
 import dagger.Component
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.adapter_movies.view.*
+import kotlinx.android.synthetic.main.fragment_list.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -21,46 +27,136 @@ import javax.inject.Singleton
 
 
 class MainActivity : AppCompatActivity() {
-    @Inject
-    lateinit var tmdb: TMDBRetrofitService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        (application as StarringApp).network.inject(this)
+        view_pager.adapter = MoviesPagerAdapter(supportFragmentManager)
+        tab_layout.setupWithViewPager(view_pager)
 
-        list.layoutManager = GridLayoutManager(this, 2)
+    }
 
-        tmdb.getTopRated().enqueue(object : Callback<TMDBMovieResponse> {
+    inner class MoviesPagerAdapter(fm: FragmentManager): FragmentStatePagerAdapter(fm){
+        override fun getItem(position: Int): Fragment {
+
+            val args = Bundle()
+            lateinit var type:MovieLists
+
+            when(position){
+                0 -> type=MovieLists.POPULAR
+                1 -> type=MovieLists.TOP_RATED
+                2 -> type=MovieLists.NOW_PLAYING
+                3 -> type=MovieLists.UPCOMING
+            }
+
+            args.putParcelable(MediaListFragment.TYPE_KEY,type)
+
+            return MediaListFragment.newInstance(args)
+        }
+
+        override fun getCount() = 4
+
+        override fun getPageTitle(position: Int) = when(position){
+            0 -> this@MainActivity.getString(R.string.popular)
+            1 -> this@MainActivity.getString(R.string.top_rated)
+            2 -> this@MainActivity.getString(R.string.now_playing)
+            3 -> this@MainActivity.getString(R.string.upcoming)
+            else -> ""
+        }
+    }
+
+}
+
+
+
+class MediaListFragment : Fragment() {
+
+    companion object {
+        const val TYPE_KEY:String="type"
+
+        fun newInstance(args: Bundle?): MediaListFragment{
+            var args = args
+            val fragment = MediaListFragment()
+
+            if (args == null) {
+                args = Bundle()
+            }
+            fragment.arguments = args
+
+            return fragment
+        }
+    }
+
+    @Inject
+    lateinit var tmdb: TMDBRetrofitService
+
+    var type: MovieLists? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        (activity?.application as StarringApp).network.inject(this)
+        type = arguments?.get(TYPE_KEY) as MovieLists
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        return inflater.inflate(R.layout.fragment_list, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        list.layoutManager = GridLayoutManager(context, 2)
+
+         val movieListRequest = when(type){
+            MovieLists.POPULAR -> tmdb.getPopularMovies()
+            MovieLists.TOP_RATED -> tmdb.getTopRatedMovies()
+            MovieLists.NOW_PLAYING -> tmdb.getNowPlayingMovies()
+            MovieLists.UPCOMING -> tmdb.getUpcomingMovies()
+            else->null
+         }
+
+
+        val requestCallback = object : Callback<TMDBMovieResponse> {
             override fun onFailure(call: Call<TMDBMovieResponse>?, t: Throwable?) {
-                Log.e("","error",t)
+                Log.e("", "error", t)
+                swipe_refresh.isRefreshing = false
             }
 
             override fun onResponse(call: Call<TMDBMovieResponse>?, response: Response<TMDBMovieResponse>?) {
                 if (response != null) {
                     val tmdbResponse = response.body()!!
                     list.adapter = FilmsAdapter(tmdbResponse.results)
+                    swipe_refresh.isRefreshing = false
                 }
             }
-        })
-    }
 
-    class FilmsAdapter(private val items: List<TMDBMovie>) : RecyclerView.Adapter<FilmsAdapter.Holder>() {
-        override fun onBindViewHolder(holder: Holder, position: Int) = holder.bind(items[position])
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder = Holder(parent.inflate(R.layout.adapter_movies))
-
-        override fun getItemCount(): Int = items.size
-
-        class Holder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
-            fun bind(movie: TMDBMovie) {
-                Picasso.with(itemView.context).load("https://image.tmdb.org/t/p/w300"+movie.posterPath).placeholder(R.color.material_grey_600).fit().centerCrop().into(itemView.cover)
-            }
 
         }
 
+        swipe_refresh.setOnRefreshListener { movieListRequest?.clone()?.enqueue(requestCallback) }
+
+        movieListRequest?.enqueue(requestCallback)
+
     }
+}
+
+
+class FilmsAdapter(private val items: List<TMDBMovie>) : RecyclerView.Adapter<FilmsAdapter.Holder>() {
+    override fun onBindViewHolder(holder: Holder, position: Int) = holder.bind(items[position])
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder = Holder(parent.inflate(R.layout.adapter_movies))
+
+    override fun getItemCount(): Int = items.size
+
+    class Holder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
+        fun bind(movie: TMDBMovie) {
+            Picasso.with(itemView.context).load("https://image.tmdb.org/t/p/w300"+movie.posterPath).placeholder(R.color.material_grey_600).fit().centerCrop().into(itemView.cover)
+        }
+
+    }
+
 }
 
 private fun ViewGroup.inflate(adapter_layout: Int, attachToRoot: Boolean = false): View? {
@@ -84,9 +180,36 @@ data class TMDBMovie(@field:SerializedName("poster_path")  var posterPath: Strin
                      @field:SerializedName("video") var video: Boolean?,
                      @field:SerializedName("vote_average") var voteAverage: Double)
 
+enum class MovieLists : Parcelable{
+    TOP_RATED,
+    POPULAR,
+    NOW_PLAYING,
+    UPCOMING;
+
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(this.name)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<MovieLists> {
+        override fun createFromParcel(parcel: Parcel): MovieLists {
+            return MovieLists.valueOf(parcel.readString())
+        }
+
+        override fun newArray(size: Int): Array<MovieLists?> {
+            return arrayOfNulls(size)
+        }
+    }
+
+}
+
 
 @Singleton
 @Component(modules = [(NetworkModule::class)])
 interface NetworkComponent {
-    fun inject(activity: MainActivity)
+    fun inject(fragment: MediaListFragment)
 }
