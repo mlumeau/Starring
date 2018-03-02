@@ -1,9 +1,7 @@
 package com.flyingsquirrels.starring
 
-import android.opengl.Visibility
+import android.content.Intent
 import android.os.Bundle
-import android.os.Parcel
-import android.os.Parcelable
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentStatePagerAdapter
@@ -14,7 +12,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.google.gson.annotations.SerializedName
 import com.squareup.picasso.Picasso
 import dagger.Component
 import kotlinx.android.synthetic.main.activity_main.*
@@ -42,16 +39,16 @@ class MainActivity : AppCompatActivity() {
         override fun getItem(position: Int): Fragment {
 
             val args = Bundle()
-            lateinit var type:MovieLists
+            lateinit var type:String
 
             when(position){
-                0 -> type=MovieLists.NOW_PLAYING
-                1 -> type=MovieLists.UPCOMING
-                2 -> type=MovieLists.POPULAR
-                3 -> type=MovieLists.TOP_RATED
+                0 -> type=TMDBMovieResponse.NOW_PLAYING
+                1 -> type=TMDBMovieResponse.UPCOMING
+                2 -> type=TMDBMovieResponse.POPULAR
+                3 -> type=TMDBMovieResponse.TOP_RATED
             }
 
-            args.putParcelable(MediaListFragment.TYPE_KEY,type)
+            args.putString(MediaListFragment.TYPE_KEY,type)
 
             return MediaListFragment.newInstance(args)
         }
@@ -92,13 +89,13 @@ class MediaListFragment : Fragment() {
     @Inject
     lateinit var tmdb: TMDBRetrofitService
 
-    var type: MovieLists? = null
+    var type: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         (activity?.application as StarringApp).network.inject(this)
-        type = arguments?.get(TYPE_KEY) as MovieLists
+        type = arguments?.getString(TYPE_KEY)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -124,10 +121,10 @@ class MediaListFragment : Fragment() {
         })
 
         val movieListRequest = when(type){
-            MovieLists.POPULAR -> tmdb.getPopularMovies()
-            MovieLists.TOP_RATED -> tmdb.getTopRatedMovies()
-            MovieLists.NOW_PLAYING -> tmdb.getNowPlayingMovies()
-            MovieLists.UPCOMING -> tmdb.getUpcomingMovies()
+            TMDBMovieResponse.POPULAR -> tmdb.getPopularMovies()
+            TMDBMovieResponse.TOP_RATED -> tmdb.getTopRatedMovies()
+            TMDBMovieResponse.NOW_PLAYING -> tmdb.getNowPlayingMovies()
+            TMDBMovieResponse.UPCOMING -> tmdb.getUpcomingMovies()
             else->null
         }
 
@@ -172,7 +169,10 @@ class FilmsAdapter(private val items: List<TMDBMovie>) : RecyclerView.Adapter<Fi
 
     class Holder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
         fun bind(movie: TMDBMovie) {
-            Picasso.with(itemView.context).load("https://image.tmdb.org/t/p/w300"+movie.posterPath).placeholder(R.color.material_grey_600).fit().centerCrop().into(itemView.cover)
+            Picasso.with(itemView.context).load(movie.posterPath).placeholder(R.color.material_grey_600).fit().centerCrop().into(itemView.cover)
+            this.itemView.setOnClickListener {
+                it.context.startActivity(Intent(it.context,DetailActivity::class.java))
+            }
         }
 
     }
@@ -181,50 +181,6 @@ class FilmsAdapter(private val items: List<TMDBMovie>) : RecyclerView.Adapter<Fi
 
 private fun ViewGroup.inflate(adapter_layout: Int, attachToRoot: Boolean = false): View? {
     return LayoutInflater.from(context).inflate(adapter_layout,this, attachToRoot)
-}
-
-
-data class TMDBMovieResponse(@field:SerializedName("results")  var results: List<TMDBMovie>)
-data class TMDBMovie(@field:SerializedName("poster_path")  var posterPath: String,
-                     @field:SerializedName("adult") var isAdult: Boolean,
-                     @field:SerializedName("overview") var overview: String,
-                     @field:SerializedName("release_date") var releaseDate: String,
-                     @field:SerializedName("genre_ids") var genreIds: List<Int>,
-                     @field:SerializedName("id") var id: Int,
-                     @field:SerializedName("original_title") var originalTitle: String,
-                     @field:SerializedName("original_language") var originalLanguage: String,
-                     @field:SerializedName("title") var title: String,
-                     @field:SerializedName("backdrop_path") var backdropPath: String,
-                     @field:SerializedName("popularity") var popularity: Double,
-                     @field:SerializedName("vote_count") var voteCount: Int?,
-                     @field:SerializedName("video") var video: Boolean?,
-                     @field:SerializedName("vote_average") var voteAverage: Double)
-
-enum class MovieLists : Parcelable{
-    TOP_RATED,
-    POPULAR,
-    NOW_PLAYING,
-    UPCOMING;
-
-
-    override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeString(this.name)
-    }
-
-    override fun describeContents(): Int {
-        return 0
-    }
-
-    companion object CREATOR : Parcelable.Creator<MovieLists> {
-        override fun createFromParcel(parcel: Parcel): MovieLists {
-            return MovieLists.valueOf(parcel.readString())
-        }
-
-        override fun newArray(size: Int): Array<MovieLists?> {
-            return arrayOfNulls(size)
-        }
-    }
-
 }
 
 

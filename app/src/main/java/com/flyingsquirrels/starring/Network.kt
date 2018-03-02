@@ -40,4 +40,5 @@ class NetworkModule(private val baseUrl: String, private val apiKey: String) {
     fun provideTMDB(retrofit: Retrofit): TMDBRetrofitService{
         return retrofit.create(TMDBRetrofitService::class.java)
     }
+
 }

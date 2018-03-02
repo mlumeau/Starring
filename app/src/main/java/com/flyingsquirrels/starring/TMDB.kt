@@ -9,12 +9,16 @@ import retrofit2.http.GET
 
 
 interface TMDBRetrofitService {
-    @GET("movie/top_rated")
+    companion object {
+        const val MOVIE = "movie"
+    }
+
+    @GET(MOVIE+"/"+TMDBMovieResponse.TOP_RATED)
     fun getTopRatedMovies(): Call<TMDBMovieResponse>
-    @GET("movie/popular")
+    @GET(MOVIE+"/"+TMDBMovieResponse.POPULAR)
     fun getPopularMovies(): Call<TMDBMovieResponse>
-    @GET("movie/now_playing")
+    @GET(MOVIE+"/"+TMDBMovieResponse.NOW_PLAYING)
     fun getNowPlayingMovies(): Call<TMDBMovieResponse>
-    @GET("movie/upcoming")
+    @GET(MOVIE+"/"+TMDBMovieResponse.UPCOMING)
     fun getUpcomingMovies(): Call<TMDBMovieResponse>
 }
