@@ -2,6 +2,7 @@ package com.flyingsquirrels.starring
 
 import android.content.Intent
 import android.os.Bundle
+import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentStatePagerAdapter
@@ -12,6 +13,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.flyingsquirrels.starring.model.TMDBMovie
+import com.flyingsquirrels.starring.model.TMDBMovieResponse
 import com.squareup.picasso.Picasso
 import dagger.Component
 import kotlinx.android.synthetic.main.activity_main.*
@@ -42,7 +45,7 @@ class MainActivity : AppCompatActivity() {
             lateinit var type:String
 
             when(position){
-                0 -> type=TMDBMovieResponse.NOW_PLAYING
+                0 -> type= TMDBMovieResponse.NOW_PLAYING
                 1 -> type=TMDBMovieResponse.UPCOMING
                 2 -> type=TMDBMovieResponse.POPULAR
                 3 -> type=TMDBMovieResponse.TOP_RATED
@@ -74,13 +77,12 @@ class MediaListFragment : Fragment() {
         const val TYPE_KEY:String="type"
 
         fun newInstance(args: Bundle?): MediaListFragment{
-            var args = args
             val fragment = MediaListFragment()
 
-            if (args == null) {
-                args = Bundle()
-            }
             fragment.arguments = args
+            if (args == null) {
+                fragment.arguments = Bundle()
+            }
 
             return fragment
         }
@@ -120,7 +122,7 @@ class MediaListFragment : Fragment() {
             grid.spanCount = spanCount
         })
 
-        val movieListRequest = when(type){
+        val movieListRequest:Call<TMDBMovieResponse>? = when(type){
             TMDBMovieResponse.POPULAR -> tmdb.getPopularMovies()
             TMDBMovieResponse.TOP_RATED -> tmdb.getTopRatedMovies()
             TMDBMovieResponse.NOW_PLAYING -> tmdb.getNowPlayingMovies()
@@ -138,14 +140,14 @@ class MediaListFragment : Fragment() {
             override fun onResponse(call: Call<TMDBMovieResponse>?, response: Response<TMDBMovieResponse>?) {
                 if (response != null) {
                     val tmdbResponse = response.body()
-                    list.adapter = tmdbResponse?.results?.let { FilmsAdapter(it) }
+                    list?.adapter = tmdbResponse?.results?.let { FilmsAdapter(it) }
                     finishLoading()
                 }
             }
 
             private fun finishLoading() {
-                swipe_refresh.isRefreshing = false
-                loading.visibility = View.GONE
+                swipe_refresh?.isRefreshing = false
+                loading?.visibility = View.GONE
             }
 
 
@@ -157,27 +159,44 @@ class MediaListFragment : Fragment() {
         loading.visibility = View.VISIBLE
 
     }
-}
 
+    inner class FilmsAdapter(private val items: List<TMDBMovie>) : RecyclerView.Adapter<FilmsAdapter.Holder>() {
+        override fun onBindViewHolder(holder: Holder, position: Int) = holder.bind(items[position])
 
-class FilmsAdapter(private val items: List<TMDBMovie>) : RecyclerView.Adapter<FilmsAdapter.Holder>() {
-    override fun onBindViewHolder(holder: Holder, position: Int) = holder.bind(items[position])
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder = Holder(parent.inflate(R.layout.adapter_movies))
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder = Holder(parent.inflate(R.layout.adapter_movies))
+        override fun getItemCount(): Int = items.size
 
-    override fun getItemCount(): Int = items.size
+        inner class Holder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
+            fun bind(movie: TMDBMovie) {
+                Picasso.with(itemView.context).load(movie.posterPath).placeholder(R.color.material_grey_600).fit().centerCrop().into(itemView.cover)
+                this.itemView.setOnClickListener {
 
-    class Holder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
-        fun bind(movie: TMDBMovie) {
-            Picasso.with(itemView.context).load(movie.posterPath).placeholder(R.color.material_grey_600).fit().centerCrop().into(itemView.cover)
-            this.itemView.setOnClickListener {
-                it.context.startActivity(Intent(it.context,DetailActivity::class.java))
+                    it.transitionName = DetailActivity.EXTRA_IMAGE
+                    val intent = Intent(it.context, DetailActivity::class.java)
+
+                    var options: Bundle? = Bundle()
+                    val extras = Bundle()
+                    if(this@MediaListFragment.activity!=null) {
+                        options = ActivityOptionsCompat.makeSceneTransitionAnimation(this@MediaListFragment.activity!!, it, DetailActivity.EXTRA_IMAGE).toBundle()
+                    }
+
+                    extras.putParcelable(DetailActivity.EXTRA_MOVIE,movie)
+                    extras.putString(DetailActivity.EXTRA_MEDIA_TYPE,DetailActivity.EXTRA_MOVIE)
+
+                    intent.putExtras(extras)
+
+                    it.context.startActivity(intent,options)
+                }
             }
+
         }
 
     }
-
 }
+
+
+
 
 private fun ViewGroup.inflate(adapter_layout: Int, attachToRoot: Boolean = false): View? {
     return LayoutInflater.from(context).inflate(adapter_layout,this, attachToRoot)

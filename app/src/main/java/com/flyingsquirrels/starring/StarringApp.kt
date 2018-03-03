@@ -4,6 +4,7 @@ import android.app.Application
 import dagger.Component
 import dagger.Module
 import dagger.Provides
+import java.util.*
 import javax.inject.Singleton
 
 /**
@@ -26,7 +27,10 @@ class StarringApp : Application(){
         component.inject(this)
 
         network = DaggerNetworkComponent.builder()
-                .networkModule(NetworkModule("https://api.themoviedb.org/3/",BuildConfig.api_key ))
+                .networkModule(NetworkModule("https://api.themoviedb.org/3/",
+                        BuildConfig.api_key,
+                        "${Locale.getDefault().language}-${Locale.getDefault().country}",
+                        cacheDir))
                 .build()
 
     }
