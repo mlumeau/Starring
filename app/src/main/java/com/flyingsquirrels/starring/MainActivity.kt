@@ -1,6 +1,8 @@
 package com.flyingsquirrels.starring
 
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.app.Fragment
@@ -23,6 +25,7 @@ import kotlinx.android.synthetic.main.fragment_list.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -61,8 +64,8 @@ class MainActivity : AppCompatActivity() {
         override fun getPageTitle(position: Int) = when(position){
             0 -> this@MainActivity.getString(R.string.now_playing)
             1 -> this@MainActivity.getString(R.string.upcoming)
-            2 -> this@MainActivity.getString(R.string.top_rated)
-            3 -> this@MainActivity.getString(R.string.popular)
+            2 -> this@MainActivity.getString(R.string.popular)
+            3 -> this@MainActivity.getString(R.string.top_rated)
             else -> ""
         }
     }
@@ -169,7 +172,7 @@ class MediaListFragment : Fragment() {
 
         inner class Holder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
             fun bind(movie: TMDBMovie) {
-                Picasso.with(itemView.context).load(movie.posterPath).placeholder(R.color.material_grey_600).fit().centerCrop().into(itemView.cover)
+                Picasso.with(itemView.context).load(TMDBMovie.POSTER_URL_THUMBNAIL+movie.posterPath).placeholder(R.color.material_grey_600).fit().centerCrop().into(itemView.cover)
                 this.itemView.setOnClickListener {
 
                     it.transitionName = DetailActivity.EXTRA_IMAGE
@@ -181,6 +184,11 @@ class MediaListFragment : Fragment() {
                         options = ActivityOptionsCompat.makeSceneTransitionAnimation(this@MediaListFragment.activity!!, it, DetailActivity.EXTRA_IMAGE).toBundle()
                     }
 
+                    val b: Bitmap = (itemView.cover.drawable as BitmapDrawable).bitmap
+                    val bs = ByteArrayOutputStream()
+                    b.compress(Bitmap.CompressFormat.JPEG, 50, bs)
+
+                    extras.putByteArray(DetailActivity.EXTRA_THUMBNAIL, bs.toByteArray())
                     extras.putParcelable(DetailActivity.EXTRA_MOVIE,movie)
                     extras.putString(DetailActivity.EXTRA_MEDIA_TYPE,DetailActivity.EXTRA_MOVIE)
 

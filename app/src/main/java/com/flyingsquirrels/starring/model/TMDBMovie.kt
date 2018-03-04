@@ -23,7 +23,7 @@ data class TMDBMovie(
 		val title: String? = null,
 
 		@field:SerializedName("backdrop_path")
-		val _backdropPath: String? = null,
+		val backdropPath: String? = null,
 
 		@field:SerializedName("revenue")
 		val revenue: Int? = null,
@@ -59,7 +59,7 @@ data class TMDBMovie(
 		val runtime: Int? = null,
 
 		@field:SerializedName("poster_path")
-		val _posterPath: String? = null,
+		val posterPath: String? = null,
 
 		@field:SerializedName("spoken_languages")
 		val spokenLanguages: List<SpokenLanguagesItem?>? = null,
@@ -87,7 +87,8 @@ data class TMDBMovie(
 ) : Parcelable{
 
 	companion object CREATOR : Parcelable.Creator<TMDBMovie>{
-		const val POSTER_URL = "https://image.tmdb.org/t/p/w300"
+		const val POSTER_URL_THUMBNAIL = "https://image.tmdb.org/t/p/w300"
+		const val POSTER_URL_LARGE = "https://image.tmdb.org/t/p/w780"
 
 		override fun createFromParcel(parcel: Parcel): TMDBMovie {
 			return TMDBMovie(parcel)
@@ -97,15 +98,6 @@ data class TMDBMovie(
 			return arrayOfNulls(size)
 		}
 	}
-
-	var posterPath = _posterPath
-		get(): String? {
-			return POSTER_URL + _posterPath
-		}
-	var backdropPath = _backdropPath
-		get(): String? {
-			return POSTER_URL + _backdropPath
-		}
 
 	constructor(parcel: Parcel) : this(
 			parcel.readString(),
@@ -142,7 +134,7 @@ data class TMDBMovie(
 		parcel.writeParcelable(videoResponse, flags)
 		parcel.writeValue(video)
 		parcel.writeString(title)
-		parcel.writeString(_backdropPath)
+		parcel.writeString(backdropPath)
 		parcel.writeValue(revenue)
 		parcel.writeParcelable(credits, flags)
 		parcel.writeTypedList(genres)
@@ -154,7 +146,7 @@ data class TMDBMovie(
 		parcel.writeString(overview)
 		parcel.writeString(originalTitle)
 		parcel.writeValue(runtime)
-		parcel.writeString(_posterPath)
+		parcel.writeString(posterPath)
 		parcel.writeTypedList(spokenLanguages)
 		parcel.writeTypedList(productionCompanies)
 		parcel.writeString(releaseDate)
