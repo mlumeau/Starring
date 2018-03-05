@@ -2,5 +2,5 @@
 <resources>
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
-    <dimen name="poster_height">240dp</dimen>
+    <dimen name="poster_height">320dp</dimen>
 </resources>

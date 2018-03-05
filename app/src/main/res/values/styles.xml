@@ -15,4 +15,9 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="DetailTitleTextAppearance" parent="TextAppearance.Design.CollapsingToolbar.Expanded">
+        <item name="android:textSize">24sp</item>
+        <item name="android:ellipsize">none</item>
+    </style>
+
 </resources>

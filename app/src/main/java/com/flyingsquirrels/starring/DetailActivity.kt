@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.support.v4.view.ViewCompat
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
+import android.view.View
 import com.flyingsquirrels.starring.model.TMDBMovie
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_detail.*
@@ -96,16 +97,12 @@ class DetailActivity : AppCompatActivity(){
     }
 
     override fun onBackPressed() {
-        supportActionBar?.setDisplayHomeAsUpEnabled(false)
-        collapsing_toolbar.title = ""
-        toolbar.title = ""
-        supportFinishAfterTransition()
+        prepareFinish()
     }
 
     private fun prepareFinish() {
         supportActionBar?.setDisplayHomeAsUpEnabled(false)
-        collapsing_toolbar.title = ""
-        toolbar.title = ""
+        fab.visibility = View.GONE
         supportFinishAfterTransition()
     }
 

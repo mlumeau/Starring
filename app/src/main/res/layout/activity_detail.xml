@@ -12,6 +12,7 @@
         android:layout_height="@dimen/poster_height"
         android:fitsSystemWindows="true"
         android:id="@+id/appbar"
+        app:elevation="8dp"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
         <android.support.design.widget.CollapsingToolbarLayout
@@ -19,8 +20,11 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:contentScrim="?attr/colorPrimary"
+            app:elevation="8dp"
             android:fitsSystemWindows="true"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
+            app:expandedTitleTextAppearance="@style/DetailTitleTextAppearance"
+            app:expandedTitleMarginBottom="48dp"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
             <ImageView
                 android:id="@+id/poster"
@@ -28,9 +32,47 @@
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
                 android:fitsSystemWindows="true"
+                tools:background="@color/colorPrimaryDark"
                 app:layout_collapseMode="parallax"
                 app:layout_collapseParallaxMultiplier="0.5"
+                android:layout_marginBottom="92dp"
                 android:contentDescription="@string/media_poster" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_marginBottom="36dp"
+                android:layout_gravity="bottom"
+                app:layout_collapseMode="parallax"
+                app:layout_collapseParallaxMultiplier="0.067"
+                android:background="@color/colorPrimary">
+            </View>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_gravity="bottom"
+                app:layout_collapseMode="pin"
+                android:background="@color/colorPrimary">
+            </View>
+
+            <RelativeLayout
+                android:id="@+id/title_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:background="@color/colorPrimary"
+                app:layout_collapseMode="parallax"
+                app:layout_collapseParallaxMultiplier="0.1"
+                android:paddingBottom="16dp"
+                android:paddingStart="32dp"
+                android:paddingEnd="72dp">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:text="2018 · 108 min · 7.8/10"
+                    android:textColor="@color/textLightSecondary"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"/>
+            </RelativeLayout>
 
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
@@ -40,15 +82,29 @@
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
 
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="900dp"></RelativeLayout>
+        </RelativeLayout>
+    </android.support.v4.widget.NestedScrollView>
+
+
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_anchor="@id/collapsing_toolbar"
-        app:layout_anchorGravity="bottom|end"
+        app:layout_anchor="@id/appbar"
+        app:layout_anchorGravity="bottom|right|end"
         android:src="@drawable/ic_star_border_black_24dp"
         android:tint="@android:color/white"
         android:layout_marginEnd="16dp"/>
-
 
 </android.support.design.widget.CoordinatorLayout>
