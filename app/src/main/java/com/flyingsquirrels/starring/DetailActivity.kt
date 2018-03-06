@@ -1,16 +1,18 @@
 package com.flyingsquirrels.starring
 
+import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.support.v4.content.ContextCompat
 import android.support.v4.view.ViewCompat
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.graphics.Palette
 import android.view.MenuItem
 import android.view.View
 import com.flyingsquirrels.starring.model.TMDBMovie
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_detail.*
-
 
 
 /**
@@ -42,8 +44,23 @@ class DetailActivity : AppCompatActivity(){
 
 
         intent.extras.getByteArray(EXTRA_THUMBNAIL)?.let {
-            poster.setImageBitmap(BitmapFactory.decodeByteArray(it, 0, it.size))
+            val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
+            poster.setImageBitmap(bitmap)
+            Palette.from(bitmap).generate({
+
+                collapsing_toolbar.setContentScrimColor(it.getVibrantColor(ContextCompat.getColor(this,R.color.colorPrimary)))
+                topSlidingPanel.setBackgroundColor(it.getVibrantColor(ContextCompat.getColor(this,R.color.colorPrimary)))
+                bottomSlidingPanel.setBackgroundColor(it.getVibrantColor(ContextCompat.getColor(this,R.color.colorPrimary)))
+                title_bar.setBackgroundColor(it.getVibrantColor(ContextCompat.getColor(this,R.color.colorPrimary)))
+                collapsing_toolbar.setStatusBarScrimColor(it.getDarkVibrantColor(ContextCompat.getColor(this,R.color.colorPrimaryDark)))
+                fab.rippleColor = it.getLightMutedColor(ContextCompat.getColor(this,R.color.colorAccent))
+                fab.backgroundTintList = ColorStateList.valueOf(it.getMutedColor(ContextCompat.getColor(this,R.color.colorAccent)))
+            })
+
         }
+
+
+
         if(savedInstanceState?.getBoolean(DRAW_POSTER_ON_CREATE) != null) {
             drawPosterOnCreate = savedInstanceState.getBoolean(DRAW_POSTER_ON_CREATE)
         }
@@ -77,12 +94,7 @@ class DetailActivity : AppCompatActivity(){
         if(drawPosterOnCreate || resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE){
             setUpPoster()
         }
-/*
-        collapsing_toolbar.setContentScrimColor(palette.getMutedColor(primary))
-        collapsing_toolbar.setStatusBarScrimColor(palette.getDarkMutedColor(primaryDark))
-        fab.setRippleColor(lightVibrantColor)
-        fab.setBackgroundTintList(ColorStateList.valueOf(vibrantColor))
-*/
+
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

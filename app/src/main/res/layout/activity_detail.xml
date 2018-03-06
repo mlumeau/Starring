@@ -39,6 +39,7 @@
                 android:contentDescription="@string/media_poster" />
 
             <View
+                android:id="@+id/topSlidingPanel"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:layout_marginBottom="36dp"
@@ -48,6 +49,7 @@
                 android:background="@color/colorPrimary">
             </View>
             <View
+                android:id="@+id/bottomSlidingPanel"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:layout_gravity="bottom"
