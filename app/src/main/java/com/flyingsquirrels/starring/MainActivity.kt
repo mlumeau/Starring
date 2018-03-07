@@ -18,16 +18,14 @@ import android.view.ViewGroup
 import com.flyingsquirrels.starring.model.TMDBMovie
 import com.flyingsquirrels.starring.model.TMDBMovieResponse
 import com.squareup.picasso.Picasso
-import dagger.Component
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.adapter_movies.view.*
 import kotlinx.android.synthetic.main.fragment_list.*
+import org.koin.android.ext.android.inject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.ByteArrayOutputStream
-import javax.inject.Inject
-import javax.inject.Singleton
 
 
 class MainActivity : AppCompatActivity() {
@@ -91,15 +89,13 @@ class MediaListFragment : Fragment() {
         }
     }
 
-    @Inject
-    lateinit var tmdb: TMDBRetrofitService
+    val tmdb: TMDBRetrofitService by inject()
 
     var type: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        (activity?.application as StarringApp).network.inject(this)
         type = arguments?.getString(TYPE_KEY)
     }
 
@@ -208,11 +204,4 @@ class MediaListFragment : Fragment() {
 
 private fun ViewGroup.inflate(adapter_layout: Int, attachToRoot: Boolean = false): View? {
     return LayoutInflater.from(context).inflate(adapter_layout,this, attachToRoot)
-}
-
-
-@Singleton
-@Component(modules = [(NetworkModule::class)])
-interface NetworkComponent {
-    fun inject(fragment: MediaListFragment)
 }

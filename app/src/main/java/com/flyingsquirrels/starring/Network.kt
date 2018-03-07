@@ -1,52 +1,53 @@
 package com.flyingsquirrels.starring
 
-import dagger.Module
-import dagger.Provides
+import com.flyingsquirrels.starring.Parameters.CACHE_SIZE
 import okhttp3.Cache
 import okhttp3.OkHttpClient
+import org.koin.android.ext.koin.androidApplication
+import org.koin.dsl.module.Module
+import org.koin.dsl.module.applicationContext
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.io.File
-import javax.inject.Singleton
+import java.util.*
 
 
 /**
  * Created by mlumeau on 26/02/2018.
  */
 
-@Module
-class NetworkModule(private val baseUrl: String, private val apiKey: String, private val lang:String, private val cacheDir:File) {
+object Parameters{
+    const val CACHE_SIZE: Long = 10*1024*102
+}
 
-    companion object {
-        const val CACHE_SIZE: Long = 10*1024*1024
+val NetworkModule : Module = applicationContext{
+
+
+    bean{
+        OkHttpClient.Builder()
+                .addInterceptor({ chain ->
+                    chain.proceed(
+                            chain.request().newBuilder().url(
+                                    chain.request().url().newBuilder()
+                                            .addQueryParameter("api_key", BuildConfig.api_key)
+                                            .addQueryParameter("language", "${Locale.getDefault().language}-${Locale.getDefault().country}")
+                                            .build()
+                            ).build())
+                }).cache(Cache(this.androidApplication().cacheDir, CACHE_SIZE))
+                .build()
     }
 
-    @Provides
-    @Singleton
-    fun provideOkHttpClient(): OkHttpClient = OkHttpClient.Builder()
-            .addInterceptor({ chain -> chain.proceed(
-                chain.request().newBuilder().url(
-                        chain.request().url().newBuilder()
-                                .addQueryParameter("api_key", apiKey)
-                                .addQueryParameter("language", lang)
-                                .build()
-                ).build())
-            }).cache(Cache(cacheDir, CACHE_SIZE))
-            .build()
-
-    @Provides
-    @Singleton
-    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit = Retrofit.Builder()
-                .baseUrl(baseUrl)
-                .client(okHttpClient)
+    bean{
+        Retrofit.Builder()
+                .baseUrl(BuildConfig.base_url)
+                .client(get())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
+    }
 
 
-    @Provides
-    @Singleton
-    fun provideTMDB(retrofit: Retrofit): TMDBRetrofitService{
-        return retrofit.create(TMDBRetrofitService::class.java)
+    bean{
+        val retrofit: Retrofit = get()
+        retrofit.create(TMDBRetrofitService::class.java)
     }
 
 }
