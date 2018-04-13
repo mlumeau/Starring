@@ -36,7 +36,8 @@
                 android:scaleType="centerCrop"
                 app:layout_collapseMode="parallax"
                 app:layout_collapseParallaxMultiplier="0.5"
-                tools:background="@color/colorPrimaryDark" />
+                tools:background="@color/colorPrimaryDark"
+                tools:src="@tools:sample/backgrounds/scenic" />
 
             <View
                 android:id="@+id/topSlidingPanel"
@@ -51,7 +52,7 @@
             <View
                 android:id="@+id/bottomSlidingPanel"
                 android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
+                android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
                 android:background="@color/colorPrimary"
                 app:layout_collapseMode="pin" />
@@ -97,7 +98,6 @@
 
             <RelativeLayout
                 android:id="@+id/directed_by"
-                android:visibility=""
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
 
@@ -203,7 +203,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="16dp"
                     android:tint="@color/grey600"
-                    android:src="@drawable/ic_public_black_24dp" />
+                    android:src="@drawable/account_group" />
 
                 <TextView
                     android:id="@+id/starring_label"
@@ -212,14 +212,58 @@
                     android:layout_margin="16dp"
                     android:layout_toEndOf="@id/starring_icon"
                     android:textAlignment="gravity"
-                    tools:text="@tools:sample/cities" />
+                    tools:text="@string/starring" />
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/starring_list"
+                    android:layout_below="@id/starring_label"
+                    app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_marginBottom="16dp"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    tools:listitem="@layout/adapter_people_horizontal"
+                    android:layout_height="144dp" />
 
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:layout_below="@+id/starring_label"
+                    android:layout_below="@+id/starring_list"
                     android:layout_marginStart="16dp"
                     android:layout_toEndOf="@+id/starring_icon"
+                    android:background="@color/dividerDark" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/plot"
+                android:layout_below="@+id/starring"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/plot_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:tint="@color/grey600"
+                    android:src="@drawable/ic_assignment_black_24dp" />
+
+                <TextView
+                    android:id="@+id/plot_label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:layout_toEndOf="@id/plot_icon"
+                    android:textAlignment="gravity"
+                    tools:text="@tools:sample/lorem/random" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@+id/plot_label"
+                    android:layout_marginStart="16dp"
+                    android:layout_toEndOf="@+id/plot_icon"
                     android:background="@color/dividerDark" />
             </RelativeLayout>
         </RelativeLayout>
