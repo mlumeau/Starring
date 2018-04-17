@@ -37,7 +37,7 @@
                 app:layout_collapseMode="parallax"
                 app:layout_collapseParallaxMultiplier="0.5"
                 tools:background="@color/colorPrimaryDark"
-                tools:src="@tools:sample/backgrounds/scenic" />
+                tools:src="@tools:sample/backgrounds/scenic"/>
 
             <View
                 android:id="@+id/topSlidingPanel"
@@ -47,12 +47,12 @@
                 android:layout_marginBottom="36dp"
                 android:background="@color/colorPrimary"
                 app:layout_collapseMode="parallax"
-                app:layout_collapseParallaxMultiplier="0.067" />
+                app:layout_collapseParallaxMultiplier="0.067"/>
 
             <View
                 android:id="@+id/bottomSlidingPanel"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="?attr/actionBarSize"
                 android:layout_gravity="bottom"
                 android:background="@color/colorPrimary"
                 app:layout_collapseMode="pin" />

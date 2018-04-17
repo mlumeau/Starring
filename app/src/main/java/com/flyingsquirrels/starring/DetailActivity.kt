@@ -8,6 +8,7 @@ import android.support.v4.content.ContextCompat
 import android.support.v4.view.ViewCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.graphics.Palette
+import android.text.TextUtils
 import android.view.MenuItem
 import android.view.View
 import com.flyingsquirrels.starring.model.TMDBMovie
@@ -52,7 +53,7 @@ class DetailActivity : AppCompatActivity(){
                 topSlidingPanel.setBackgroundColor(it.getVibrantColor(ContextCompat.getColor(this,R.color.colorPrimary)))
                 bottomSlidingPanel.setBackgroundColor(it.getVibrantColor(ContextCompat.getColor(this,R.color.colorPrimary)))
                 title_bar.setBackgroundColor(it.getVibrantColor(ContextCompat.getColor(this,R.color.colorPrimary)))
-                collapsing_toolbar.setStatusBarScrimColor(it.getDarkVibrantColor(ContextCompat.getColor(this,R.color.colorPrimaryDark)))
+                collapsing_toolbar.setStatusBarScrimColor(it.getVibrantColor(ContextCompat.getColor(this,R.color.colorPrimaryDark)))
                 fab.rippleColor = it.getLightMutedColor(ContextCompat.getColor(this,R.color.colorAccent))
                 fab.backgroundTintList = ColorStateList.valueOf(it.getMutedColor(ContextCompat.getColor(this,R.color.colorAccent)))
             })
@@ -94,6 +95,28 @@ class DetailActivity : AppCompatActivity(){
         if(drawPosterOnCreate || resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE){
             setUpPoster()
         }
+
+        val year = movie.releaseDate?.substring(0,4)
+        var info=""
+
+        year?.let{
+            info+=year
+        }
+        movie.runtime?.let{
+            if(!TextUtils.isEmpty(info)){
+                info+=" · "
+            }
+            info+= it
+        }
+        movie.voteAverage?.let{
+            if(!TextUtils.isEmpty(info)){
+                info+=" · "
+            }
+            info+= "$it/10"
+        }
+
+
+        title_info_label.text = info
 
     }
 
