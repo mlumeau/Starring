@@ -212,7 +212,7 @@
                     android:layout_margin="16dp"
                     android:layout_toEndOf="@id/starring_icon"
                     android:textAlignment="gravity"
-                    tools:text="@string/starring" />
+                    android:text="@string/starring" />
 
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/starring_list"
@@ -221,8 +221,9 @@
                     android:orientation="horizontal"
                     android:layout_width="match_parent"
                     android:layout_marginBottom="16dp"
-                    android:paddingStart="16dp"
+                    android:paddingStart="72dp"
                     android:paddingEnd="16dp"
+                    android:clipToPadding="false"
                     tools:listitem="@layout/adapter_people_horizontal"
                     android:layout_height="144dp" />
 

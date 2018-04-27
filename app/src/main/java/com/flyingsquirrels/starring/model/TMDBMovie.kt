@@ -125,8 +125,7 @@ data class TMDBMovie(
 			parcel.readString(),
 			parcel.readValue(Boolean::class.java.classLoader) as? Boolean,
 			parcel.readString(),
-			parcel.readString()) {
-	}
+			parcel.readString())
 
 	override fun writeToParcel(parcel: Parcel, flags: Int) {
 		parcel.writeString(originalLanguage)
@@ -155,6 +154,10 @@ data class TMDBMovie(
 		parcel.writeValue(adult)
 		parcel.writeString(homepage)
 		parcel.writeString(status)
+	}
+
+	fun getDirectors() : List<CrewItem?>? {
+		return credits?.crew?.filter { it?.job == "Director" }
 	}
 
 	override fun describeContents(): Int {

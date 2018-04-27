@@ -202,6 +202,6 @@ class MediaListFragment : Fragment() {
 
 
 
-private fun ViewGroup.inflate(adapter_layout: Int, attachToRoot: Boolean = false): View? {
+fun ViewGroup.inflate(adapter_layout: Int, attachToRoot: Boolean = false): View? {
     return LayoutInflater.from(context).inflate(adapter_layout,this, attachToRoot)
 }
