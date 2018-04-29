@@ -47,13 +47,14 @@ class DetailActivity : AppCompatActivity(){
 
     val tmdb: TMDBRetrofitService by inject()
     private var posterPath:String = ""
+    private var backdropPath:String = ""
     private var drawPosterOnCreate = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_detail)
 
-        ViewCompat.setTransitionName(poster, EXTRA_IMAGE)
+        ViewCompat.setTransitionName(mini_poster, EXTRA_IMAGE)
 
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -61,17 +62,16 @@ class DetailActivity : AppCompatActivity(){
 
         intent.extras.getByteArray(EXTRA_THUMBNAIL)?.let {
             val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
-            poster.setImageBitmap(bitmap)
+            mini_poster.setImageBitmap(bitmap)
             Palette.from(bitmap).generate({
 
-                collapsing_toolbar.setContentScrimColor(it.getVibrantColor(ContextCompat.getColor(this,R.color.colorPrimary)))
                 collapsing_toolbar.setBackgroundColor(it.getDominantColor(ContextCompat.getColor(this,R.color.colorPrimary)))
-                topSlidingPanel.setBackgroundColor(it.getVibrantColor(ContextCompat.getColor(this,R.color.colorPrimary)))
-                bottomSlidingPanel.setBackgroundColor(it.getVibrantColor(ContextCompat.getColor(this,R.color.colorPrimary)))
-                title_bar.setBackgroundColor(it.getVibrantColor(ContextCompat.getColor(this,R.color.colorPrimary)))
-                collapsing_toolbar.setStatusBarScrimColor(it.getVibrantColor(ContextCompat.getColor(this,R.color.colorPrimaryDark)))
-                fab.rippleColor = it.getLightMutedColor(ContextCompat.getColor(this,R.color.colorAccent))
-                fab.backgroundTintList = ColorStateList.valueOf(it.getMutedColor(ContextCompat.getColor(this,R.color.colorAccent)))
+                collapsing_toolbar.setContentScrimColor(it.getMutedColor(ContextCompat.getColor(this,R.color.colorPrimary)))
+                topSlidingPanel.setBackgroundColor(it.getMutedColor(ContextCompat.getColor(this,R.color.colorPrimary)))
+                bottomSlidingPanel.setBackgroundColor(it.getMutedColor(ContextCompat.getColor(this,R.color.colorPrimary)))
+                collapsing_toolbar.setStatusBarScrimColor(it.getMutedColor(ContextCompat.getColor(this,R.color.colorPrimaryDark)))
+                fab.rippleColor = it.getLightVibrantColor(ContextCompat.getColor(this,R.color.colorAccent))
+                fab.backgroundTintList = ColorStateList.valueOf(it.getVibrantColor(ContextCompat.getColor(this,R.color.colorAccent)))
             })
 
         }
@@ -109,35 +109,37 @@ class DetailActivity : AppCompatActivity(){
             }
         }
 
+        appbar.addOnOffsetChangedListener({ appBarLayout, verticalOffset ->
+            title_bar.alpha = 1.0f - Math.abs(verticalOffset / appBarLayout.totalScrollRange.toFloat())
+        })
+
 
     }
 
     override fun onEnterAnimationComplete() {
         super.onEnterAnimationComplete()
-        if(resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            setUpPoster()
-        }
+        setUpPoster()
     }
 
     private fun setUpPoster() {
-        Picasso.with(this).load(TMDBMovie.POSTER_URL_LARGE + posterPath).placeholder(poster.drawable).fit().centerCrop().into(poster)
+        Picasso.with(this).load(TMDBMovie.POSTER_URL_THUMBNAIL + posterPath).placeholder(mini_poster.drawable).fit().centerCrop().into(mini_poster)
+        Picasso.with(this).load(TMDBMovie.POSTER_URL_LARGE + backdropPath).fit().centerCrop().into(poster)
+
     }
 
 
     private fun bindMovie(movie: TMDBMovie){
-        
+
         //Poster
-        posterPath = when(resources.configuration.orientation){
-            Configuration.ORIENTATION_PORTRAIT->movie.posterPath.toString()
-            Configuration.ORIENTATION_LANDSCAPE->movie.backdropPath.toString()
-            else->movie.posterPath.toString()
-        }
-        
+        posterPath = movie.posterPath.toString()
+        backdropPath = movie.backdropPath.toString()
+
         //Header
         collapsing_toolbar.title = movie.title
-        if(drawPosterOnCreate || resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE){
+        if(drawPosterOnCreate){
             setUpPoster()
         }
+
 
         val year = movie.releaseDate?.substring(0,4)
         var info=""
@@ -264,7 +266,7 @@ class DetailActivity : AppCompatActivity(){
     inner class CastAdapter(private val items: List<CastItem>) : RecyclerView.Adapter<CastAdapter.Holder>() {
         override fun onBindViewHolder(holder: Holder, position: Int) = holder.bind(items[position])
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder = Holder(parent.inflate(R.layout.adapter_people))
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder = Holder(parent.inflate(R.layout.adapter_people_horizontal))
 
         override fun getItemCount(): Int = if(items.size >= 8) 8 else items.size
 
