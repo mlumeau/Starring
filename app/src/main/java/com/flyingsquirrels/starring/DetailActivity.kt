@@ -1,15 +1,20 @@
 package com.flyingsquirrels.starring
 
+import android.app.Dialog
+import android.app.DialogFragment
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
+import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.content.ContextCompat
 import android.support.v4.view.ViewCompat
+import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.graphics.Palette
 import android.support.v7.widget.RecyclerView
@@ -17,6 +22,7 @@ import android.text.TextUtils
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import com.flyingsquirrels.starring.model.CastItem
 import com.flyingsquirrels.starring.model.TMDBMovie
 import com.squareup.picasso.Picasso
@@ -50,6 +56,7 @@ class DetailActivity : AppCompatActivity(){
     private var backdropPath:String = ""
     private var drawPosterOnCreate = false
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_detail)
@@ -65,13 +72,19 @@ class DetailActivity : AppCompatActivity(){
             mini_poster.setImageBitmap(bitmap)
             Palette.from(bitmap).generate({
 
-                collapsing_toolbar.setBackgroundColor(it.getDominantColor(ContextCompat.getColor(this,R.color.colorPrimary)))
-                collapsing_toolbar.setContentScrimColor(it.getMutedColor(ContextCompat.getColor(this,R.color.colorPrimary)))
-                topSlidingPanel.setBackgroundColor(it.getMutedColor(ContextCompat.getColor(this,R.color.colorPrimary)))
-                bottomSlidingPanel.setBackgroundColor(it.getMutedColor(ContextCompat.getColor(this,R.color.colorPrimary)))
-                collapsing_toolbar.setStatusBarScrimColor(it.getMutedColor(ContextCompat.getColor(this,R.color.colorPrimaryDark)))
-                fab.rippleColor = it.getLightVibrantColor(ContextCompat.getColor(this,R.color.colorAccent))
-                fab.backgroundTintList = ColorStateList.valueOf(it.getVibrantColor(ContextCompat.getColor(this,R.color.colorAccent)))
+                val dominantColor = it.getDominantColor(ContextCompat.getColor(this,R.color.colorPrimary))
+                val mutedColor = it.getMutedColor(ContextCompat.getColor(this,R.color.colorPrimary))
+                val vibrantColor = it.getVibrantColor(ContextCompat.getColor(this,R.color.colorAccent))
+                val lightVibrantColor = it.getLightVibrantColor(ContextCompat.getColor(this,R.color.colorAccent))
+
+                collapsing_toolbar.setBackgroundColor(dominantColor)
+                collapsing_toolbar.setContentScrimColor(mutedColor)
+                collapsing_toolbar.setStatusBarScrimColor(mutedColor)
+                topSlidingPanel.setBackgroundColor(mutedColor)
+                bottomSlidingPanel.setBackgroundColor(mutedColor)
+                fab.backgroundTintList = ColorStateList.valueOf(vibrantColor)
+                fab.rippleColor = lightVibrantColor
+                trailer_label.setTextColor(vibrantColor)
             })
 
         }
@@ -234,6 +247,40 @@ class DetailActivity : AppCompatActivity(){
             plot_label.text = movie.overview
         }
 
+        //Trailer
+        if(movie.videos?.results?.isNotEmpty() == true){
+            trailer.setOnClickListener({
+                val builderSingle = AlertDialog.Builder(DetailActivity@this)
+
+                val arrayAdapter = ArrayAdapter<String>(DetailActivity@this, android.R.layout.select_dialog_item)
+                val list = movie.videos.results.filterNotNull().filter { it.site == "YouTube" }
+
+                list.forEach({
+                        arrayAdapter.add(it.name)
+                })
+
+                builderSingle.setTitle(getString(R.string.watch_a_trailer))
+                builderSingle.setNegativeButton("cancel", { dialog, _ ->
+                    dialog.dismiss()
+                })
+
+                builderSingle.setAdapter(arrayAdapter, { _, which ->
+                    val id = list[which].key
+                    val appIntent = Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:$id"))
+                    val webIntent = Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=$id"))
+                    try {
+                        DetailActivity@this.startActivity(appIntent)
+                    } catch (e: Exception) {
+                        DetailActivity@this.startActivity(webIntent)
+                    }
+                })
+
+                builderSingle.show()
+            })
+            trailer.visibility = View.VISIBLE
+        }else{
+            trailer.visibility = View.GONE
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

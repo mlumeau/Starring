@@ -13,8 +13,8 @@ data class TMDBMovie(
 		@field:SerializedName("imdb_id")
 		val imdbId: String? = null,
 
-		@field:SerializedName("videoResponse")
-		val videoResponse: VideoResponse? = null,
+		@field:SerializedName("videos")
+		val videos: VideoResponse? = null,
 
 		@field:SerializedName("video")
 		val video: Boolean? = null,
@@ -130,7 +130,7 @@ data class TMDBMovie(
 	override fun writeToParcel(parcel: Parcel, flags: Int) {
 		parcel.writeString(originalLanguage)
 		parcel.writeString(imdbId)
-		parcel.writeParcelable(videoResponse, flags)
+		parcel.writeParcelable(videos, flags)
 		parcel.writeValue(video)
 		parcel.writeString(title)
 		parcel.writeString(backdropPath)

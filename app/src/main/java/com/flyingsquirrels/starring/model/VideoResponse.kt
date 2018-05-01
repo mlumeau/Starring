@@ -10,8 +10,7 @@ data class VideoResponse(
 		@field:SerializedName("results")
 		val results: List<com.flyingsquirrels.starring.model.Video?>? = null
 ) : Parcelable {
-	constructor(parcel: Parcel) : this(parcel.createTypedArrayList(Video)) {
-	}
+	constructor(parcel: Parcel) : this(parcel.createTypedArrayList(Video))
 
 	override fun writeToParcel(parcel: Parcel, flags: Int) {
 		parcel.writeTypedList(results)
