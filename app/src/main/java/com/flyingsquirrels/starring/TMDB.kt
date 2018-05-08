@@ -35,7 +35,7 @@ interface TMDBRetrofitService {
     @Headers("Cache-Control: max-age=$MAX_AGE_SHORT")
     fun getUpcomingMovies(): Call<TMDBMovieResponse>
 
-    @GET("$MOVIE/{movieId}?append_to_response=credits%2Cvideos")
+    @GET("$MOVIE/{movieId}?append_to_response=credits%2Cvideos%2Cimages")
     @Headers("Cache-Control: max-age=$MAX_AGE_LONG")
     fun getMovieDetails(@Path("movieId") movieId:Int): Call<TMDBMovie>
 }

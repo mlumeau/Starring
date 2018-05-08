@@ -19,4 +19,6 @@
 
     <color name="grey600">#757575</color>
 
+    <color name="black_overlay">#66000000</color>
+
 </resources>

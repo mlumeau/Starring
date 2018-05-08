@@ -1,17 +1,12 @@
 package com.flyingsquirrels.starring
 
-import android.app.Dialog
-import android.app.DialogFragment
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.res.ColorStateList
-import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
-import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.content.ContextCompat
 import android.support.v4.view.ViewCompat
 import android.support.v7.app.AlertDialog
@@ -27,7 +22,6 @@ import com.flyingsquirrels.starring.model.CastItem
 import com.flyingsquirrels.starring.model.TMDBMovie
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_detail.*
-import kotlinx.android.synthetic.main.adapter_movies.view.*
 import kotlinx.android.synthetic.main.adapter_people.view.*
 import org.koin.android.ext.android.inject
 import retrofit2.Call
@@ -151,6 +145,24 @@ class DetailActivity : AppCompatActivity(){
         collapsing_toolbar.title = movie.title
         if(drawPosterOnCreate){
             setUpPoster()
+        }
+        mini_poster.setOnClickListener {
+
+            val extras = Bundle()
+
+            val b: Bitmap = (mini_poster.drawable as BitmapDrawable).bitmap
+            val bs = ByteArrayOutputStream()
+            b.compress(Bitmap.CompressFormat.JPEG, 50, bs)
+
+            val intent = Intent(DetailActivity@this, ImagesActivity::class.java)
+            extras.putByteArray(ImagesActivity.EXTRA_THUMBNAIL, bs.toByteArray())
+            extras.putStringArray(ImagesActivity.EXTRA_URL, movie.images?.posters?.filterNotNull()?.map{
+                TMDBMovie.POSTER_URL_LARGE + it.file_path
+            }?.toTypedArray())
+            extras.putString(ImagesActivity.EXTRA_TITLE,movie.title)
+            intent.putExtras(extras)
+
+            startActivity(intent)
         }
 
 

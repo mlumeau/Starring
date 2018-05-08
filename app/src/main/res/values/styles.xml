@@ -19,4 +19,12 @@
         <item name="android:textSize">18sp</item>
     </style>
 
+    <style name="AppTheme.Fullscreen" parent="AppTheme.Detail">
+        <item name="android:windowBackground">@null</item>
+        <item name="metaButtonBarStyle">?android:attr/buttonBarStyle</item>
+        <item name="metaButtonBarButtonStyle">?android:attr/buttonBarButtonStyle</item>
+        <item name="android:textColorPrimary">@android:color/white</item>
+        <item name="android:textColorSecondary">@android:color/white</item>
+    </style>
+
 </resources>

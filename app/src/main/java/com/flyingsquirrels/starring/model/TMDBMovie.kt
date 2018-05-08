@@ -83,7 +83,11 @@ data class TMDBMovie(
 		val homepage: String? = null,
 
 		@field:SerializedName("status")
-		val status: String? = null
+		val status: String? = null,
+
+        @field:SerializedName("images")
+        val images: Images? = null
+
 ) : Parcelable{
 
 	companion object CREATOR : Parcelable.Creator<TMDBMovie>{
@@ -125,7 +129,9 @@ data class TMDBMovie(
 			parcel.readString(),
 			parcel.readValue(Boolean::class.java.classLoader) as? Boolean,
 			parcel.readString(),
-			parcel.readString())
+			parcel.readString(),
+            parcel.readParcelable(Images::class.java.classLoader)
+            )
 
 	override fun writeToParcel(parcel: Parcel, flags: Int) {
 		parcel.writeString(originalLanguage)
@@ -154,6 +160,7 @@ data class TMDBMovie(
 		parcel.writeValue(adult)
 		parcel.writeString(homepage)
 		parcel.writeString(status)
+		parcel.writeParcelable(images, flags)
 	}
 
 	fun getDirectors() : List<CrewItem?>? {
