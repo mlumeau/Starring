@@ -93,6 +93,7 @@ data class TMDBMovie(
 	companion object CREATOR : Parcelable.Creator<TMDBMovie>{
 		const val POSTER_URL_THUMBNAIL = "https://image.tmdb.org/t/p/w300"
 		const val POSTER_URL_LARGE = "https://image.tmdb.org/t/p/w780"
+		const val POSTER_URL_ORIGINAL = "https://image.tmdb.org/t/p/original"
 
 		override fun createFromParcel(parcel: Parcel): TMDBMovie {
 			return TMDBMovie(parcel)

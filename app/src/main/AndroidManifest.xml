@@ -43,7 +43,7 @@
         </activity>
         <activity
             android:name=".ImagesActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:configChanges="keyboardHidden|uiMode"
             android:label="@string/title_activity_images"
             android:parentActivityName="fr.flyingsquirrels.starring.DetailActivity"
             android:theme="@style/AppTheme.Fullscreen" />

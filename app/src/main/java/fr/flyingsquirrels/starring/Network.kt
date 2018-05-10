@@ -30,7 +30,7 @@ val NetworkModule : Module = applicationContext{
                                     chain.request().url().newBuilder()
                                             .addQueryParameter("api_key", BuildConfig.api_key)
                                             .addQueryParameter("language", "${Locale.getDefault().language}-${Locale.getDefault().country}")
-                                            .addQueryParameter("include_image_language", Locale.getDefault().language)
+                                            .addQueryParameter("include_image_language", "${Locale.getDefault().language},null")
                                             .build()
                             ).build())
                 }).cache(Cache(this.androidApplication().cacheDir, CACHE_SIZE))

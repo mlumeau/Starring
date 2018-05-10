@@ -32,13 +32,13 @@
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
             <ImageView
-                android:id="@+id/poster"
+                android:id="@+id/backdrop"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginBottom="92dp"
-                android:contentDescription="@string/media_poster"
                 android:fitsSystemWindows="true"
                 android:scaleType="centerCrop"
+                android:contentDescription="@string/media_poster"
                 app:layout_collapseMode="parallax"
                 app:layout_collapseParallaxMultiplier="0.5"
                 tools:background="@color/colorPrimaryDark"
@@ -74,8 +74,9 @@
                 app:layout_collapseParallaxMultiplier="0.33">
 
                 <ImageView
-                    android:id="@+id/mini_poster"
+                    android:id="@+id/poster"
                     tools:src="@tools:sample/backgrounds/scenic"
+                    android:contentDescription="@string/media_poster"
                     android:scaleType="centerCrop"
                     android:elevation="4dp"
                     android:background="@color/colorAccent"
@@ -86,8 +87,8 @@
                     android:id="@+id/title_info_label"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_toEndOf="@+id/mini_poster"
-                    android:layout_alignBottom="@id/mini_poster"
+                    android:layout_toEndOf="@+id/poster"
+                    android:layout_alignBottom="@id/poster"
                     android:layout_marginStart="16dp"
                     android:layout_marginBottom="12dp"
                     android:textColor="@color/textLightSecondary"

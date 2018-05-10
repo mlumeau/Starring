@@ -1,36 +1,28 @@
 package fr.flyingsquirrels.starring
 
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.os.Handler
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
+import android.support.v4.view.ViewCompat
 import android.support.v4.view.ViewPager
 import android.support.v7.app.AppCompatActivity
+import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
+import android.view.animation.AccelerateDecelerateInterpolator
+import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_images.*
+import kotlinx.android.synthetic.main.fragment_image.*
+
+
 
 
 class ImagesActivity : AppCompatActivity() {
     private val mHideHandler = Handler()
-    private val mHidePart2Runnable = Runnable {
-        // Delayed removal of status and navigation bar
-
-        // Note that some of these constants are new as of API 16 (Jelly Bean)
-        // and API 19 (KitKat). It is safe to use them, as they are inlined
-        // at compile-time and do nothing on earlier devices.
-        images_viewpager.systemUiVisibility =
-                View.SYSTEM_UI_FLAG_LOW_PROFILE or
-                View.SYSTEM_UI_FLAG_FULLSCREEN or
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
-                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
-                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-    }
-    private val mShowPart2Runnable = Runnable {
-        // Delayed display of UI elements
-        fullscreen_content_controls.visibility = View.VISIBLE
-    }
     private var mVisible: Boolean = false
     private val mHideRunnable = Runnable { hide() }
     /**
@@ -49,6 +41,8 @@ class ImagesActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_images)
+
+        ViewCompat.setTransitionName(images_viewpager, EXTRA_IMAGE)
 
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayShowHomeEnabled(true)
@@ -95,25 +89,21 @@ class ImagesActivity : AppCompatActivity() {
 
     private fun hide() {
         // Hide UI first
-        supportActionBar?.hide()
+        hideActionBar()
         fullscreen_content_controls.visibility = View.GONE
         mVisible = false
 
-        // Schedule a runnable to remove the status and navigation bar after a delay
-        mHideHandler.removeCallbacks(mShowPart2Runnable)
-        mHideHandler.postDelayed(mHidePart2Runnable, UI_ANIMATION_DELAY.toLong())
+        window.decorView.systemUiVisibility =
+                View.SYSTEM_UI_FLAG_LOW_PROFILE
     }
 
     private fun show() {
-        // Show the system bar
-        images_viewpager.systemUiVisibility =
-                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
-                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
         mVisible = true
 
-        // Schedule a runnable to display UI elements after a delay
-        mHideHandler.removeCallbacks(mHidePart2Runnable)
-        mHideHandler.postDelayed(mShowPart2Runnable, UI_ANIMATION_DELAY.toLong())
+        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
+
+        showActionBar()
+        fullscreen_content_controls.visibility = View.VISIBLE
     }
 
     /**
@@ -123,6 +113,26 @@ class ImagesActivity : AppCompatActivity() {
     private fun delayedHide(delayMillis: Int) {
         mHideHandler.removeCallbacks(mHideRunnable)
         mHideHandler.postDelayed(mHideRunnable, delayMillis.toLong())
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+        // Respond to the action bar's Up/Home button
+            android.R.id.home -> {
+                prepareFinish()
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    override fun onBackPressed() {
+        prepareFinish()
+    }
+
+    private fun prepareFinish() {
+        supportActionBar?.setDisplayHomeAsUpEnabled(false)
+        supportFinishAfterTransition()
     }
 
     companion object {
@@ -138,30 +148,105 @@ class ImagesActivity : AppCompatActivity() {
          */
         private val AUTO_HIDE_DELAY_MILLIS = 3000
 
-        /**
-         * Some older devices needs a small delay between UI widget updates
-         * and a change of the status and navigation bar.
-         */
-        private val UI_ANIMATION_DELAY = 300
-
-
         const val EXTRA_THUMBNAIL = "thumbnail"
         const val EXTRA_URL = "url"
         const val EXTRA_TITLE = "title"
+        const val EXTRA_IMAGE = "image"
     }
-}
+
+    class ImagesAdapter( fragmentManager: FragmentManager, private val images: Array<String>, private val thumbnail: ByteArray) : FragmentPagerAdapter(fragmentManager) {
+        override fun getItem(position: Int): Fragment {
+            return if(position==0){
+                ImageFragment.newInstance(images[0],thumbnail)
+            }else{
+                ImageFragment.newInstance(images[position], null)
+            }
+        }
+
+        override fun getCount() = images.size
+
+    }
 
 
-class ImagesAdapter( fragmentManager: FragmentManager, private val images: Array<String>, private val thumbnail: ByteArray) : FragmentPagerAdapter(fragmentManager) {
-    override fun getItem(position: Int): Fragment {
-        return if(position==0){
-            ImageFragment.newInstance(images[0],thumbnail)
-        }else{
-            ImageFragment.newInstance(images[position], null)
+    class ImageFragment : Fragment() {
+        private var type: String? = null
+        private var url: String? = null
+        private var thumbnail: ByteArray? = null
+
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+            arguments?.let {
+                url = it.getString(EXTRA_URL)
+                thumbnail = it.getByteArray(EXTRA_THUMBNAIL)
+            }
+        }
+
+        override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                                  savedInstanceState: Bundle?): View? {
+            // Inflate the layout for this fragment
+            return inflater.inflate(R.layout.fragment_image, container, false)
+        }
+
+        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+            super.onViewCreated(view, savedInstanceState)
+
+            thumbnail?.let {
+                val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
+                image.setImageBitmap(bitmap)
+            }
+            Picasso.with(context).load(url).fit().centerInside().placeholder(image.drawable).into(image)
+
+            image.setOnPhotoTapListener({ _,_,_ ->
+                (activity as ImagesActivity).toggle()
+            })
+        }
+
+        companion object {
+            @JvmStatic
+            fun newInstance(url: String, thumbnail: ByteArray?) =
+                    ImageFragment().apply {
+                        arguments = Bundle().apply {
+                            putString(EXTRA_URL, url)
+                            putByteArray(EXTRA_THUMBNAIL, thumbnail)
+                        }
+                    }
+
+            const val EXTRA_URL = "url"
+            const val EXTRA_THUMBNAIL = "thumbnail"
         }
     }
 
+    private fun hideActionBar() {
+        val ab = supportActionBar
+        if (ab != null && ab.isShowing) {
+            if (toolbar != null) {
+                toolbar.animate()
+                        .translationY(-112f)
+                        .setDuration(200L)
+                        .setInterpolator(AccelerateDecelerateInterpolator())
+                        .withEndAction({ ab.hide() })
+                        .start()
+            } else {
+                ab.hide()
+            }
+        }
+    }
 
-    override fun getCount() = images.size
+    private fun showActionBar() {
+        val ab = supportActionBar
+        if (ab != null && !ab.isShowing) {
+            ab.show()
+            if (toolbar != null) {
+                toolbar.animate()
+                        .translationY(0f)
+                        .setDuration(200L)
+                        .setInterpolator(AccelerateDecelerateInterpolator())
+                        .start()
+            }
+        }
+    }
 
 }
+
+
+

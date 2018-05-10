@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
+import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.content.ContextCompat
 import android.support.v4.view.ViewCompat
 import android.support.v7.app.AlertDialog
@@ -18,6 +19,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.ImageView
 import com.squareup.picasso.Picasso
 import fr.flyingsquirrels.starring.model.CastItem
 import fr.flyingsquirrels.starring.model.TMDBMovie
@@ -55,7 +57,7 @@ class DetailActivity : AppCompatActivity(){
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_detail)
 
-        ViewCompat.setTransitionName(mini_poster, EXTRA_IMAGE)
+        ViewCompat.setTransitionName(poster, EXTRA_IMAGE)
 
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -63,7 +65,7 @@ class DetailActivity : AppCompatActivity(){
 
         intent.extras.getByteArray(EXTRA_THUMBNAIL)?.let {
             val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
-            mini_poster.setImageBitmap(bitmap)
+            poster.setImageBitmap(bitmap)
             Palette.from(bitmap).generate({
 
                 val dominantColor = it.getDominantColor(ContextCompat.getColor(this,R.color.colorPrimary))
@@ -129,8 +131,8 @@ class DetailActivity : AppCompatActivity(){
     }
 
     private fun setUpPoster() {
-        Picasso.with(this).load(TMDBMovie.POSTER_URL_THUMBNAIL + posterPath).placeholder(mini_poster.drawable).fit().centerCrop().into(mini_poster)
-        Picasso.with(this).load(TMDBMovie.POSTER_URL_LARGE + backdropPath).fit().centerCrop().into(poster)
+        Picasso.with(this).load(TMDBMovie.POSTER_URL_THUMBNAIL + posterPath).placeholder(poster.drawable).fit().centerCrop().into(poster)
+        Picasso.with(this).load(TMDBMovie.POSTER_URL_LARGE + backdropPath).fit().centerCrop().into(backdrop)
 
     }
 
@@ -146,23 +148,11 @@ class DetailActivity : AppCompatActivity(){
         if(drawPosterOnCreate){
             setUpPoster()
         }
-        mini_poster.setOnClickListener {
-
-            val extras = Bundle()
-
-            val b: Bitmap = (mini_poster.drawable as BitmapDrawable).bitmap
-            val bs = ByteArrayOutputStream()
-            b.compress(Bitmap.CompressFormat.JPEG, 50, bs)
-
-            val intent = Intent(DetailActivity@this, ImagesActivity::class.java)
-            extras.putByteArray(ImagesActivity.EXTRA_THUMBNAIL, bs.toByteArray())
-            extras.putStringArray(ImagesActivity.EXTRA_URL, movie.images?.posters?.filterNotNull()?.map{
-                TMDBMovie.POSTER_URL_LARGE + it.file_path
-            }?.toTypedArray())
-            extras.putString(ImagesActivity.EXTRA_TITLE,movie.title)
-            intent.putExtras(extras)
-
-            startActivity(intent)
+        poster.setOnClickListener { view ->
+            viewImages(view as ImageView, movie)
+        }
+        backdrop.setOnClickListener { view ->
+            viewImages(view as ImageView, movie)
         }
 
 
@@ -293,6 +283,28 @@ class DetailActivity : AppCompatActivity(){
         }else{
             trailer.visibility = View.GONE
         }
+    }
+
+    private fun viewImages(view: ImageView, movie: TMDBMovie) {
+        view.transitionName = ImagesActivity.EXTRA_IMAGE
+
+        val extras = Bundle()
+
+        val b: Bitmap = (view.drawable as BitmapDrawable).bitmap
+        val bs = ByteArrayOutputStream()
+        b.compress(Bitmap.CompressFormat.JPEG, 50, bs)
+
+        val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, view, EXTRA_IMAGE).toBundle()
+
+        val intent = Intent(DetailActivity@ this, ImagesActivity::class.java)
+        extras.putByteArray(ImagesActivity.EXTRA_THUMBNAIL, bs.toByteArray())
+        extras.putString(ImagesActivity.EXTRA_TITLE, movie.title)
+        extras.putStringArray(ImagesActivity.EXTRA_URL, (if(view == backdrop) movie.images?.backdrops else movie.images?.posters)?.filterNotNull()?.map {
+            TMDBMovie.POSTER_URL_ORIGINAL + it.file_path
+        }?.toTypedArray())
+        intent.putExtras(extras)
+
+        startActivity(intent,options)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
