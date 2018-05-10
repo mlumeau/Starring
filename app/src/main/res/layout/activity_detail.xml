@@ -17,7 +17,7 @@
         android:background="@color/colorPrimary"
         android:clipToPadding="false"
         android:elevation="4dp"
-        app:layout_behavior="com.flyingsquirrels.starring.utils.FixAppBarLayoutBehavior">
+        app:layout_behavior="fr.flyingsquirrels.starring.utils.FixAppBarLayoutBehavior">
 
         <android.support.design.widget.CollapsingToolbarLayout
             android:id="@+id/collapsing_toolbar"
