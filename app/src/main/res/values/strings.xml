@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">Starring</string>
-    <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="movies">Movies</string>
+    <string name="tv_shows">TV shows</string>
+    <string name="people">People</string>
     <string name="popular">Popular</string>
     <string name="top_rated">Top rated</string>
     <string name="now_playing">Now playing</string>

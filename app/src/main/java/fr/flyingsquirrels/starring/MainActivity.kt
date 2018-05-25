@@ -2,12 +2,15 @@ package fr.flyingsquirrels.starring
 
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.PorterDuff
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
+import android.support.design.widget.TabLayout
 import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentStatePagerAdapter
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -28,6 +31,8 @@ import retrofit2.Response
 import java.io.ByteArrayOutputStream
 
 
+
+
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,6 +41,30 @@ class MainActivity : AppCompatActivity() {
 
         view_pager.adapter = MoviesPagerAdapter(supportFragmentManager)
         tab_layout.setupWithViewPager(view_pager)
+        tab_layout.addOnTabSelectedListener(
+                object : TabLayout.ViewPagerOnTabSelectedListener(view_pager) {
+
+                    override fun onTabSelected(tab: TabLayout.Tab) {
+                        super.onTabSelected(tab)
+                        if(tab.position==0){
+                            val ta = this@MainActivity.obtainStyledAttributes(kotlin.intArrayOf(R.attr.tabSelectedTextColor))
+                            val selectedColor = ta.getResourceId(0, android.R.color.black)
+                            ta.recycle()
+                            tab.icon?.setColorFilter(ContextCompat.getColor(this@MainActivity, selectedColor), PorterDuff.Mode.SRC_IN)
+                        }
+                    }
+
+                    override fun onTabUnselected(tab: TabLayout.Tab?) {
+                        super.onTabUnselected(tab)
+                        if(tab?.position ==0) {
+                            tab.icon?.setColorFilter(ContextCompat.getColor(this@MainActivity, R.color.grey600), PorterDuff.Mode.SRC_IN)
+                        }
+                    }
+                }
+        )
+
+        tab_layout.getTabAt(0)?.icon = getDrawable(R.drawable.ic_star_black_24dp)
+        view_pager.currentItem = 1
 
     }
 
@@ -43,13 +72,12 @@ class MainActivity : AppCompatActivity() {
         override fun getItem(position: Int): Fragment {
 
             val args = Bundle()
-            lateinit var type:String
-
-            when(position){
-                0 -> type= TMDBMovieResponse.NOW_PLAYING
-                1 -> type=TMDBMovieResponse.UPCOMING
-                2 -> type=TMDBMovieResponse.POPULAR
-                3 -> type=TMDBMovieResponse.TOP_RATED
+            val type = when(position){
+                1 -> TMDBMovieResponse.NOW_PLAYING
+                2 -> TMDBMovieResponse.UPCOMING
+                3 -> TMDBMovieResponse.POPULAR
+                4 -> TMDBMovieResponse.TOP_RATED
+                else -> null
             }
 
             args.putString(MediaListFragment.TYPE_KEY,type)
@@ -57,14 +85,16 @@ class MainActivity : AppCompatActivity() {
             return MediaListFragment.newInstance(args)
         }
 
-        override fun getCount() = 4
+        override fun getCount() = 5
 
-        override fun getPageTitle(position: Int) = when(position){
-            0 -> this@MainActivity.getString(R.string.now_playing)
-            1 -> this@MainActivity.getString(R.string.upcoming)
-            2 -> this@MainActivity.getString(R.string.popular)
-            3 -> this@MainActivity.getString(R.string.top_rated)
-            else -> ""
+        override fun getPageTitle(position: Int): String {
+            return when(position){
+                1 -> this@MainActivity.getString(R.string.now_playing)
+                2 -> this@MainActivity.getString(R.string.upcoming)
+                3 -> this@MainActivity.getString(R.string.popular)
+                4 -> this@MainActivity.getString(R.string.top_rated)
+                else -> ""
+            }
         }
     }
 
@@ -121,41 +151,48 @@ class MediaListFragment : Fragment() {
             grid.spanCount = spanCount
         })
 
-        val movieListRequest:Call<TMDBMovieResponse>? = when(type){
-            TMDBMovieResponse.POPULAR -> tmdb.getPopularMovies()
-            TMDBMovieResponse.TOP_RATED -> tmdb.getTopRatedMovies()
-            TMDBMovieResponse.NOW_PLAYING -> tmdb.getNowPlayingMovies()
-            TMDBMovieResponse.UPCOMING -> tmdb.getUpcomingMovies()
-            else->null
-        }
+        if(type!=null) {
 
-
-        val requestCallback = object : Callback<TMDBMovieResponse> {
-            override fun onFailure(call: Call<TMDBMovieResponse>?, t: Throwable?) {
-                Log.e("", "error", t)
-                finishLoading()
+            val movieListRequest: Call<TMDBMovieResponse>? = when (type) {
+                TMDBMovieResponse.POPULAR -> tmdb.getPopularMovies()
+                TMDBMovieResponse.TOP_RATED -> tmdb.getTopRatedMovies()
+                TMDBMovieResponse.NOW_PLAYING -> tmdb.getNowPlayingMovies()
+                TMDBMovieResponse.UPCOMING -> tmdb.getUpcomingMovies()
+                else -> null
             }
 
-            override fun onResponse(call: Call<TMDBMovieResponse>?, response: Response<TMDBMovieResponse>?) {
-                if (response != null) {
-                    val tmdbResponse = response.body()
-                    list?.adapter = tmdbResponse?.results?.let { FilmsAdapter(it) }
+
+            val requestCallback = object : Callback<TMDBMovieResponse> {
+                override fun onFailure(call: Call<TMDBMovieResponse>?, t: Throwable?) {
+                    Log.e("", "error", t)
                     finishLoading()
                 }
+
+                override fun onResponse(call: Call<TMDBMovieResponse>?, response: Response<TMDBMovieResponse>?) {
+                    if (response != null) {
+                        val tmdbResponse = response.body()
+                        list?.adapter = tmdbResponse?.results?.let { FilmsAdapter(it) }
+                        finishLoading()
+                    }
+                }
+
+                private fun finishLoading() {
+                    swipe_refresh?.isRefreshing = false
+                    loading?.visibility = View.GONE
+                }
+
+
             }
 
-            private fun finishLoading() {
-                swipe_refresh?.isRefreshing = false
-                loading?.visibility = View.GONE
-            }
+            swipe_refresh.setOnRefreshListener { movieListRequest?.clone()?.enqueue(requestCallback) }
 
+            movieListRequest?.enqueue(requestCallback)
 
+            loading.visibility = View.VISIBLE
+        }else{
+            //todo: load favourite movies or display "No favs yet"
         }
 
-        swipe_refresh.setOnRefreshListener { movieListRequest?.clone()?.enqueue(requestCallback) }
-
-        movieListRequest?.enqueue(requestCallback)
-        loading.visibility = View.VISIBLE
 
     }
 

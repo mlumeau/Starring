@@ -5,7 +5,7 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.flyingsquirrels.starring.MainActivity">
+    tools:context="fr.flyingsquirrels.starring.MainActivity">
 
     <android.support.v4.view.ViewPager
         android:id="@+id/view_pager"
@@ -20,6 +20,13 @@
             android:elevation="8dp"/>
 
     </android.support.v4.view.ViewPager>
+
+    <android.support.design.widget.BottomNavigationView
+        android:background="?android:attr/colorBackground"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:menu="@menu/navigation"/>
 
 
 </android.support.constraint.ConstraintLayout>
