@@ -4,20 +4,20 @@ import android.os.Parcel
 import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
 
-data class TMDBMovieResponse(
-
-
+data class TMDBTVShowResponse(
         @SerializedName("page")
         val page: Int? = null,
 
         @SerializedName("results")
-        val results: List<TMDBMovie>
+        val results: List<TMDBTVShow?>? = null
 
-) : Parcelable {
+) : Parcelable{
+
     constructor(parcel: Parcel) : this(
             parcel.readInt(),
-            parcel.createTypedArrayList(TMDBMovie)
+            parcel.createTypedArrayList(TMDBTVShow)
     )
+
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeValue(page)
@@ -28,18 +28,18 @@ data class TMDBMovieResponse(
         return 0
     }
 
-    companion object CREATOR : Parcelable.Creator<TMDBTVShowResponse> {
-        override fun createFromParcel(parcel: Parcel): TMDBTVShowResponse {
-            return TMDBTVShowResponse(parcel)
+    companion object CREATOR : Parcelable.Creator<TMDBMovieResponse> {
+        override fun createFromParcel(parcel: Parcel): TMDBMovieResponse {
+            return TMDBMovieResponse(parcel)
         }
 
-        override fun newArray(size: Int): Array<TMDBTVShowResponse?> {
+        override fun newArray(size: Int): Array<TMDBMovieResponse?> {
             return arrayOfNulls(size)
         }
 
         const val TOP_RATED= "top_rated"
         const val POPULAR= "popular"
-        const val NOW_PLAYING= "now_playing"
-        const val UPCOMING= "upcoming"
+        const val ON_THE_AIR= "on_the_air"
+        const val AIRING_TODAY= "airing_today"
     }
 }

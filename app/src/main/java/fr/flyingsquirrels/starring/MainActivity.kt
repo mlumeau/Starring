@@ -23,6 +23,7 @@ import com.squareup.picasso.Picasso
 import fr.flyingsquirrels.starring.db.StarringDB
 import fr.flyingsquirrels.starring.model.TMDBMovie
 import fr.flyingsquirrels.starring.model.TMDBMovieResponse
+import fr.flyingsquirrels.starring.model.TMDBTVShowResponse
 import fr.flyingsquirrels.starring.network.TMDBRetrofitService
 import fr.flyingsquirrels.starring.utils.TMDBMovieDiffCallback
 import io.reactivex.disposables.Disposable
@@ -94,6 +95,36 @@ class MainActivity : AppCompatActivity() {
             return when(position){
                 1 -> this@MainActivity.getString(R.string.now_playing)
                 2 -> this@MainActivity.getString(R.string.upcoming)
+                3 -> this@MainActivity.getString(R.string.popular)
+                4 -> this@MainActivity.getString(R.string.top_rated)
+                else -> ""
+            }
+        }
+    }
+
+    inner class TVShowsPagerAdapter(fm: FragmentManager): FragmentStatePagerAdapter(fm){
+        override fun getItem(position: Int): Fragment {
+
+            val args = Bundle()
+            val type = when(position){
+                1 -> TMDBTVShowResponse.AIRING_TODAY
+                2 -> TMDBTVShowResponse.ON_THE_AIR
+                3 -> TMDBMovieResponse.POPULAR
+                4 -> TMDBMovieResponse.TOP_RATED
+                else -> null
+            }
+
+            args.putString(MediaListFragment.TYPE_KEY,type)
+
+            return MediaListFragment.newInstance(args)
+        }
+
+        override fun getCount() = 5
+
+        override fun getPageTitle(position: Int): String {
+            return when(position){
+                1 -> this@MainActivity.getString(R.string.airing_today)
+                2 -> this@MainActivity.getString(R.string.on_the_air)
                 3 -> this@MainActivity.getString(R.string.popular)
                 4 -> this@MainActivity.getString(R.string.top_rated)
                 else -> ""
