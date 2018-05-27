@@ -1,175 +1,180 @@
 package fr.flyingsquirrels.starring.model
 
 
+import android.arch.persistence.room.Entity
+import android.arch.persistence.room.Ignore
+import android.arch.persistence.room.PrimaryKey
 import android.os.Parcel
 import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
 
+@Entity
 data class TMDBMovie(
 
-		@field:SerializedName("original_language")
-		val originalLanguage: String? = null,
+        @field:SerializedName("original_language")
+        var originalLanguage: String? = null,
 
-		@field:SerializedName("imdb_id")
-		val imdbId: String? = null,
+        @field:SerializedName("imdb_id")
+        var imdbId: String? = null,
 
-		@field:SerializedName("videos")
-		val videos: VideoResponse? = null,
+        @field:SerializedName("videos")
+        var videos: VideoResponse? = null,
 
-		@field:SerializedName("video")
-		val video: Boolean? = null,
+        @field:SerializedName("video")
+        var video: Boolean? = null,
 
-		@field:SerializedName("title")
-		val title: String? = null,
+        @field:SerializedName("title")
+        var title: String? = null,
 
-		@field:SerializedName("backdrop_path")
-		val backdropPath: String? = null,
+        @field:SerializedName("backdrop_path")
+        var backdropPath: String? = null,
 
-		@field:SerializedName("revenue")
-		val revenue: Int? = null,
+        @field:SerializedName("revenue")
+        var revenue: Int? = null,
 
-		@field:SerializedName("credits")
-		val credits: Credits? = null,
+        @field:SerializedName("credits")
+        var credits: Credits? = null,
 
-		@field:SerializedName("genres")
-		val genres: List<GenresItem?>? = null,
+        @field:SerializedName("genres")
+        var genres: List<GenresItem?>? = null,
 
-		@field:SerializedName("popularity")
-		val popularity: Double? = null,
+        @field:SerializedName("popularity")
+        var popularity: Double? = null,
 
-		@field:SerializedName("production_countries")
-		val productionCountries: List<ProductionCountriesItem?>? = null,
+        @field:SerializedName("production_countries")
+        var productionCountries: List<ProductionCountriesItem?>? = null,
 
-		@field:SerializedName("id")
-		val id: Int? = null,
+        @PrimaryKey
+        @field:SerializedName("id")
+        var id: Int? = null,
 
-		@field:SerializedName("vote_count")
-		val voteCount: Int? = null,
+        @field:SerializedName("vote_count")
+        var voteCount: Int? = null,
 
-		@field:SerializedName("budget")
-		val budget: Int? = null,
+        @field:SerializedName("budget")
+        var budget: Int? = null,
 
-		@field:SerializedName("overview")
-		val overview: String? = null,
+        @field:SerializedName("overview")
+        var overview: String? = null,
 
-		@field:SerializedName("original_title")
-		val originalTitle: String? = null,
+        @field:SerializedName("original_title")
+        var originalTitle: String? = null,
 
-		@field:SerializedName("runtime")
-		val runtime: Int? = null,
+        @field:SerializedName("runtime")
+        var runtime: Int? = null,
 
-		@field:SerializedName("poster_path")
-		val posterPath: String? = null,
+        @field:SerializedName("poster_path")
+        var posterPath: String? = null,
 
-		@field:SerializedName("spoken_languages")
-		val spokenLanguages: List<SpokenLanguagesItem?>? = null,
+        @field:SerializedName("spoken_languages")
+        var spokenLanguages: List<SpokenLanguagesItem?>? = null,
 
-		@field:SerializedName("production_companies")
-		val productionCompanies: List<ProductionCompaniesItem?>? = null,
+        @field:SerializedName("production_companies")
+        var productionCompanies: List<ProductionCompaniesItem?>? = null,
 
-		@field:SerializedName("release_date")
-		val releaseDate: String? = null,
+        @field:SerializedName("release_date")
+        var releaseDate: String? = null,
 
-		@field:SerializedName("vote_average")
-		val voteAverage: Double? = null,
+        @field:SerializedName("vote_average")
+        var voteAverage: Double? = null,
 
-		@field:SerializedName("tagline")
-		val tagline: String? = null,
+        @field:SerializedName("tagline")
+        var tagline: String? = null,
 
-		@field:SerializedName("adult")
-		val adult: Boolean? = null,
+        @field:SerializedName("adult")
+        var adult: Boolean? = null,
 
-		@field:SerializedName("homepage")
-		val homepage: String? = null,
+        @field:SerializedName("homepage")
+        var homepage: String? = null,
 
-		@field:SerializedName("status")
-		val status: String? = null,
+        @field:SerializedName("status")
+        var status: String? = null,
 
         @field:SerializedName("images")
-        val images: Images? = null
+        var images: Images? = null
 
 ) : Parcelable{
 
-	companion object CREATOR : Parcelable.Creator<TMDBMovie>{
-		const val POSTER_URL_THUMBNAIL = "https://image.tmdb.org/t/p/w300"
-		const val POSTER_URL_LARGE = "https://image.tmdb.org/t/p/w780"
-		const val POSTER_URL_ORIGINAL = "https://image.tmdb.org/t/p/original"
+    companion object CREATOR : Parcelable.Creator<TMDBMovie>{
+        const val POSTER_URL_THUMBNAIL = "https://image.tmdb.org/t/p/w300"
+        const val POSTER_URL_LARGE = "https://image.tmdb.org/t/p/w780"
+        const val POSTER_URL_ORIGINAL = "https://image.tmdb.org/t/p/original"
 
-		override fun createFromParcel(parcel: Parcel): TMDBMovie {
-			return TMDBMovie(parcel)
-		}
+        override fun createFromParcel(parcel: Parcel): TMDBMovie {
+            return TMDBMovie(parcel)
+        }
 
-		override fun newArray(size: Int): Array<TMDBMovie?> {
-			return arrayOfNulls(size)
-		}
-	}
-
-	constructor(parcel: Parcel) : this(
-			parcel.readString(),
-			parcel.readString(),
-			parcel.readParcelable(VideoResponse::class.java.classLoader),
-			parcel.readValue(Boolean::class.java.classLoader) as? Boolean,
-			parcel.readString(),
-			parcel.readString(),
-			parcel.readValue(Int::class.java.classLoader) as? Int,
-			parcel.readParcelable(Credits::class.java.classLoader),
-			parcel.createTypedArrayList(GenresItem),
-			parcel.readValue(Double::class.java.classLoader) as? Double,
-			parcel.createTypedArrayList(ProductionCountriesItem),
-			parcel.readValue(Int::class.java.classLoader) as? Int,
-			parcel.readValue(Int::class.java.classLoader) as? Int,
-			parcel.readValue(Int::class.java.classLoader) as? Int,
-			parcel.readString(),
-			parcel.readString(),
-			parcel.readValue(Int::class.java.classLoader) as? Int,
-			parcel.readString(),
-			parcel.createTypedArrayList(SpokenLanguagesItem),
-			parcel.createTypedArrayList(ProductionCompaniesItem),
-			parcel.readString(),
-			parcel.readValue(Double::class.java.classLoader) as? Double,
-			parcel.readString(),
-			parcel.readValue(Boolean::class.java.classLoader) as? Boolean,
-			parcel.readString(),
-			parcel.readString(),
+        override fun newArray(size: Int): Array<TMDBMovie?> {
+            return arrayOfNulls(size)
+        }
+    }
+    @Ignore
+    constructor(parcel: Parcel) : this(
+            parcel.readString(),
+            parcel.readString(),
+            parcel.readParcelable(VideoResponse::class.java.classLoader),
+            parcel.readValue(Boolean::class.java.classLoader) as? Boolean,
+            parcel.readString(),
+            parcel.readString(),
+            parcel.readValue(Int::class.java.classLoader) as? Int,
+            parcel.readParcelable(Credits::class.java.classLoader),
+            parcel.createTypedArrayList(GenresItem),
+            parcel.readValue(Double::class.java.classLoader) as? Double,
+            parcel.createTypedArrayList(ProductionCountriesItem),
+            parcel.readValue(Int::class.java.classLoader) as? Int,
+            parcel.readValue(Int::class.java.classLoader) as? Int,
+            parcel.readValue(Int::class.java.classLoader) as? Int,
+            parcel.readString(),
+            parcel.readString(),
+            parcel.readValue(Int::class.java.classLoader) as? Int,
+            parcel.readString(),
+            parcel.createTypedArrayList(SpokenLanguagesItem),
+            parcel.createTypedArrayList(ProductionCompaniesItem),
+            parcel.readString(),
+            parcel.readValue(Double::class.java.classLoader) as? Double,
+            parcel.readString(),
+            parcel.readValue(Boolean::class.java.classLoader) as? Boolean,
+            parcel.readString(),
+            parcel.readString(),
             parcel.readParcelable(Images::class.java.classLoader)
-            )
+    )
 
-	override fun writeToParcel(parcel: Parcel, flags: Int) {
-		parcel.writeString(originalLanguage)
-		parcel.writeString(imdbId)
-		parcel.writeParcelable(videos, flags)
-		parcel.writeValue(video)
-		parcel.writeString(title)
-		parcel.writeString(backdropPath)
-		parcel.writeValue(revenue)
-		parcel.writeParcelable(credits, flags)
-		parcel.writeTypedList(genres)
-		parcel.writeValue(popularity)
-		parcel.writeTypedList(productionCountries)
-		parcel.writeValue(id)
-		parcel.writeValue(voteCount)
-		parcel.writeValue(budget)
-		parcel.writeString(overview)
-		parcel.writeString(originalTitle)
-		parcel.writeValue(runtime)
-		parcel.writeString(posterPath)
-		parcel.writeTypedList(spokenLanguages)
-		parcel.writeTypedList(productionCompanies)
-		parcel.writeString(releaseDate)
-		parcel.writeValue(voteAverage)
-		parcel.writeString(tagline)
-		parcel.writeValue(adult)
-		parcel.writeString(homepage)
-		parcel.writeString(status)
-		parcel.writeParcelable(images, flags)
-	}
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(originalLanguage)
+        parcel.writeString(imdbId)
+        parcel.writeParcelable(videos, flags)
+        parcel.writeValue(video)
+        parcel.writeString(title)
+        parcel.writeString(backdropPath)
+        parcel.writeValue(revenue)
+        parcel.writeParcelable(credits, flags)
+        parcel.writeTypedList(genres)
+        parcel.writeValue(popularity)
+        parcel.writeTypedList(productionCountries)
+        parcel.writeValue(id)
+        parcel.writeValue(voteCount)
+        parcel.writeValue(budget)
+        parcel.writeString(overview)
+        parcel.writeString(originalTitle)
+        parcel.writeValue(runtime)
+        parcel.writeString(posterPath)
+        parcel.writeTypedList(spokenLanguages)
+        parcel.writeTypedList(productionCompanies)
+        parcel.writeString(releaseDate)
+        parcel.writeValue(voteAverage)
+        parcel.writeString(tagline)
+        parcel.writeValue(adult)
+        parcel.writeString(homepage)
+        parcel.writeString(status)
+        parcel.writeParcelable(images, flags)
+    }
 
-	fun getDirectors() : List<CrewItem?>? {
-		return credits?.crew?.filter { it?.job == "Director" }
-	}
+    fun getDirectors() : List<CrewItem?>? {
+        return credits?.crew?.filter { it?.job == "Director" }
+    }
 
-	override fun describeContents(): Int {
-		return 0
-	}
+    override fun describeContents(): Int {
+        return 0
+    }
 
 }

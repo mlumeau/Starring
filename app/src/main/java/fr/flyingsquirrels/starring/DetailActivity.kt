@@ -21,8 +21,11 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ImageView
 import com.squareup.picasso.Picasso
+import fr.flyingsquirrels.starring.db.StarringDB
 import fr.flyingsquirrels.starring.model.CastItem
 import fr.flyingsquirrels.starring.model.TMDBMovie
+import fr.flyingsquirrels.starring.network.TMDBRetrofitService
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_detail.*
 import kotlinx.android.synthetic.main.adapter_people.view.*
 import org.koin.android.ext.android.inject
@@ -36,7 +39,7 @@ import java.io.ByteArrayOutputStream
  * Created by mlumeau on 02/03/2018.
  */
 
-class DetailActivity : AppCompatActivity(){
+class DetailActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_IMAGE = "image"
@@ -48,10 +51,12 @@ class DetailActivity : AppCompatActivity(){
     }
 
     val tmdb: TMDBRetrofitService by inject()
-    private var posterPath:String = ""
-    private var backdropPath:String = ""
-    private var drawPosterOnCreate = false
+    val starringDB: StarringDB by inject()
 
+    private var posterPath: String = ""
+    private var backdropPath: String = ""
+    private var drawPosterOnCreate = false
+    private var isInFavorites = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,10 +73,10 @@ class DetailActivity : AppCompatActivity(){
             poster.setImageBitmap(bitmap)
             Palette.from(bitmap).generate({
 
-                val dominantColor = it.getDominantColor(ContextCompat.getColor(this,R.color.colorPrimary))
-                val mutedColor = it.getMutedColor(ContextCompat.getColor(this,R.color.colorPrimary))
-                val vibrantColor = it.getVibrantColor(ContextCompat.getColor(this,R.color.colorAccent))
-                val lightVibrantColor = it.getLightVibrantColor(ContextCompat.getColor(this,R.color.colorAccent))
+                val dominantColor = it.getDominantColor(ContextCompat.getColor(this, R.color.colorPrimary))
+                val mutedColor = it.getMutedColor(ContextCompat.getColor(this, R.color.colorPrimary))
+                val vibrantColor = it.getVibrantColor(ContextCompat.getColor(this, R.color.colorAccent))
+                val lightVibrantColor = it.getLightVibrantColor(ContextCompat.getColor(this, R.color.colorAccent))
 
                 collapsing_toolbar.setBackgroundColor(dominantColor)
                 collapsing_toolbar.setContentScrimColor(mutedColor)
@@ -87,17 +92,25 @@ class DetailActivity : AppCompatActivity(){
 
 
 
-        if(savedInstanceState?.getBoolean(DRAW_POSTER_ON_CREATE) != null) {
+        if (savedInstanceState?.getBoolean(DRAW_POSTER_ON_CREATE) != null) {
             drawPosterOnCreate = savedInstanceState.getBoolean(DRAW_POSTER_ON_CREATE)
         }
 
 
-        when(intent.extras?.getString(EXTRA_MEDIA_TYPE)){
-            EXTRA_MOVIE ->{
-                var movie: TMDBMovie? = intent.extras.getParcelable(EXTRA_MOVIE)
-                movie?.let {intentMovie ->
+        when (intent.extras?.getString(EXTRA_MEDIA_TYPE)) {
+            EXTRA_MOVIE -> {
+                val movie: TMDBMovie? = intent.extras.getParcelable(EXTRA_MOVIE)
+                movie?.let { intentMovie ->
                     bindMovie(intentMovie)
 
+                    Schedulers.io().scheduleDirect({
+                        starringDB.favoritesDao().getFavoriteMovieWithId(intentMovie.id).subscribe({
+                            runOnUiThread {
+                                isInFavorites = true
+                                fab.setImageDrawable(getDrawable(R.drawable.ic_star_black_24dp))
+                            }
+                        })
+                    })
                     intentMovie.id?.let { id ->
                         tmdb.getMovieDetails(id).enqueue(object : Callback<TMDBMovie> {
                             override fun onFailure(call: Call<TMDBMovie>?, t: Throwable?) {
@@ -105,17 +118,19 @@ class DetailActivity : AppCompatActivity(){
                             }
 
                             override fun onResponse(call: Call<TMDBMovie>?, response: Response<TMDBMovie>?) {
-                                response?.body()?.let{responseMovie ->
-                                    movie = responseMovie
+                                response?.body()?.let { responseMovie ->
                                     bindMovie(responseMovie)
                                 }
                             }
                         })
+
                     }
+
 
                 }
 
             }
+
         }
 
         appbar.addOnOffsetChangedListener({ appBarLayout, verticalOffset ->
@@ -135,7 +150,6 @@ class DetailActivity : AppCompatActivity(){
         Picasso.with(this).load(TMDBMovie.POSTER_URL_LARGE + backdropPath).fit().centerCrop().into(backdrop)
 
     }
-
 
     private fun bindMovie(movie: TMDBMovie){
 
@@ -177,7 +191,7 @@ class DetailActivity : AppCompatActivity(){
 
         title_info_label.text = info
 
-        
+
         //Directors
         var directedByString:String? = null
         movie.getDirectors()?.forEachIndexed { i, director ->
@@ -195,7 +209,7 @@ class DetailActivity : AppCompatActivity(){
             directed_by.visibility = View.VISIBLE
             directed_by_label.text = directedByString
         }
-        
+
         //Countries
         var countriesString:String? = null
         movie.productionCountries?.forEachIndexed { i, country ->
@@ -213,7 +227,7 @@ class DetailActivity : AppCompatActivity(){
             country.visibility = View.VISIBLE
             country_label.text = countriesString
         }
-        
+
         //Genres
         var genresString:String? = null
         movie.genres?.forEachIndexed { i, genre ->
@@ -233,9 +247,9 @@ class DetailActivity : AppCompatActivity(){
         }
 
         //Cast
-        if(movie.credits?.cast != null && movie.credits.cast.isNotEmpty()){
+        if(movie.credits?.cast != null && movie.credits!!.cast!!.isNotEmpty()){
             starring.visibility = View.VISIBLE
-            starring_list.adapter = CastAdapter(movie.credits.cast.filterNotNull())
+            starring_list.adapter = CastAdapter(movie.credits!!.cast!!.filterNotNull())
         }else{
             starring.visibility = View.GONE
         }
@@ -255,10 +269,10 @@ class DetailActivity : AppCompatActivity(){
                 val builderSingle = AlertDialog.Builder(DetailActivity@this)
 
                 val arrayAdapter = ArrayAdapter<String>(DetailActivity@this, android.R.layout.select_dialog_item)
-                val list = movie.videos.results.filterNotNull().filter { it.site == "YouTube" }
+                val list = movie.videos!!.results!!.filterNotNull().filter { it.site == "YouTube" }
 
                 list.forEach({
-                        arrayAdapter.add(it.name)
+                    arrayAdapter.add(it.name)
                 })
 
                 builderSingle.setTitle(getString(R.string.watch_a_trailer))
@@ -283,6 +297,30 @@ class DetailActivity : AppCompatActivity(){
         }else{
             trailer.visibility = View.GONE
         }
+
+        fab.setOnClickListener({
+            if(!isInFavorites){
+                saveAsFavorite(movie)
+            }else{
+                removeFromFavorites(movie)
+            }
+        })
+    }
+
+    private fun removeFromFavorites(movie: TMDBMovie) {
+        Schedulers.io().scheduleDirect({
+            starringDB.favoritesDao().deleteFavoriteMovie(movie)
+        })
+        isInFavorites = false
+        fab.setImageDrawable(getDrawable(R.drawable.ic_star_border_black_24dp))
+    }
+
+    private fun saveAsFavorite(movie: TMDBMovie) {
+        Schedulers.io().scheduleDirect({
+            starringDB.favoritesDao().insertFavoriteMovie(movie)
+        })
+        isInFavorites = true
+        fab.setImageDrawable(getDrawable(R.drawable.ic_star_black_24dp))
     }
 
     private fun viewImages(view: ImageView, movie: TMDBMovie) {

@@ -1,6 +1,7 @@
-package fr.flyingsquirrels.starring
+package fr.flyingsquirrels.starring.network
 
-import fr.flyingsquirrels.starring.Parameters.CACHE_SIZE
+import fr.flyingsquirrels.starring.BuildConfig
+import fr.flyingsquirrels.starring.network.Parameters.CACHE_SIZE
 import okhttp3.Cache
 import okhttp3.OkHttpClient
 import org.koin.android.ext.koin.androidApplication

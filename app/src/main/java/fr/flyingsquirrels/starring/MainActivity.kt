@@ -12,6 +12,7 @@ import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentStatePagerAdapter
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.util.DiffUtil
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
@@ -19,8 +20,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.squareup.picasso.Picasso
+import fr.flyingsquirrels.starring.db.StarringDB
 import fr.flyingsquirrels.starring.model.TMDBMovie
 import fr.flyingsquirrels.starring.model.TMDBMovieResponse
+import fr.flyingsquirrels.starring.network.TMDBRetrofitService
+import fr.flyingsquirrels.starring.utils.TMDBMovieDiffCallback
+import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.adapter_movies.view.*
 import kotlinx.android.synthetic.main.fragment_list.*
@@ -29,8 +34,6 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.ByteArrayOutputStream
-
-
 
 
 class MainActivity : AppCompatActivity() {
@@ -120,6 +123,7 @@ class MediaListFragment : Fragment() {
     }
 
     val tmdb: TMDBRetrofitService by inject()
+    val starringDB: StarringDB by inject()
 
     var type: String? = null
 
@@ -132,6 +136,8 @@ class MediaListFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_list, container, false)
     }
+
+    private var favSubscription: Disposable? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -190,13 +196,33 @@ class MediaListFragment : Fragment() {
 
             loading.visibility = View.VISIBLE
         }else{
-            //todo: load favourite movies or display "No favs yet"
+            //Favorites fragment
+            swipe_refresh.isEnabled = false
+            favSubscription = starringDB.favoritesDao().getFavoriteMovies().subscribe({
+                this@MediaListFragment.activity?.runOnUiThread({
+                    if(list?.adapter==null){
+                        list?.adapter = FilmsAdapter(it)
+                    }else{
+                        val diffCallback = TMDBMovieDiffCallback((list.adapter as FilmsAdapter).items,it)
+                        (list.adapter as FilmsAdapter).items = it
+                        DiffUtil.calculateDiff(diffCallback).dispatchUpdatesTo(list.adapter)
+                    }
+                })
+            })
+
         }
 
 
     }
 
-    inner class FilmsAdapter(private val items: List<TMDBMovie>) : RecyclerView.Adapter<FilmsAdapter.Holder>() {
+    override fun onDestroy() {
+        super.onDestroy()
+        if(favSubscription !=null){
+            favSubscription?.dispose()
+        }
+    }
+
+    inner class FilmsAdapter(var items: List<TMDBMovie>) : RecyclerView.Adapter<FilmsAdapter.Holder>() {
         override fun onBindViewHolder(holder: Holder, position: Int) = holder.bind(items[position])
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder = Holder(parent.inflate(R.layout.adapter_movies))
@@ -235,6 +261,7 @@ class MediaListFragment : Fragment() {
 
     }
 }
+
 
 
 

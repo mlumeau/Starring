@@ -1,4 +1,4 @@
-package fr.flyingsquirrels.starring
+package fr.flyingsquirrels.starring.network
 
 import fr.flyingsquirrels.starring.model.TMDBMovie
 import fr.flyingsquirrels.starring.model.TMDBMovieResponse
@@ -19,23 +19,23 @@ interface TMDBRetrofitService {
         const val MAX_AGE_LONG = 30*24*3600
     }
 
-    @GET("$MOVIE/${TMDBMovieResponse.TOP_RATED}")
-    @Headers("Cache-Control: max-age=$MAX_AGE_LONG")
+    @GET("${MOVIE}/${TMDBMovieResponse.TOP_RATED}")
+    @Headers("Cache-Control: max-age=${MAX_AGE_LONG}")
     fun getTopRatedMovies(): Call<TMDBMovieResponse>
 
-    @GET("$MOVIE/${TMDBMovieResponse.POPULAR}")
-    @Headers("Cache-Control: max-age=$MAX_AGE_LONG")
+    @GET("${MOVIE}/${TMDBMovieResponse.POPULAR}")
+    @Headers("Cache-Control: max-age=${MAX_AGE_LONG}")
     fun getPopularMovies(): Call<TMDBMovieResponse>
 
-    @GET("$MOVIE/${TMDBMovieResponse.NOW_PLAYING}")
-    @Headers("Cache-Control: max-age=$MAX_AGE_SHORT")
+    @GET("${MOVIE}/${TMDBMovieResponse.NOW_PLAYING}")
+    @Headers("Cache-Control: max-age=${MAX_AGE_SHORT}")
     fun getNowPlayingMovies(): Call<TMDBMovieResponse>
 
-    @GET("$MOVIE/${TMDBMovieResponse.UPCOMING}")
-    @Headers("Cache-Control: max-age=$MAX_AGE_SHORT")
+    @GET("${MOVIE}/${TMDBMovieResponse.UPCOMING}")
+    @Headers("Cache-Control: max-age=${MAX_AGE_SHORT}")
     fun getUpcomingMovies(): Call<TMDBMovieResponse>
 
-    @GET("$MOVIE/{movieId}?append_to_response=credits%2Cvideos%2Cimages")
-    @Headers("Cache-Control: max-age=$MAX_AGE_LONG")
+    @GET("${MOVIE}/{movieId}?append_to_response=credits%2Cvideos%2Cimages")
+    @Headers("Cache-Control: max-age=${MAX_AGE_LONG}")
     fun getMovieDetails(@Path("movieId") movieId:Int): Call<TMDBMovie>
 }
