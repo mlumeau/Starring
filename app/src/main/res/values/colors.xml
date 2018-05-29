@@ -20,6 +20,8 @@
     <color name="dividerDark">#1F000000</color>
     <color name="dividerLight">#1FFFFFFF</color>
 
+
+    <color name="grey500">#9E9E9E</color>
     <color name="grey600">#757575</color>
 
     <color name="black_overlay">#66000000</color>

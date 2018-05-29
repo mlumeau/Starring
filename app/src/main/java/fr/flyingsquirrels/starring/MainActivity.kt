@@ -25,6 +25,7 @@ import fr.flyingsquirrels.starring.model.TMDBMovie
 import fr.flyingsquirrels.starring.model.TMDBMovieResponse
 import fr.flyingsquirrels.starring.model.TMDBTVShowResponse
 import fr.flyingsquirrels.starring.network.TMDBRetrofitService
+import fr.flyingsquirrels.starring.utils.AppbarElevationOffsetListener
 import fr.flyingsquirrels.starring.utils.TMDBMovieDiffCallback
 import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.activity_main.*
@@ -42,6 +43,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        setSupportActionBar(toolbar)
 
         view_pager.adapter = MoviesPagerAdapter(supportFragmentManager)
         tab_layout.setupWithViewPager(view_pager)
@@ -66,6 +69,8 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
         )
+
+        appbar.addOnOffsetChangedListener(AppbarElevationOffsetListener())
 
         tab_layout.getTabAt(0)?.icon = getDrawable(R.drawable.ic_star_black_24dp)
         view_pager.currentItem = 1

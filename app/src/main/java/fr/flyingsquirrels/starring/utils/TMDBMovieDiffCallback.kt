@@ -24,9 +24,4 @@ class TMDBMovieDiffCallback(private val mOldTMDBMovieList: List<TMDBMovie>, priv
 
         return id == id1
     }
-
-    override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
-        // Implement method if you're going to use ItemAnimator
-        return super.getChangePayload(oldItemPosition, newItemPosition)
-    }
 }
