@@ -18,13 +18,15 @@
             android:id="@+id/appbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?android:attr/colorBackground">
-            <android.support.v7.widget.Toolbar
+            android:background="?android:attr/colorBackground"
+            app:layout_behavior="fr.flyingsquirrels.starring.utils.FixAppBarLayoutBehavior">
+
+        <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 app:titleTextColor="@color/textDarkPrimary"
                 app:title="@string/app_name"
-                app:layout_scrollFlags="scroll|enterAlwaysCollapsed|snap"
+                app:layout_scrollFlags="scroll|enterAlwaysCollapsed"
                 android:layout_height="?android:attr/actionBarSize"/>
 
             <android.support.design.widget.TabLayout

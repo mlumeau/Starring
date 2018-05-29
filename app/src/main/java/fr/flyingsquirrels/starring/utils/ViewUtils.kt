@@ -1,5 +1,6 @@
 package fr.flyingsquirrels.starring.utils
 
+import android.animation.ValueAnimator
 import android.annotation.TargetApi
 import android.content.res.Resources
 import android.os.Build
@@ -12,6 +13,7 @@ val Int.dpToPx: Int
     get() = (this * Resources.getSystem().displayMetrics.density).toInt()
 
 class AppbarElevationOffsetListener : AppBarLayout.OnOffsetChangedListener {
+    private var isElevated = false
     private var mTargetElevation: Float = 0f
 
     init {
@@ -21,10 +23,18 @@ class AppbarElevationOffsetListener : AppBarLayout.OnOffsetChangedListener {
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onOffsetChanged(appBarLayout: AppBarLayout, offset: Int) {
         val absOffset = Math.abs(offset)
-        if (absOffset < appBarLayout.totalScrollRange) {
-            appBarLayout.elevation = 0f
-        } else {
+        if (isElevated && absOffset < appBarLayout.totalScrollRange) {
+
+            val tx = ValueAnimator.ofFloat(mTargetElevation, 0f)
+            val mDuration = 300 //in millis
+            tx.duration = mDuration.toLong()
+            tx.addUpdateListener { animation -> appBarLayout.elevation = animation.animatedValue as Float }
+            tx.start()
+
+            isElevated = false
+        } else if(!isElevated && absOffset == appBarLayout.totalScrollRange){
             appBarLayout.elevation = mTargetElevation
+            isElevated = true
         }
 
     }
