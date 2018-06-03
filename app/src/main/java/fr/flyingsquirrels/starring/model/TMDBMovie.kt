@@ -36,13 +36,13 @@ data class TMDBMovie(
         var credits: Credits? = null,
 
         @field:SerializedName("genres")
-        var genres: List<GenresItem?>? = null,
+        var genres: List<Genre?>? = null,
 
         @field:SerializedName("popularity")
         var popularity: Double? = null,
 
         @field:SerializedName("production_countries")
-        var productionCountries: List<ProductionCountriesItem?>? = null,
+        var productionCountries: List<ProductionCountry?>? = null,
 
         @PrimaryKey
         @field:SerializedName("id")
@@ -67,10 +67,10 @@ data class TMDBMovie(
         var posterPath: String? = null,
 
         @field:SerializedName("spoken_languages")
-        var spokenLanguages: List<SpokenLanguagesItem?>? = null,
+        var spokenLanguages: List<SpokenLanguage?>? = null,
 
         @field:SerializedName("production_companies")
-        var productionCompanies: List<ProductionCompaniesItem?>? = null,
+        var productionCompanies: List<ProductionCompany?>? = null,
 
         @field:SerializedName("release_date")
         var releaseDate: String? = null,
@@ -96,9 +96,6 @@ data class TMDBMovie(
 ) : Parcelable{
 
     companion object CREATOR : Parcelable.Creator<TMDBMovie>{
-        const val POSTER_URL_THUMBNAIL = "https://image.tmdb.org/t/p/w300"
-        const val POSTER_URL_LARGE = "https://image.tmdb.org/t/p/w780"
-        const val POSTER_URL_ORIGINAL = "https://image.tmdb.org/t/p/original"
 
         override fun createFromParcel(parcel: Parcel): TMDBMovie {
             return TMDBMovie(parcel)
@@ -118,9 +115,9 @@ data class TMDBMovie(
             parcel.readString(),
             parcel.readValue(Int::class.java.classLoader) as? Int,
             parcel.readParcelable(Credits::class.java.classLoader),
-            parcel.createTypedArrayList(GenresItem),
+            parcel.createTypedArrayList(Genre),
             parcel.readValue(Double::class.java.classLoader) as? Double,
-            parcel.createTypedArrayList(ProductionCountriesItem),
+            parcel.createTypedArrayList(ProductionCountry),
             parcel.readValue(Int::class.java.classLoader) as? Int,
             parcel.readValue(Int::class.java.classLoader) as? Int,
             parcel.readValue(Int::class.java.classLoader) as? Int,
@@ -128,8 +125,8 @@ data class TMDBMovie(
             parcel.readString(),
             parcel.readValue(Int::class.java.classLoader) as? Int,
             parcel.readString(),
-            parcel.createTypedArrayList(SpokenLanguagesItem),
-            parcel.createTypedArrayList(ProductionCompaniesItem),
+            parcel.createTypedArrayList(SpokenLanguage),
+            parcel.createTypedArrayList(ProductionCompany),
             parcel.readString(),
             parcel.readValue(Double::class.java.classLoader) as? Double,
             parcel.readString(),

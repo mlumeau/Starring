@@ -37,9 +37,9 @@ data class TMDBMovieResponse(
             return arrayOfNulls(size)
         }
 
-        const val TOP_RATED= "top_rated"
-        const val POPULAR= "popular"
-        const val NOW_PLAYING= "now_playing"
-        const val UPCOMING= "upcoming"
+        const val TOP_RATED= "movie_top_rated"
+        const val POPULAR= "movie_popular"
+        const val NOW_PLAYING= "movie_now_playing"
+        const val UPCOMING= "movie_upcoming"
     }
 }

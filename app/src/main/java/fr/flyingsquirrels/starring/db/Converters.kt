@@ -34,49 +34,49 @@ object Converters{
 
     @TypeConverter
     @JvmStatic
-    fun genresItemListFromString(data: String): List<GenresItem?>? {
+    fun genreistFromString(data: String): List<Genre?>? {
         return gson.fromJson(data)
     }
 
     @TypeConverter
     @JvmStatic
-    fun genresItemListToString(data: List<GenresItem?>?): String {
+    fun genreListToString(data: List<Genre?>?): String {
         return gson.toJson(data)
     }
 
     @TypeConverter
     @JvmStatic
-    fun productionCountriesItemListFromString(data: String): List<ProductionCountriesItem?>? {
+    fun productionCountryListFromString(data: String): List<ProductionCountry?>? {
         return gson.fromJson(data)
     }
 
     @TypeConverter
     @JvmStatic
-    fun productionCountriesItemListToString(data: List<ProductionCountriesItem?>?): String {
+    fun productionCountryListToString(data: List<ProductionCountry?>?): String {
         return gson.toJson(data)
     }
 
     @TypeConverter
     @JvmStatic
-    fun spokenLanguagesItemListFromString(data: String): List<SpokenLanguagesItem?>? {
+    fun spokenLanguageListFromString(data: String): List<SpokenLanguage?>? {
         return gson.fromJson(data)
     }
 
     @TypeConverter
     @JvmStatic
-    fun spokenLanguagesItemListToString(data: List<SpokenLanguagesItem?>?): String {
+    fun spokenLanguageListToString(data: List<SpokenLanguage?>?): String {
         return gson.toJson(data)
     }
 
     @TypeConverter
     @JvmStatic
-    fun productionCompaniesItemListFromString(data: String): List<ProductionCompaniesItem?>? {
+    fun productionCompanyListFromString(data: String): List<ProductionCompany?>? {
         return gson.fromJson(data)
     }
 
     @TypeConverter
     @JvmStatic
-    fun productionCompaniesItemListToString(data: List<ProductionCompaniesItem?>?): String {
+    fun productionCompanyListToString(data: List<ProductionCompany?>?): String {
         return gson.toJson(data)
     }
 
@@ -91,6 +91,56 @@ object Converters{
     fun imagesToString(data: Images?): String {
         return gson.toJson(data)
     }
+
+    @TypeConverter
+    @JvmStatic
+    fun createdByItemListFromString(data: String): List<CreatedByItem?>? {
+        return gson.fromJson(data)
+    }
+
+    @TypeConverter
+    @JvmStatic
+    fun createdByItemListToString(data: List<CreatedByItem?>?): String {
+        return gson.toJson(data)
+    }
+
+    @TypeConverter
+    @JvmStatic
+    fun seasonListFromString(data: String): List<Season?>? {
+        return gson.fromJson(data)
+    }
+
+    @TypeConverter
+    @JvmStatic
+    fun seasonListToString(data: List<Season?>?): String {
+        return gson.toJson(data)
+    }
+
+    @TypeConverter
+    @JvmStatic
+    fun stringListFromString(data: String): List<String?>? {
+        return gson.fromJson(data)
+    }
+
+    @TypeConverter
+    @JvmStatic
+    fun stringListToString(data: List<String?>?): String {
+        return gson.toJson(data)
+    }
+
+    @TypeConverter
+    @JvmStatic
+    fun intListFromString(data: String): List<Int?>? {
+        return gson.fromJson(data)
+    }
+
+    @TypeConverter
+    @JvmStatic
+    fun intListToString(data: List<Int?>?): String {
+        return gson.toJson(data)
+    }
+
+
 
     private inline fun <reified T> Gson.fromJson(json: String) = this.fromJson<T>(json, object: TypeToken<T>() {}.type)
 }

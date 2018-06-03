@@ -4,7 +4,7 @@ import android.os.Parcel
 import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
 
-data class GenresItem(
+data class ProductionCompany(
 
 	@field:SerializedName("name")
 	val name: String? = null,
@@ -26,12 +26,12 @@ data class GenresItem(
 		return 0
 	}
 
-	companion object CREATOR : Parcelable.Creator<GenresItem> {
-		override fun createFromParcel(parcel: Parcel): GenresItem {
-			return GenresItem(parcel)
+	companion object CREATOR : Parcelable.Creator<ProductionCompany> {
+		override fun createFromParcel(parcel: Parcel): ProductionCompany {
+			return ProductionCompany(parcel)
 		}
 
-		override fun newArray(size: Int): Array<GenresItem?> {
+		override fun newArray(size: Int): Array<ProductionCompany?> {
 			return arrayOfNulls(size)
 		}
 	}

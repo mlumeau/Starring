@@ -4,19 +4,19 @@ import android.os.Parcel
 import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
 
-data class SeasonsItem(@SerializedName("air_date")
+data class Season(@SerializedName("air_date")
                        val airDate: String? = null,
-                       @SerializedName("overview")
+                  @SerializedName("overview")
                        val overview: String? = null,
-                       @SerializedName("episode_count")
+                  @SerializedName("episode_count")
                        val episodeCount: Int? = null,
-                       @SerializedName("name")
+                  @SerializedName("name")
                        val name: String? = null,
-                       @SerializedName("season_number")
+                  @SerializedName("season_number")
                        val seasonNumber: Int? = null,
-                       @SerializedName("id")
+                  @SerializedName("id")
                        val id: Int? = null,
-                       @SerializedName("poster_path")
+                  @SerializedName("poster_path")
                        val posterPath: String? = null) : Parcelable {
     constructor(parcel: Parcel) : this(
             parcel.readString(),
@@ -41,12 +41,12 @@ data class SeasonsItem(@SerializedName("air_date")
         return 0
     }
 
-    companion object CREATOR : Parcelable.Creator<SeasonsItem> {
-        override fun createFromParcel(parcel: Parcel): SeasonsItem {
-            return SeasonsItem(parcel)
+    companion object CREATOR : Parcelable.Creator<Season> {
+        override fun createFromParcel(parcel: Parcel): Season {
+            return Season(parcel)
         }
 
-        override fun newArray(size: Int): Array<SeasonsItem?> {
+        override fun newArray(size: Int): Array<Season?> {
             return arrayOfNulls(size)
         }
     }

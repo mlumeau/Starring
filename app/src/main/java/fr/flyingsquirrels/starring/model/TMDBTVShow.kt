@@ -1,6 +1,7 @@
 package fr.flyingsquirrels.starring.model
 
 import android.arch.persistence.room.Entity
+import android.arch.persistence.room.PrimaryKey
 import android.os.Parcel
 import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
@@ -8,76 +9,77 @@ import com.google.gson.annotations.SerializedName
 @Entity
 data class TMDBTVShow(
         @SerializedName("original_language")
-        val originalLanguage: String? = null,
+        var originalLanguage: String? = null,
 
         @SerializedName("number_of_episodes")
-        val numberOfEpisodes: Int? = null,
+        var numberOfEpisodes: Int? = null,
 
         @SerializedName("type")
-        val type: String? = null,
+        var type: String? = null,
 
         @SerializedName("backdrop_path")
-        val backdropPath: String? = null,
+        var backdropPath: String? = null,
 
         @SerializedName("credits")
-        val credits: Credits? = null,
+        var credits: Credits? = null,
 
         @SerializedName("popularity")
-        val popularity: Double? = null,
+        var popularity: Double? = null,
 
+        @PrimaryKey
         @SerializedName("id")
-        val id: Int? = null,
+        var id: Int? = null,
 
         @SerializedName("number_of_seasons")
-        val numberOfSeasons: Int? = null,
+        var numberOfSeasons: Int? = null,
 
         @SerializedName("vote_count")
-        val voteCount: Int? = null,
+        var voteCount: Int? = null,
 
         @SerializedName("first_air_date")
-        val firstAirDate: String? = null,
+        var firstAirDate: String? = null,
 
         @SerializedName("overview")
-        val overview: String? = null,
+        var overview: String? = null,
 
         @SerializedName("seasons")
-        val seasons: List<SeasonsItem?>? = null,
+        var seasons: List<Season?>? = null,
 
         @SerializedName("images")
-        val images: Images? = null,
+        var images: Images? = null,
 
         @SerializedName("created_by")
-        val createdBy: List<CreatedByItem?>? = null,
+        var createdBy: List<CreatedByItem?>? = null,
 
         @SerializedName("poster_path")
-        val posterPath: String? = null,
+        var posterPath: String? = null,
 
         @SerializedName("origin_country")
-        val originCountry: List<String?>? = null,
+        var originCountry: List<String?>? = null,
 
         @SerializedName("original_name")
-        val originalName: String? = null,
+        var originalName: String? = null,
 
         @SerializedName("vote_average")
-        val voteAverage: Int? = null,
+        var voteAverage: Double? = null,
 
         @SerializedName("name")
-        val name: String? = null,
+        var name: String? = null,
 
         @SerializedName("episode_run_time")
-        val episodeRunTime: List<Int?>? = null,
+        var episodeRunTime: List<Int?>? = null,
 
         @SerializedName("in_production")
-        val inProduction: Boolean? = null,
+        var inProduction: Boolean? = null,
 
         @SerializedName("last_air_date")
-        val lastAirDate: String? = null,
+        var lastAirDate: String? = null,
 
         @SerializedName("homepage")
-        val homepage: String? = null,
+        var homepage: String? = null,
 
         @SerializedName("status")
-        val status: String? = null
+        var status: String? = null
 
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
@@ -92,13 +94,13 @@ data class TMDBTVShow(
             parcel.readValue(Int::class.java.classLoader) as? Int,
             parcel.readString(),
             parcel.readString(),
-            parcel.createTypedArrayList(SeasonsItem),
+            parcel.createTypedArrayList(Season),
             parcel.readParcelable(Images::class.java.classLoader),
             parcel.createTypedArrayList(CreatedByItem),
             parcel.readString(),
             parcel.createStringArrayList(),
             parcel.readString(),
-            parcel.readValue(Int::class.java.classLoader) as? Int,
+            parcel.readValue(Double::class.java.classLoader) as? Double,
             parcel.readString(),
             parcel.createIntArray().asList(),
             parcel.readValue(Boolean::class.java.classLoader) as? Boolean,

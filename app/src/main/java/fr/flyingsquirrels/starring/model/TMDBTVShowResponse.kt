@@ -9,7 +9,7 @@ data class TMDBTVShowResponse(
         val page: Int? = null,
 
         @SerializedName("results")
-        val results: List<TMDBTVShow?>? = null
+        val results: List<TMDBTVShow>? = null
 
 ) : Parcelable{
 
@@ -37,9 +37,9 @@ data class TMDBTVShowResponse(
             return arrayOfNulls(size)
         }
 
-        const val TOP_RATED= "top_rated"
-        const val POPULAR= "popular"
-        const val ON_THE_AIR= "on_the_air"
-        const val AIRING_TODAY= "airing_today"
+        const val TOP_RATED= "tv_top_rated"
+        const val POPULAR= "tv_popular"
+        const val ON_THE_AIR= "tv_on_the_air"
+        const val AIRING_TODAY= "tv_airing_today"
     }
 }

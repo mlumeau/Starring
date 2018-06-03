@@ -25,6 +25,8 @@ import fr.flyingsquirrels.starring.db.StarringDB
 import fr.flyingsquirrels.starring.model.CastItem
 import fr.flyingsquirrels.starring.model.TMDBMovie
 import fr.flyingsquirrels.starring.network.TMDBRetrofitService
+import fr.flyingsquirrels.starring.network.TMDB_CONST
+import fr.flyingsquirrels.starring.utils.inflate
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_detail.*
 import kotlinx.android.synthetic.main.adapter_people.view.*
@@ -43,7 +45,9 @@ class DetailActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_IMAGE = "image"
-        const val EXTRA_MOVIE = "movie"
+        const val EXTRA_MEDIA = "media"
+        const val EXTRA_MOVIE = "media"
+        const val EXTRA_TV_SHOW = "tv_show"
         const val EXTRA_MEDIA_TYPE = "type"
         const val EXTRA_THUMBNAIL = "thumbnail"
 
@@ -98,8 +102,8 @@ class DetailActivity : AppCompatActivity() {
 
 
         when (intent.extras?.getString(EXTRA_MEDIA_TYPE)) {
-            EXTRA_MOVIE -> {
-                val movie: TMDBMovie? = intent.extras.getParcelable(EXTRA_MOVIE)
+            EXTRA_MEDIA -> {
+                val movie: TMDBMovie? = intent.extras.getParcelable(EXTRA_MEDIA)
                 movie?.let { intentMovie ->
                     bindMovie(intentMovie)
 
@@ -146,8 +150,8 @@ class DetailActivity : AppCompatActivity() {
     }
 
     private fun setUpPoster() {
-        Picasso.with(this).load(TMDBMovie.POSTER_URL_THUMBNAIL + posterPath).placeholder(poster.drawable).fit().centerCrop().into(poster)
-        Picasso.with(this).load(TMDBMovie.POSTER_URL_LARGE + backdropPath).fit().centerCrop().into(backdrop)
+        Picasso.with(this).load(TMDB_CONST.POSTER_URL_THUMBNAIL + posterPath).placeholder(poster.drawable).fit().centerCrop().into(poster)
+        Picasso.with(this).load(TMDB_CONST.POSTER_URL_LARGE + backdropPath).fit().centerCrop().into(backdrop)
 
     }
 
@@ -338,7 +342,7 @@ class DetailActivity : AppCompatActivity() {
         extras.putByteArray(ImagesActivity.EXTRA_THUMBNAIL, bs.toByteArray())
         extras.putString(ImagesActivity.EXTRA_TITLE, movie.title)
         extras.putStringArray(ImagesActivity.EXTRA_URL, (if(view == backdrop) movie.images?.backdrops else movie.images?.posters)?.filterNotNull()?.map {
-            TMDBMovie.POSTER_URL_ORIGINAL + it.file_path
+            TMDB_CONST.POSTER_URL_ORIGINAL + it.file_path
         }?.toTypedArray())
         intent.putExtras(extras)
 
@@ -381,7 +385,7 @@ class DetailActivity : AppCompatActivity() {
 
         inner class Holder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
             fun bind(castItem: CastItem) {
-                Picasso.with(itemView.context).load(TMDBMovie.POSTER_URL_THUMBNAIL + castItem.profilePath).placeholder(R.color.material_grey_600).fit().centerInside().into(itemView.portrait)
+                Picasso.with(itemView.context).load(TMDB_CONST.POSTER_URL_THUMBNAIL + castItem.profilePath).placeholder(R.color.material_grey_600).fit().centerInside().into(itemView.portrait)
                 itemView.name_label.text = castItem.name
 
                 this.itemView.setOnClickListener {

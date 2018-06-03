@@ -6,10 +6,11 @@ import android.arch.persistence.room.RoomDatabase
 import android.arch.persistence.room.TypeConverters
 import fr.flyingsquirrels.starring.dao.FavoritesDao
 import fr.flyingsquirrels.starring.model.TMDBMovie
+import fr.flyingsquirrels.starring.model.TMDBTVShow
 import org.koin.dsl.module.Module
 import org.koin.dsl.module.applicationContext
 
-@Database(entities = arrayOf(TMDBMovie::class), version = 1)
+@Database(entities = arrayOf(TMDBMovie::class, TMDBTVShow::class), version = 1)
 @TypeConverters(Converters::class)
 abstract class StarringDB : RoomDatabase() {
 
