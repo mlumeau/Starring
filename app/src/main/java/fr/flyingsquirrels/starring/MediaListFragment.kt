@@ -41,7 +41,7 @@ class MediaListFragment : Fragment() {
         const val FAV_MOVIE:String="fav_movie"
         const val FAV_TV:String="fav_tv"
 
-        fun newInstance(args: Bundle?): MediaListFragment {
+        fun newInstance(args: Bundle?, onScrollChangeListener: RecyclerView.OnScrollListener): MediaListFragment {
             val fragment = MediaListFragment()
 
             fragment.arguments = args
@@ -49,7 +49,7 @@ class MediaListFragment : Fragment() {
                 fragment.arguments = Bundle()
             }
 
-            return fragment
+            return fragment.apply { setOnScrollChangeListener(onScrollChangeListener) }
         }
     }
 
@@ -68,6 +68,11 @@ class MediaListFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_list, container, false)
     }
 
+    fun setOnScrollChangeListener(listener: RecyclerView.OnScrollListener) {
+        onScrollChangeListener = listener
+    }
+
+    private var onScrollChangeListener: RecyclerView.OnScrollListener? = null
     private var favSubscription: Disposable? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -185,6 +190,8 @@ class MediaListFragment : Fragment() {
             }
 
         }
+
+        list.addOnScrollListener(onScrollChangeListener)
 
         loading.visibility = View.VISIBLE
     }

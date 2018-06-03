@@ -19,6 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="?android:attr/colorBackground"
+            app:elevation="0dp"
             app:layout_behavior="fr.flyingsquirrels.starring.utils.FixAppBarLayoutBehavior">
 
         <android.support.v7.widget.Toolbar

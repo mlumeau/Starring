@@ -1,5 +1,6 @@
 package fr.flyingsquirrels.starring
 
+import android.animation.ValueAnimator
 import android.graphics.PorterDuff
 import android.os.Bundle
 import android.support.design.widget.TabLayout
@@ -7,11 +8,13 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentStatePagerAdapter
 import android.support.v4.content.ContextCompat
+import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import fr.flyingsquirrels.starring.model.TMDBMovieResponse
 import fr.flyingsquirrels.starring.model.TMDBTVShowResponse
+import fr.flyingsquirrels.starring.utils.dpToPx
 import kotlinx.android.synthetic.main.fragment_tabs.*
 
 class MovieTabsFragment : TabsFragment() {
@@ -68,6 +71,33 @@ abstract class TabsFragment : Fragment(){
 
     }
 
+    val onScrollListener = object : RecyclerView.OnScrollListener() {
+
+        var isElevated = false
+
+        override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
+            super.onScrolled(recyclerView, dx, dy)
+            if(recyclerView != null) {
+                val offset = recyclerView.computeVerticalScrollOffset()
+                if (tabs != null && !isElevated && offset > 0) {
+                    val tx = ValueAnimator.ofFloat(0f, 8.dpToPx.toFloat())
+                    val mDuration = 200 //in millis
+                    tx.duration = mDuration.toLong()
+                    tx.addUpdateListener { animation -> tabs.elevation = animation.animatedValue as Float }
+                    tx.start()
+                    isElevated = true
+                } else if (isElevated && offset <= 0) {
+                    val tx = ValueAnimator.ofFloat(8.dpToPx.toFloat(), 0f)
+                    val mDuration = 200 //in millis
+                    tx.duration = mDuration.toLong()
+                    tx.addUpdateListener { animation -> tabs.elevation = animation.animatedValue as Float }
+                    tx.start()
+                    isElevated = false
+                }
+            }
+        }
+    }
+
     inner class MoviesPagerAdapter(fm: FragmentManager): FragmentStatePagerAdapter(fm){
         override fun getItem(position: Int): Fragment {
 
@@ -83,7 +113,7 @@ abstract class TabsFragment : Fragment(){
 
             args.putString(MediaListFragment.TYPE_KEY,type)
 
-            return MediaListFragment.newInstance(args)
+            return MediaListFragment.newInstance(args,onScrollListener)
         }
 
         override fun getCount() = 5
@@ -114,7 +144,7 @@ abstract class TabsFragment : Fragment(){
 
             args.putString(MediaListFragment.TYPE_KEY,type)
 
-            return MediaListFragment.newInstance(args)
+            return MediaListFragment.newInstance(args,onScrollListener)
         }
 
         override fun getCount() = 5
