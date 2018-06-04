@@ -9,6 +9,7 @@ The aim of this project is to play around with state-of-the-art Android developm
 - TMDB api
 - Architecture Components (Room DB)
 - RxAndroid
+- Kotlin
 
 ## Roadmap
 - ~~Movies lists~~
@@ -18,7 +19,7 @@ The aim of this project is to play around with state-of-the-art Android developm
 - TV shows details
 - People lists
 - People details
-- Paginated
+- Paginated lists
 - Search
 
 ## Usage
