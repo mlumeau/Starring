@@ -55,6 +55,7 @@ dependencies {
     //Rx
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.2'
     implementation 'io.reactivex.rxjava2:rxjava:2.1.9'
+    implementation 'com.trello.rxlifecycle2:rxlifecycle-android-lifecycle-kotlin:2.2.1'
 
     //Room DB
     def room_version = "1.1.0" // or, for latest rc, use "1.1.1-rc1"

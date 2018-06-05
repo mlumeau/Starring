@@ -15,6 +15,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.squareup.picasso.Picasso
+import com.trello.lifecycle2.android.lifecycle.AndroidLifecycle
 import fr.flyingsquirrels.starring.db.StarringDB
 import fr.flyingsquirrels.starring.model.TMDBMovie
 import fr.flyingsquirrels.starring.model.TMDBMovieResponse
@@ -25,7 +26,6 @@ import fr.flyingsquirrels.starring.network.TMDB_CONST
 import fr.flyingsquirrels.starring.utils.TMDBMovieDiffCallback
 import fr.flyingsquirrels.starring.utils.TMDBTVShowDiffCallback
 import fr.flyingsquirrels.starring.utils.inflate
-import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.adapter_movies.view.*
 import kotlinx.android.synthetic.main.fragment_list.*
 import org.koin.android.ext.android.inject
@@ -33,6 +33,8 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.ByteArrayOutputStream
+
+
 
 class MediaListFragment : Fragment() {
 
@@ -58,6 +60,8 @@ class MediaListFragment : Fragment() {
 
     var type: String? = null
 
+    private val provider = AndroidLifecycle.createLifecycleProvider(this)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -73,7 +77,6 @@ class MediaListFragment : Fragment() {
     }
 
     private var onScrollChangeListener: RecyclerView.OnScrollListener? = null
-    private var favSubscription: Disposable? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -156,7 +159,9 @@ class MediaListFragment : Fragment() {
                 swipe_refresh.isEnabled = false
                 when(type){
                     FAV_MOVIE -> {
-                        favSubscription = starringDB.favoritesDao().getFavoriteMovies().subscribe({
+                        starringDB.favoritesDao().getFavoriteMovies()
+                                .compose(provider.bindToLifecycle())
+                                .subscribe({
                             this@MediaListFragment.activity?.runOnUiThread({
                                 if (list?.adapter == null) {
                                     list?.adapter = FilmsAdapter(it)
@@ -171,7 +176,9 @@ class MediaListFragment : Fragment() {
                         })
                     }
                     FAV_TV -> {
-                        favSubscription = starringDB.favoritesDao().getFavoriteTVShows().subscribe({
+                        starringDB.favoritesDao().getFavoriteTVShows()
+                                .compose(provider.bindToLifecycle())
+                                .subscribe({
                             this@MediaListFragment.activity?.runOnUiThread({
                                 if (list?.adapter == null) {
                                     list?.adapter = TVAdapter(it)
@@ -194,15 +201,6 @@ class MediaListFragment : Fragment() {
         list.addOnScrollListener(onScrollChangeListener)
 
         loading.visibility = View.VISIBLE
-    }
-
-
-
-    override fun onDestroy() {
-        super.onDestroy()
-        if(favSubscription !=null){
-            favSubscription?.dispose()
-        }
     }
 
     abstract inner class MediaCallback<T> : Callback<T> {
