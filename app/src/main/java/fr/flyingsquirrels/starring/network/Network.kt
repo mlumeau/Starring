@@ -17,7 +17,7 @@ import java.util.*
  */
 
 object Parameters{
-    const val CACHE_SIZE: Long = 10*1024*102
+    const val CACHE_SIZE: Long = 10*1024*1024
 }
 
 val NetworkModule : Module = applicationContext{

@@ -5,8 +5,6 @@ import fr.flyingsquirrels.starring.model.TMDBMovieResponse
 import fr.flyingsquirrels.starring.model.TMDBTVShow
 import fr.flyingsquirrels.starring.model.TMDBTVShowResponse
 import fr.flyingsquirrels.starring.network.TMDB_CONST.AIRING_TODAY
-import fr.flyingsquirrels.starring.network.TMDB_CONST.MAX_AGE_LONG
-import fr.flyingsquirrels.starring.network.TMDB_CONST.MAX_AGE_SHORT
 import fr.flyingsquirrels.starring.network.TMDB_CONST.MOVIE
 import fr.flyingsquirrels.starring.network.TMDB_CONST.NOW_PLAYING
 import fr.flyingsquirrels.starring.network.TMDB_CONST.ON_THE_AIR
@@ -16,7 +14,6 @@ import fr.flyingsquirrels.starring.network.TMDB_CONST.TV
 import fr.flyingsquirrels.starring.network.TMDB_CONST.UPCOMING
 import retrofit2.Call
 import retrofit2.http.GET
-import retrofit2.http.Headers
 import retrofit2.http.Path
 
 /**
@@ -29,8 +26,6 @@ object TMDB_CONST {
     const val POSTER_URL_ORIGINAL = "https://image.tmdb.org/t/p/original"
     const val MOVIE = "movie"
     const val TV = "tv"
-    const val MAX_AGE_SHORT = 7 * 24 * 3600
-    const val MAX_AGE_LONG = 30 * 24 * 3600
 
     const val TOP_RATED = "top_rated"
     const val POPULAR = "popular"
@@ -43,43 +38,33 @@ object TMDB_CONST {
 interface TMDBRetrofitService {
 
     @GET("$MOVIE/$TOP_RATED")
-    @Headers("Cache-Control: max-age=$MAX_AGE_LONG")
     fun getTopRatedMovies(): Call<TMDBMovieResponse>
 
     @GET("$MOVIE/$POPULAR")
-    @Headers("Cache-Control: max-age=$MAX_AGE_LONG")
     fun getPopularMovies(): Call<TMDBMovieResponse>
 
     @GET("$MOVIE/$NOW_PLAYING")
-    @Headers("Cache-Control: max-age=$MAX_AGE_SHORT")
     fun getNowPlayingMovies(): Call<TMDBMovieResponse>
 
     @GET("$MOVIE/$UPCOMING")
-    @Headers("Cache-Control: max-age=$MAX_AGE_SHORT")
     fun getUpcomingMovies(): Call<TMDBMovieResponse>
 
     @GET("$MOVIE/{movieId}?append_to_response=credits%2Cvideos%2Cimages")
-    @Headers("Cache-Control: max-age=$MAX_AGE_LONG")
     fun getMovieDetails(@Path("movieId") movieId: Int): Call<TMDBMovie>
 
     @GET("$TV/$POPULAR")
-    @Headers("Cache-Control: max-age=$MAX_AGE_LONG")
     fun getPopularTVShows(): Call<TMDBTVShowResponse>
 
     @GET("$TV/$TOP_RATED")
-    @Headers("Cache-Control: max-age=$MAX_AGE_LONG")
     fun getTopRatedTVShows(): Call<TMDBTVShowResponse>
 
     @GET("$TV/$AIRING_TODAY")
-    @Headers("Cache-Control: max-age=$MAX_AGE_SHORT")
     fun getAiringTodayTVShows(): Call<TMDBTVShowResponse>
 
     @GET("$TV/$ON_THE_AIR")
-    @Headers("Cache-Control: max-age=$MAX_AGE_SHORT")
     fun getOnTheAirTVShows(): Call<TMDBTVShowResponse>
 
     @GET("$TV/{tvId}?append_to_response=credits%2Cvideos%2Cimages")
-    @Headers("Cache-Control: max-age=$MAX_AGE_LONG")
     fun getTVShowDetails(@Path("tvId") tvId: Int): Call<TMDBTVShow>
 
 }
