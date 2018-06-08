@@ -45,8 +45,6 @@ abstract class TabsFragment : Fragment(){
         pager.adapter = adapter
         pager.currentItem = 1
 
-        val tabs = (activity as MainActivity).tabs
-
         tabs.addOnTabSelectedListener(object : TabLayout.ViewPagerOnTabSelectedListener(pager){
 
             override fun onTabSelected(tab: TabLayout.Tab) {
@@ -113,7 +111,7 @@ abstract class TabsFragment : Fragment(){
 
             args.putString(MediaListFragment.TYPE_KEY,type)
 
-            return MediaListFragment.newInstance(args,onScrollListener)
+            return MediaListFragment.newInstance(args)
         }
 
         override fun getCount() = 5
@@ -144,7 +142,7 @@ abstract class TabsFragment : Fragment(){
 
             args.putString(MediaListFragment.TYPE_KEY,type)
 
-            return MediaListFragment.newInstance(args,onScrollListener)
+            return MediaListFragment.newInstance(args)
         }
 
         override fun getCount() = 5
