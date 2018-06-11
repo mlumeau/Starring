@@ -106,6 +106,18 @@ object Converters{
 
     @TypeConverter
     @JvmStatic
+    fun tvNetworkListFromString(data: String): List<TVNetwork?>? {
+        return gson.fromJson(data)
+    }
+
+    @TypeConverter
+    @JvmStatic
+    fun tvNetworkListToString(data: List<TVNetwork?>?): String {
+        return gson.toJson(data)
+    }
+
+    @TypeConverter
+    @JvmStatic
     fun seasonListFromString(data: String): List<Season?>? {
         return gson.fromJson(data)
     }

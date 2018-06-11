@@ -213,9 +213,43 @@
                     android:background="@color/dividerDark" />
             </RelativeLayout>
 
+
+            <RelativeLayout
+                android:id="@+id/network"
+                android:layout_below="@+id/genre"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/network_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:tint="@color/grey600"
+                    android:src="@drawable/television_classic" />
+
+                <TextView
+                    android:id="@+id/network_label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:paddingTop="2dp"
+                    android:layout_toEndOf="@id/network_icon"
+                    android:textAlignment="gravity"
+                    tools:text="@tools:sample/lorem" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@+id/network_label"
+                    android:layout_marginStart="16dp"
+                    android:layout_toEndOf="@+id/network_icon"
+                    android:background="@color/dividerDark" />
+            </RelativeLayout>
+
             <RelativeLayout
                 android:id="@+id/starring"
-                android:layout_below="@+id/genre"
+                android:layout_below="@+id/network"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
 

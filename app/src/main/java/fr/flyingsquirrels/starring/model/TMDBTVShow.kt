@@ -51,6 +51,9 @@ data class TMDBTVShow(
         @SerializedName("created_by")
         var createdBy: List<CreatedByItem?>? = null,
 
+        @SerializedName("networks")
+        var networks: List<TVNetwork?>? = null,
+
         @SerializedName("poster_path")
         var posterPath: String? = null,
 
@@ -97,6 +100,7 @@ data class TMDBTVShow(
             parcel.createTypedArrayList(Season),
             parcel.readParcelable(Images::class.java.classLoader),
             parcel.createTypedArrayList(CreatedByItem),
+            parcel.createTypedArrayList(TVNetwork),
             parcel.readString(),
             parcel.createStringArrayList(),
             parcel.readString(),
@@ -124,6 +128,7 @@ data class TMDBTVShow(
             writeTypedList(seasons)
             writeParcelable(images, flags)
             writeTypedList(createdBy)
+            writeTypedList(networks)
             writeString(posterPath)
             writeStringList(originCountry)
             writeString(originalName)

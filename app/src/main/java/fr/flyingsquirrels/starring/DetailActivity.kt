@@ -23,6 +23,7 @@ import android.widget.ImageView
 import com.squareup.picasso.Picasso
 import fr.flyingsquirrels.starring.db.StarringDB
 import fr.flyingsquirrels.starring.model.CastItem
+import fr.flyingsquirrels.starring.model.Season
 import fr.flyingsquirrels.starring.model.TMDBMovie
 import fr.flyingsquirrels.starring.model.TMDBTVShow
 import fr.flyingsquirrels.starring.network.TMDBRetrofitService
@@ -343,6 +344,7 @@ class DetailActivity : AppCompatActivity() {
             }
         })
 
+        network.visibility = View.GONE
         seasons.visibility = View.GONE
     }
 
@@ -370,7 +372,7 @@ class DetailActivity : AppCompatActivity() {
 
         debutYear?.let{
             info+=debutYear
-            if(tvShow.inProduction != true) {
+            if(tvShow.inProduction != true && endYear!=debutYear) {
                 endYear?.let {
                     info += " - $endYear"
                 }
@@ -380,7 +382,7 @@ class DetailActivity : AppCompatActivity() {
             if(!TextUtils.isEmpty(info)){
                 info+=" · "
             }
-            info+= String.format(getString(R.string.seasons_nb), it.toString())
+            info+= String.format(resources.getQuantityString(R.plurals.seasons_nb,it), it)
         }
         tvShow.voteAverage?.let{
             if(!TextUtils.isEmpty(info)){
@@ -409,6 +411,62 @@ class DetailActivity : AppCompatActivity() {
             directed_by.visibility = View.VISIBLE
             directed_by_label.text = directedByString
         }
+        
+        //Network
+        var networksString:String? = null
+        tvShow.networks?.forEachIndexed { i, network ->
+            if(i==0){
+                networksString = ""
+            }else{
+                networksString += ", "
+            }
+
+            networksString+= network?.name
+        }
+        if(networksString==null){
+            network.visibility = View.GONE
+        }else{
+            network.visibility = View.VISIBLE
+            network_label.text = networksString
+        }
+
+        //Cast
+        if(tvShow.credits?.cast != null && tvShow.credits!!.cast!!.isNotEmpty()){
+            starring.visibility = View.VISIBLE
+            starring_list.adapter = CastAdapter(tvShow.credits!!.cast!!.filterNotNull())
+        }else{
+            starring.visibility = View.GONE
+        }
+
+
+        //Plot
+        if(tvShow.overview.isNullOrEmpty()){
+            plot.visibility = View.GONE
+        }else{
+            plot.visibility = View.VISIBLE
+            plot_label.text = tvShow.overview
+        }
+
+        //Seasons
+        if(tvShow.seasons != null && tvShow.numberOfSeasons!=null && tvShow.numberOfSeasons!! > 1){
+            seasons.visibility = View.VISIBLE
+            seasons_list.adapter = SeasonAdapter(tvShow.seasons!!.filterNotNull())
+        }else{
+            seasons.visibility = View.GONE
+        }
+
+        fab.setOnClickListener({
+            if(!isInFavorites){
+                saveAsFavorite(tvShow)
+            }else{
+                removeFromFavorites(tvShow)
+            }
+        })
+
+        trailer.visibility = View.GONE
+        country.visibility = View.GONE
+        genre.visibility = View.GONE
+
     }
 
     private fun removeFromFavorites(movie: TMDBMovie) {
@@ -422,6 +480,22 @@ class DetailActivity : AppCompatActivity() {
     private fun saveAsFavorite(movie: TMDBMovie) {
         Schedulers.io().scheduleDirect({
             starringDB.favoritesDao().insertFavoriteMovie(movie)
+        })
+        isInFavorites = true
+        fab.setImageDrawable(getDrawable(R.drawable.ic_star_black_24dp))
+    }
+
+    private fun removeFromFavorites(tvShow: TMDBTVShow) {
+        Schedulers.io().scheduleDirect({
+            starringDB.favoritesDao().deleteFavoriteTVShow(tvShow)
+        })
+        isInFavorites = false
+        fab.setImageDrawable(getDrawable(R.drawable.ic_star_border_black_24dp))
+    }
+
+    private fun saveAsFavorite(tvShow: TMDBTVShow) {
+        Schedulers.io().scheduleDirect({
+            starringDB.favoritesDao().insertFavoriteTVShow(tvShow)
         })
         isInFavorites = true
         fab.setImageDrawable(getDrawable(R.drawable.ic_star_black_24dp))
@@ -513,6 +587,26 @@ class DetailActivity : AppCompatActivity() {
 
                 this.itemView.setOnClickListener {
                     //TODO: implement detail activity UI & behaviour for cast
+                }
+            }
+
+        }
+    }
+
+    inner class SeasonAdapter(private val items: List<Season>) : RecyclerView.Adapter<SeasonAdapter.Holder>() {
+        override fun onBindViewHolder(holder: Holder, position: Int) = holder.bind(items[position])
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder = Holder(parent.inflate(R.layout.adapter_people_horizontal))
+
+        override fun getItemCount(): Int = items.size
+
+        inner class Holder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
+            fun bind(season: Season) {
+                Picasso.with(itemView.context).load(TMDB_CONST.POSTER_URL_THUMBNAIL + season.posterPath).placeholder(R.color.material_grey_600).fit().centerInside().into(itemView.portrait)
+                itemView.name_label.text = season.name
+
+                this.itemView.setOnClickListener {
+                    //TODO: implement detail activity UI & behaviour for seasons
                 }
             }
 

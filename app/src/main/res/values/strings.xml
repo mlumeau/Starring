@@ -13,14 +13,13 @@
     <string name="watch_a_trailer">Watch a trailer…</string>
 
     <string name="title_activity_images">ImagesActivity</string>
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="airing_today">Airing today</string>
     <string name="on_the_air">On the air</string>
     <string name="seasons">Seasons</string>
     <string name="created_by">Created by</string>
-    <string name="seasons_nb">%1$s seasons</string>
+
+    <plurals name="seasons_nb">
+        <item quantity="one">%d season</item>
+        <item quantity="other">%d seasons</item>
+    </plurals>
 </resources>
