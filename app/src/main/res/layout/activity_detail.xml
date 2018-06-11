@@ -283,7 +283,7 @@
                     android:paddingTop="2dp"
                     android:layout_toEndOf="@id/plot_icon"
                     android:textAlignment="gravity"
-                    tools:text="@tools:sample/lorem/random" />
+                    tools:text="@tools:sample/lorem" />
 
                 <View
                     android:layout_width="match_parent"
@@ -294,12 +294,59 @@
                     android:background="@color/dividerDark" />
             </RelativeLayout>
 
+            <RelativeLayout
+                android:id="@+id/seasons"
+                android:layout_below="@+id/plot"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/seasons_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:tint="@color/grey600"
+                    android:src="@drawable/calendar_multiple" />
+
+                <TextView
+                    android:id="@+id/seasons_label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:paddingTop="2dp"
+                    android:layout_toEndOf="@id/seasons_icon"
+                    android:textAlignment="gravity"
+                    android:text="@string/seasons" />
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/seasons_list"
+                    android:layout_below="@id/seasons_label"
+                    app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:nestedScrollingEnabled="false"
+                    android:layout_marginBottom="16dp"
+                    android:paddingStart="68dp"
+                    android:paddingEnd="16dp"
+                    android:clipToPadding="false"
+                    android:overScrollMode="never"
+                    tools:listitem="@layout/adapter_people_horizontal"
+                    android:layout_height="wrap_content" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@+id/seasons_list"
+                    android:layout_marginStart="16dp"
+                    android:layout_toEndOf="@+id/seasons_icon"
+                    android:background="@color/dividerDark" />
+            </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/trailer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/plot"
+                android:layout_below="@+id/seasons"
                 android:background="?attr/selectableItemBackground">
 
                 <ImageView
@@ -323,7 +370,6 @@
             </RelativeLayout>
         </RelativeLayout>
     </android.support.v4.widget.NestedScrollView>
-
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"

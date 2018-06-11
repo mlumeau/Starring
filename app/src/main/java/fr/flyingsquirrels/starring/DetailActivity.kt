@@ -24,6 +24,7 @@ import com.squareup.picasso.Picasso
 import fr.flyingsquirrels.starring.db.StarringDB
 import fr.flyingsquirrels.starring.model.CastItem
 import fr.flyingsquirrels.starring.model.TMDBMovie
+import fr.flyingsquirrels.starring.model.TMDBTVShow
 import fr.flyingsquirrels.starring.network.TMDBRetrofitService
 import fr.flyingsquirrels.starring.network.TMDB_CONST
 import fr.flyingsquirrels.starring.utils.inflate
@@ -135,7 +136,39 @@ class DetailActivity : AppCompatActivity() {
 
             }
 
+            EXTRA_TV_SHOW -> {
+                val tvShow: TMDBTVShow? = intent.extras.getParcelable(EXTRA_MEDIA)
+                tvShow?.let { intentShow ->
+                    bindTVShow(intentShow)
+
+                    Schedulers.io().scheduleDirect({
+                        starringDB.favoritesDao().getFavoriteTVShowWithId(intentShow.id).subscribe({
+                            runOnUiThread {
+                                isInFavorites = true
+                                fab.setImageDrawable(getDrawable(R.drawable.ic_star_black_24dp))
+                            }
+                        })
+                    })
+                    intentShow.id?.let { id ->
+                        tmdb.getTVShowDetails(id).enqueue(object : Callback<TMDBTVShow> {
+                            override fun onFailure(call: Call<TMDBTVShow>?, t: Throwable?) {
+
+                            }
+
+                            override fun onResponse(call: Call<TMDBTVShow>?, response: Response<TMDBTVShow>?) {
+                                response?.body()?.let { responseTVShow ->
+                                    bindTVShow(responseTVShow)
+                                }
+                            }
+                        })
+
+                    }
+
+
+                }
+            }
         }
+
 
         appbar.addOnOffsetChangedListener({ appBarLayout, verticalOffset ->
             title_bar.alpha = 1.0f - Math.abs(verticalOffset / appBarLayout.totalScrollRange.toFloat())
@@ -167,10 +200,10 @@ class DetailActivity : AppCompatActivity() {
             setUpPoster()
         }
         poster.setOnClickListener { view ->
-            viewImages(view as ImageView, movie)
+            viewMovieImages(view as ImageView, movie)
         }
         backdrop.setOnClickListener { view ->
-            viewImages(view as ImageView, movie)
+            viewMovieImages(view as ImageView, movie)
         }
 
 
@@ -309,6 +342,73 @@ class DetailActivity : AppCompatActivity() {
                 removeFromFavorites(movie)
             }
         })
+
+        seasons.visibility = View.GONE
+    }
+
+    private fun bindTVShow(tvShow: TMDBTVShow) {
+        //Poster
+        posterPath = tvShow.posterPath.toString()
+        backdropPath = tvShow.backdropPath.toString()
+
+        //Header
+        collapsing_toolbar.title = tvShow.name
+        if(drawPosterOnCreate){
+            setUpPoster()
+        }
+        poster.setOnClickListener { view ->
+            viewTVShowImages(view as ImageView, tvShow)
+        }
+        backdrop.setOnClickListener { view ->
+            viewTVShowImages(view as ImageView, tvShow)
+        }
+
+
+        val debutYear = tvShow.firstAirDate?.substring(0,4)
+        val endYear = tvShow.lastAirDate?.substring(0,4)
+        var info=""
+
+        debutYear?.let{
+            info+=debutYear
+            if(tvShow.inProduction != true) {
+                endYear?.let {
+                    info += " - $endYear"
+                }
+            }
+        }
+        tvShow.numberOfSeasons?.let{
+            if(!TextUtils.isEmpty(info)){
+                info+=" · "
+            }
+            info+= String.format(getString(R.string.seasons_nb), it.toString())
+        }
+        tvShow.voteAverage?.let{
+            if(!TextUtils.isEmpty(info)){
+                info+=" · "
+            }
+            info+= "$it/10"
+        }
+
+        title_info_label.text = info
+
+
+        //Creators
+        var directedByString:String? = null
+        tvShow.createdBy?.forEachIndexed { i, creator ->
+            if(i==0){
+                directedByString = getString(R.string.created_by) + " "
+            }else{
+                directedByString += ", "
+            }
+
+            directedByString+= creator?.name
+        }
+        if(directedByString==null){
+            directed_by.visibility = View.GONE
+        }else{
+            directed_by.visibility = View.VISIBLE
+            directed_by_label.text = directedByString
+        }
     }
 
     private fun removeFromFavorites(movie: TMDBMovie) {
@@ -327,7 +427,7 @@ class DetailActivity : AppCompatActivity() {
         fab.setImageDrawable(getDrawable(R.drawable.ic_star_black_24dp))
     }
 
-    private fun viewImages(view: ImageView, movie: TMDBMovie) {
+    private fun viewMovieImages(view: ImageView, movie: TMDBMovie) {
         view.transitionName = ImagesActivity.EXTRA_IMAGE
 
         val extras = Bundle()
@@ -342,6 +442,29 @@ class DetailActivity : AppCompatActivity() {
         extras.putByteArray(ImagesActivity.EXTRA_THUMBNAIL, bs.toByteArray())
         extras.putString(ImagesActivity.EXTRA_TITLE, movie.title)
         extras.putStringArray(ImagesActivity.EXTRA_URL, (if(view == backdrop) movie.images?.backdrops else movie.images?.posters)?.filterNotNull()?.map {
+            TMDB_CONST.POSTER_URL_ORIGINAL + it.file_path
+        }?.toTypedArray())
+        intent.putExtras(extras)
+
+        startActivity(intent,options)
+    }
+
+
+    private fun viewTVShowImages(view: ImageView, tvShow: TMDBTVShow) {
+        view.transitionName = ImagesActivity.EXTRA_IMAGE
+
+        val extras = Bundle()
+
+        val b: Bitmap = (view.drawable as BitmapDrawable).bitmap
+        val bs = ByteArrayOutputStream()
+        b.compress(Bitmap.CompressFormat.JPEG, 50, bs)
+
+        val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, view, EXTRA_IMAGE).toBundle()
+
+        val intent = Intent(DetailActivity@ this, ImagesActivity::class.java)
+        extras.putByteArray(ImagesActivity.EXTRA_THUMBNAIL, bs.toByteArray())
+        extras.putString(ImagesActivity.EXTRA_TITLE, tvShow.name)
+        extras.putStringArray(ImagesActivity.EXTRA_URL, (if(view == backdrop) tvShow.images?.backdrops else tvShow.images?.posters)?.filterNotNull()?.map {
             TMDB_CONST.POSTER_URL_ORIGINAL + it.file_path
         }?.toTypedArray())
         intent.putExtras(extras)

@@ -161,35 +161,35 @@ class MediaListFragment : Fragment() {
                         starringDB.favoritesDao().getFavoriteMovies()
                                 .compose(provider.bindToLifecycle())
                                 .subscribe({
-                            this@MediaListFragment.activity?.runOnUiThread({
-                                if (list?.adapter == null) {
-                                    list?.adapter = FilmsAdapter(it)
-                                } else {
-                                    val diffCallback = TMDBMovieDiffCallback((list.adapter as FilmsAdapter).items, it)
-                                    (list.adapter as FilmsAdapter).items = it
-                                    DiffUtil.calculateDiff(diffCallback).dispatchUpdatesTo(list.adapter)
-                                }
+                                    this@MediaListFragment.activity?.runOnUiThread({
+                                        if (list?.adapter == null) {
+                                            list?.adapter = FilmsAdapter(it)
+                                        } else {
+                                            val diffCallback = TMDBMovieDiffCallback((list.adapter as FilmsAdapter).items, it)
+                                            (list.adapter as FilmsAdapter).items = it
+                                            DiffUtil.calculateDiff(diffCallback).dispatchUpdatesTo(list.adapter)
+                                        }
 
-                                finishLoading()
-                            })
-                        })
+                                        finishLoading()
+                                    })
+                                })
                     }
                     FAV_TV -> {
                         starringDB.favoritesDao().getFavoriteTVShows()
                                 .compose(provider.bindToLifecycle())
                                 .subscribe({
-                            this@MediaListFragment.activity?.runOnUiThread({
-                                if (list?.adapter == null) {
-                                    list?.adapter = TVAdapter(it)
-                                } else {
-                                    val diffCallback = TMDBTVShowDiffCallback((list.adapter as TVAdapter).items, it)
-                                    (list.adapter as TVAdapter).items = it
-                                    DiffUtil.calculateDiff(diffCallback).dispatchUpdatesTo(list.adapter)
-                                }
+                                    this@MediaListFragment.activity?.runOnUiThread({
+                                        if (list?.adapter == null) {
+                                            list?.adapter = TVAdapter(it)
+                                        } else {
+                                            val diffCallback = TMDBTVShowDiffCallback((list.adapter as TVAdapter).items, it)
+                                            (list.adapter as TVAdapter).items = it
+                                            DiffUtil.calculateDiff(diffCallback).dispatchUpdatesTo(list.adapter)
+                                        }
 
-                                finishLoading()
-                            })
-                        })
+                                        finishLoading()
+                                    })
+                                })
                     }
                 }
 
@@ -243,31 +243,28 @@ class MediaListFragment : Fragment() {
         private fun bind(type : String, media : Parcelable, imagePath : String){
             Picasso.with(itemView.context).load(imagePath).placeholder(R.color.material_grey_600).fit().centerCrop().into(itemView.cover)
 
-            //todo implement tv details
-            if(media is TMDBMovie) {
-                this.itemView.setOnClickListener {
+            this.itemView.setOnClickListener {
 
-                    it.transitionName = DetailActivity.EXTRA_IMAGE
-                    val intent = Intent(it.context, DetailActivity::class.java)
+                it.transitionName = DetailActivity.EXTRA_IMAGE
+                val intent = Intent(it.context, DetailActivity::class.java)
 
-                    var options: Bundle? = Bundle()
-                    val extras = Bundle()
-                    if (this@MediaListFragment.activity != null) {
-                        options = ActivityOptionsCompat.makeSceneTransitionAnimation(this@MediaListFragment.activity!!, it, DetailActivity.EXTRA_IMAGE).toBundle()
-                    }
-
-                    val b: Bitmap = (itemView.cover.drawable as BitmapDrawable).bitmap
-                    val bs = ByteArrayOutputStream()
-                    b.compress(Bitmap.CompressFormat.JPEG, 50, bs)
-
-                    extras.putByteArray(DetailActivity.EXTRA_THUMBNAIL, bs.toByteArray())
-                    extras.putString(DetailActivity.EXTRA_MEDIA_TYPE, type)
-                    extras.putParcelable(DetailActivity.EXTRA_MEDIA, media)
-
-                    intent.putExtras(extras)
-
-                    it.context.startActivity(intent, options)
+                var options: Bundle? = Bundle()
+                val extras = Bundle()
+                if (this@MediaListFragment.activity != null) {
+                    options = ActivityOptionsCompat.makeSceneTransitionAnimation(this@MediaListFragment.activity!!, it, DetailActivity.EXTRA_IMAGE).toBundle()
                 }
+
+                val b: Bitmap = (itemView.cover.drawable as BitmapDrawable).bitmap
+                val bs = ByteArrayOutputStream()
+                b.compress(Bitmap.CompressFormat.JPEG, 50, bs)
+
+                extras.putByteArray(DetailActivity.EXTRA_THUMBNAIL, bs.toByteArray())
+                extras.putString(DetailActivity.EXTRA_MEDIA_TYPE, type)
+                extras.putParcelable(DetailActivity.EXTRA_MEDIA, media)
+
+                intent.putExtras(extras)
+
+                it.context.startActivity(intent, options)
             }
         }
 

@@ -106,31 +106,35 @@ data class TMDBTVShow(
             parcel.readValue(Boolean::class.java.classLoader) as? Boolean,
             parcel.readString(),
             parcel.readString(),
-            parcel.readString()
-    )
+            parcel.readString())
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeString(originalLanguage)
-        parcel.writeValue(numberOfEpisodes)
-        parcel.writeString(type)
-        parcel.writeString(backdropPath)
-        parcel.writeParcelable(credits, flags)
-        parcel.writeValue(popularity)
-        parcel.writeValue(id)
-        parcel.writeValue(numberOfSeasons)
-        parcel.writeValue(voteCount)
-        parcel.writeString(firstAirDate)
-        parcel.writeString(overview)
-        parcel.writeParcelable(images, flags)
-        parcel.writeString(posterPath)
-        parcel.writeStringList(originCountry)
-        parcel.writeString(originalName)
-        parcel.writeValue(voteAverage)
-        parcel.writeString(name)
-        parcel.writeValue(inProduction)
-        parcel.writeString(lastAirDate)
-        parcel.writeString(homepage)
-        parcel.writeString(status)
+        parcel.run {
+            writeString(originalLanguage)
+            writeValue(numberOfEpisodes)
+            writeString(type)
+            writeString(backdropPath)
+            writeParcelable(credits, flags)
+            writeValue(popularity)
+            writeValue(id)
+            writeValue(numberOfSeasons)
+            writeValue(voteCount)
+            writeString(firstAirDate)
+            writeString(overview)
+            writeTypedList(seasons)
+            writeParcelable(images, flags)
+            writeTypedList(createdBy)
+            writeString(posterPath)
+            writeStringList(originCountry)
+            writeString(originalName)
+            writeValue(voteAverage)
+            writeString(name)
+            writeIntArray(arrayOf(0).toIntArray())
+            writeValue(inProduction)
+            writeString(lastAirDate)
+            writeString(homepage)
+            writeString(status)
+        }
     }
 
     override fun describeContents(): Int {
@@ -146,4 +150,5 @@ data class TMDBTVShow(
             return arrayOfNulls(size)
         }
     }
+
 }
