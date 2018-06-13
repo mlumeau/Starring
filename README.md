@@ -16,10 +16,11 @@ The aim of this project is to play around with state-of-the-art Android developm
 - ~~Movie details~~
 - ~~Favorites (Starred)~~
 - ~~TV shows lists~~
-- TV shows details
+- ~~TV shows details~~
+- Seasons & episode details
 - People lists
 - People details
-- Paginated lists
+- Paginated lists & infinite scroll
 - Search
 
 ## Usage

@@ -48,16 +48,18 @@ class DetailActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_IMAGE = "image"
         const val EXTRA_MEDIA = "media"
-        const val EXTRA_MOVIE = "media"
+        const val EXTRA_MOVIE = "movie"
         const val EXTRA_TV_SHOW = "tv_show"
+        const val EXTRA_TV_SHOW_SEASON = "tv_show_season"
+        const val EXTRA_TV_SHOW_EPISODE = "tv_show_episode"
         const val EXTRA_MEDIA_TYPE = "type"
         const val EXTRA_THUMBNAIL = "thumbnail"
 
         private const val DRAW_POSTER_ON_CREATE = "draw_poster_on_create"
     }
 
-    val tmdb: TMDBRetrofitService by inject()
-    val starringDB: StarringDB by inject()
+    private val tmdb: TMDBRetrofitService by inject()
+    private val starringDB: StarringDB by inject()
 
     private var posterPath: String = ""
     private var backdropPath: String = ""
@@ -469,6 +471,10 @@ class DetailActivity : AppCompatActivity() {
 
     }
 
+    private fun bindSeason(season : Season){
+        //TODO
+    }
+
     private fun removeFromFavorites(movie: TMDBMovie) {
         Schedulers.io().scheduleDirect({
             starringDB.favoritesDao().deleteFavoriteMovie(movie)
@@ -596,7 +602,7 @@ class DetailActivity : AppCompatActivity() {
     inner class SeasonAdapter(private val items: List<Season>) : RecyclerView.Adapter<SeasonAdapter.Holder>() {
         override fun onBindViewHolder(holder: Holder, position: Int) = holder.bind(items[position])
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder = Holder(parent.inflate(R.layout.adapter_people_horizontal))
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder = Holder(parent.inflate(R.layout.adapter_seasons_horizontal))
 
         override fun getItemCount(): Int = items.size
 

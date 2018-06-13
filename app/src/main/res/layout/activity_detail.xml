@@ -364,7 +364,7 @@
                     android:paddingEnd="16dp"
                     android:clipToPadding="false"
                     android:overScrollMode="never"
-                    tools:listitem="@layout/adapter_people_horizontal"
+                    tools:listitem="@layout/adapter_seasons_horizontal"
                     android:layout_height="wrap_content" />
 
                 <View

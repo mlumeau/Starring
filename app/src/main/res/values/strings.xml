@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Starring</string>
+    <string translatable="false" name="app_name">Starring</string>
     <string name="movies">Movies</string>
     <string name="tv_shows">TV shows</string>
     <string name="people">People</string>
@@ -16,7 +16,7 @@
     <string name="airing_today">Airing today</string>
     <string name="on_the_air">On the air</string>
     <string name="seasons">Seasons</string>
-    <string name="created_by">Created by</string>
+    <string name="created_by">Created by:</string>
 
     <plurals name="seasons_nb">
         <item quantity="one">%d season</item>

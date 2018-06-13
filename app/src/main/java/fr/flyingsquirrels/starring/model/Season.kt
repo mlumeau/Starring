@@ -4,12 +4,15 @@ import android.os.Parcel
 import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
 
+
 data class Season(@SerializedName("air_date")
                        val airDate: String? = null,
                   @SerializedName("overview")
                        val overview: String? = null,
                   @SerializedName("episode_count")
                        val episodeCount: Int? = null,
+                  @SerializedName("episodes")
+                    var episodes: List<Episode?>?,
                   @SerializedName("name")
                        val name: String? = null,
                   @SerializedName("season_number")
@@ -22,6 +25,7 @@ data class Season(@SerializedName("air_date")
             parcel.readString(),
             parcel.readString(),
             parcel.readValue(Int::class.java.classLoader) as? Int,
+            parcel.createTypedArrayList(Episode),
             parcel.readString(),
             parcel.readValue(Int::class.java.classLoader) as? Int,
             parcel.readValue(Int::class.java.classLoader) as? Int,
@@ -31,6 +35,7 @@ data class Season(@SerializedName("air_date")
         parcel.writeString(airDate)
         parcel.writeString(overview)
         parcel.writeValue(episodeCount)
+        parcel.writeTypedList(episodes)
         parcel.writeString(name)
         parcel.writeValue(seasonNumber)
         parcel.writeValue(id)
