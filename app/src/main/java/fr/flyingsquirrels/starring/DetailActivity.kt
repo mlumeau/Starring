@@ -106,7 +106,7 @@ class DetailActivity : AppCompatActivity() {
 
 
         when (intent.extras?.getString(EXTRA_MEDIA_TYPE)) {
-            EXTRA_MEDIA -> {
+            EXTRA_MOVIE -> {
                 val movie: TMDBMovie? = intent.extras.getParcelable(EXTRA_MEDIA)
                 movie?.let { intentMovie ->
                     bindMovie(intentMovie)
@@ -168,6 +168,27 @@ class DetailActivity : AppCompatActivity() {
                     }
 
 
+                }
+            }
+
+            EXTRA_TV_SHOW_SEASON -> {
+                val tvSeason: Season? = intent.extras.getParcelable(EXTRA_MEDIA)
+                tvSeason?.let { intentSeason ->
+                    bindTVShowSeason(intentSeason)
+                    if(intentSeason.tvId != null && intentSeason.seasonNumber != null) {
+                        tmdb.getTVShowSeasonDetails(intentSeason.tvId!!, intentSeason.seasonNumber!!).enqueue(object : Callback<Season> {
+                            override fun onFailure(call: Call<Season>?, t: Throwable?) {
+
+                            }
+
+                            override fun onResponse(call: Call<Season>?, response: Response<Season>?) {
+                                response?.body()?.let { responseTVShowSeason ->
+                                    bindTVShowSeason(responseTVShowSeason)
+                                }
+                            }
+                        })
+
+                    }
                 }
             }
         }
@@ -413,7 +434,7 @@ class DetailActivity : AppCompatActivity() {
             directed_by.visibility = View.VISIBLE
             directed_by_label.text = directedByString
         }
-        
+
         //Network
         var networksString:String? = null
         tvShow.networks?.forEachIndexed { i, network ->
@@ -452,7 +473,12 @@ class DetailActivity : AppCompatActivity() {
         //Seasons
         if(tvShow.seasons != null && tvShow.numberOfSeasons!=null && tvShow.numberOfSeasons!! > 1){
             seasons.visibility = View.VISIBLE
-            seasons_list.adapter = SeasonAdapter(tvShow.seasons!!.filterNotNull())
+            seasons_list.adapter = SeasonAdapter(tvShow.seasons!!.filterNotNull().map {
+                it.apply {
+                    it.images = tvShow.images
+                    it.tvId = tvShow.id
+                }
+            })
         }else{
             seasons.visibility = View.GONE
         }
@@ -471,7 +497,7 @@ class DetailActivity : AppCompatActivity() {
 
     }
 
-    private fun bindSeason(season : Season){
+    private fun bindTVShowSeason(season : Season){
         //TODO
     }
 

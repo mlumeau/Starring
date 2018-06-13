@@ -6,21 +6,27 @@ import com.google.gson.annotations.SerializedName
 
 
 data class Season(@SerializedName("air_date")
-                       val airDate: String? = null,
+                        var airDate: String? = null,
                   @SerializedName("overview")
-                       val overview: String? = null,
+                        var overview: String? = null,
                   @SerializedName("episode_count")
-                       val episodeCount: Int? = null,
+                        var episodeCount: Int? = null,
                   @SerializedName("episodes")
-                    var episodes: List<Episode?>?,
+                        var episodes: List<Episode?>?,
                   @SerializedName("name")
-                       val name: String? = null,
+                        var name: String? = null,
                   @SerializedName("season_number")
-                       val seasonNumber: Int? = null,
+                        var seasonNumber: Int? = null,
+                  @SerializedName("tvId")
+                        var tvId: Int? = null,
                   @SerializedName("id")
-                       val id: Int? = null,
+                        var id: Int? = null,
+                  @SerializedName("images")
+                        var images: Images? = null,
+                  @SerializedName("videos")
+                        var videos: VideoResponse? = null,
                   @SerializedName("poster_path")
-                       val posterPath: String? = null) : Parcelable {
+                        var posterPath: String? = null) : Parcelable {
     constructor(parcel: Parcel) : this(
             parcel.readString(),
             parcel.readString(),
@@ -29,6 +35,9 @@ data class Season(@SerializedName("air_date")
             parcel.readString(),
             parcel.readValue(Int::class.java.classLoader) as? Int,
             parcel.readValue(Int::class.java.classLoader) as? Int,
+            parcel.readValue(Int::class.java.classLoader) as? Int,
+            parcel.readParcelable(Images::class.java.classLoader),
+            parcel.readParcelable(VideoResponse::class.java.classLoader),
             parcel.readString())
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -38,7 +47,10 @@ data class Season(@SerializedName("air_date")
         parcel.writeTypedList(episodes)
         parcel.writeString(name)
         parcel.writeValue(seasonNumber)
+        parcel.writeValue(tvId)
         parcel.writeValue(id)
+        parcel.writeParcelable(images, flags)
+        parcel.writeParcelable(videos, flags)
         parcel.writeString(posterPath)
     }
 

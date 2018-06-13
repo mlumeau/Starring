@@ -1,9 +1,6 @@
 package fr.flyingsquirrels.starring.network
 
-import fr.flyingsquirrels.starring.model.TMDBMovie
-import fr.flyingsquirrels.starring.model.TMDBMovieResponse
-import fr.flyingsquirrels.starring.model.TMDBTVShow
-import fr.flyingsquirrels.starring.model.TMDBTVShowResponse
+import fr.flyingsquirrels.starring.model.*
 import fr.flyingsquirrels.starring.network.TMDB_CONST.AIRING_TODAY
 import fr.flyingsquirrels.starring.network.TMDB_CONST.MOVIE
 import fr.flyingsquirrels.starring.network.TMDB_CONST.NOW_PLAYING
@@ -66,5 +63,8 @@ interface TMDBRetrofitService {
 
     @GET("$TV/{tvId}?append_to_response=credits%2Cvideos%2Cimages")
     fun getTVShowDetails(@Path("tvId") tvId: Int): Call<TMDBTVShow>
+
+    @GET("$TV/{tvId}/season/{seasonNumber}?append_to_response=videos")
+    fun getTVShowSeasonDetails(@Path("tvId") tvId: Int,@Path("seasonNumber")  seasonNumber : Int): Call<Season>
 
 }
