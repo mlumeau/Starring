@@ -248,17 +248,18 @@ class MediaListFragment : Fragment() {
                 it.transitionName = DetailActivity.EXTRA_IMAGE
                 val intent = Intent(it.context, DetailActivity::class.java)
 
-                var options: Bundle? = Bundle()
+                var options: Bundle? = null
                 val extras = Bundle()
                 if (this@MediaListFragment.activity != null) {
-                    options = ActivityOptionsCompat.makeSceneTransitionAnimation(this@MediaListFragment.activity!!, it, DetailActivity.EXTRA_IMAGE).toBundle()
+                    options = ActivityOptionsCompat.makeSceneTransitionAnimation(this@MediaListFragment.activity!!, it, DetailActivity.EXTRA_SHARED_POSTER).toBundle()
                 }
+                if(it.cover.drawable != null && it.cover.drawable is BitmapDrawable) {
+                    val b: Bitmap = (itemView.cover.drawable as BitmapDrawable).bitmap
+                    val bs = ByteArrayOutputStream()
+                    b.compress(Bitmap.CompressFormat.JPEG, 50, bs)
 
-                val b: Bitmap = (itemView.cover.drawable as BitmapDrawable).bitmap
-                val bs = ByteArrayOutputStream()
-                b.compress(Bitmap.CompressFormat.JPEG, 50, bs)
-
-                extras.putByteArray(DetailActivity.EXTRA_THUMBNAIL, bs.toByteArray())
+                    extras.putByteArray(DetailActivity.EXTRA_THUMBNAIL, bs.toByteArray())
+                }
                 extras.putString(DetailActivity.EXTRA_MEDIA_TYPE, type)
                 extras.putParcelable(DetailActivity.EXTRA_MEDIA, media)
 

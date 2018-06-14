@@ -13,25 +13,23 @@ import android.support.v4.view.ViewCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.graphics.Palette
-import android.support.v7.widget.RecyclerView
 import android.text.TextUtils
 import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ImageView
 import com.squareup.picasso.Picasso
 import fr.flyingsquirrels.starring.db.StarringDB
-import fr.flyingsquirrels.starring.model.CastItem
 import fr.flyingsquirrels.starring.model.Season
 import fr.flyingsquirrels.starring.model.TMDBMovie
 import fr.flyingsquirrels.starring.model.TMDBTVShow
 import fr.flyingsquirrels.starring.network.TMDBRetrofitService
 import fr.flyingsquirrels.starring.network.TMDB_CONST
-import fr.flyingsquirrels.starring.utils.inflate
+import fr.flyingsquirrels.starring.view.CastAdapter
+import fr.flyingsquirrels.starring.view.EpisodeAdapter
+import fr.flyingsquirrels.starring.view.SeasonAdapter
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_detail.*
-import kotlinx.android.synthetic.main.adapter_people.view.*
 import org.koin.android.ext.android.inject
 import retrofit2.Call
 import retrofit2.Callback
@@ -54,6 +52,9 @@ class DetailActivity : AppCompatActivity() {
         const val EXTRA_TV_SHOW_EPISODE = "tv_show_episode"
         const val EXTRA_MEDIA_TYPE = "type"
         const val EXTRA_THUMBNAIL = "thumbnail"
+        const val EXTRA_SHARED_POSTER = "poster"
+        const val EXTRA_SHARED_SEASON= "season"
+        const val EXTRA_SHARED_PEOPLE= "people"
 
         private const val DRAW_POSTER_ON_CREATE = "draw_poster_on_create"
     }
@@ -70,7 +71,6 @@ class DetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_detail)
 
-        ViewCompat.setTransitionName(poster, EXTRA_IMAGE)
 
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -107,6 +107,7 @@ class DetailActivity : AppCompatActivity() {
 
         when (intent.extras?.getString(EXTRA_MEDIA_TYPE)) {
             EXTRA_MOVIE -> {
+                ViewCompat.setTransitionName(poster, EXTRA_SHARED_POSTER)
                 val movie: TMDBMovie? = intent.extras.getParcelable(EXTRA_MEDIA)
                 movie?.let { intentMovie ->
                     bindMovie(intentMovie)
@@ -140,6 +141,7 @@ class DetailActivity : AppCompatActivity() {
             }
 
             EXTRA_TV_SHOW -> {
+                ViewCompat.setTransitionName(poster, EXTRA_SHARED_POSTER)
                 val tvShow: TMDBTVShow? = intent.extras.getParcelable(EXTRA_MEDIA)
                 tvShow?.let { intentShow ->
                     bindTVShow(intentShow)
@@ -172,6 +174,7 @@ class DetailActivity : AppCompatActivity() {
             }
 
             EXTRA_TV_SHOW_SEASON -> {
+                ViewCompat.setTransitionName(poster, EXTRA_SHARED_SEASON)
                 val tvSeason: Season? = intent.extras.getParcelable(EXTRA_MEDIA)
                 tvSeason?.let { intentSeason ->
                     bindTVShowSeason(intentSeason)
@@ -183,6 +186,10 @@ class DetailActivity : AppCompatActivity() {
 
                             override fun onResponse(call: Call<Season>?, response: Response<Season>?) {
                                 response?.body()?.let { responseTVShowSeason ->
+                                    responseTVShowSeason.apply {
+                                        tvId = intentSeason.id
+                                        backdropPath = intentSeason.backdropPath
+                                    }
                                     bindTVShowSeason(responseTVShowSeason)
                                 }
                             }
@@ -369,6 +376,7 @@ class DetailActivity : AppCompatActivity() {
 
         network.visibility = View.GONE
         seasons.visibility = View.GONE
+        episodes.visibility = View.GONE
     }
 
     private fun bindTVShow(tvShow: TMDBTVShow) {
@@ -418,21 +426,21 @@ class DetailActivity : AppCompatActivity() {
 
 
         //Creators
-        var directedByString:String? = null
+        var createdByString:String? = null
         tvShow.createdBy?.forEachIndexed { i, creator ->
             if(i==0){
-                directedByString = getString(R.string.created_by) + " "
+                createdByString = getString(R.string.created_by) + " "
             }else{
-                directedByString += ", "
+                createdByString += ", "
             }
 
-            directedByString+= creator?.name
+            createdByString+= creator?.name
         }
-        if(directedByString==null){
+        if(createdByString==null){
             directed_by.visibility = View.GONE
         }else{
             directed_by.visibility = View.VISIBLE
-            directed_by_label.text = directedByString
+            directed_by_label.text = createdByString
         }
 
         //Network
@@ -475,8 +483,8 @@ class DetailActivity : AppCompatActivity() {
             seasons.visibility = View.VISIBLE
             seasons_list.adapter = SeasonAdapter(tvShow.seasons!!.filterNotNull().map {
                 it.apply {
-                    it.images = tvShow.images
-                    it.tvId = tvShow.id
+                    tvId = tvShow.id
+                    backdropPath = tvShow.backdropPath
                 }
             })
         }else{
@@ -494,11 +502,94 @@ class DetailActivity : AppCompatActivity() {
         trailer.visibility = View.GONE
         country.visibility = View.GONE
         genre.visibility = View.GONE
+        episodes.visibility = View.GONE
 
     }
 
     private fun bindTVShowSeason(season : Season){
-        //TODO
+        //Poster
+        posterPath = season.posterPath.toString()
+        backdropPath = season.backdropPath.toString()
+
+        //Header
+        collapsing_toolbar.title = season.name
+        if(drawPosterOnCreate){
+            setUpPoster()
+        }
+
+        val year = season.airDate?.substring(0,4)
+        var info=""
+
+        year?.let{
+            info+=year
+        }
+        season.episodeCount?.let{
+            if(!TextUtils.isEmpty(info)){
+                info+=" · "
+            }
+            info+= String.format(resources.getQuantityString(R.plurals.episodes_nb,it), it)
+        }
+
+        title_info_label.text = info
+
+        //Plot
+        if(season.overview.isNullOrEmpty()){
+            plot.visibility = View.GONE
+        }else{
+            plot.visibility = View.VISIBLE
+            plot_label.text = season.overview
+        }
+
+        //Episodes
+        if(season.episodes != null && season.episodes!!.size > 1){
+            episodes.visibility = View.VISIBLE
+            episodes_list.adapter = EpisodeAdapter(season.episodes!!.filterNotNull())
+        }else{
+            episodes.visibility = View.GONE
+        }
+
+        //Trailer
+        if(season.videos?.results?.isNotEmpty() == true){
+            trailer.setOnClickListener({
+                val builderSingle = AlertDialog.Builder(DetailActivity@this)
+
+                val arrayAdapter = ArrayAdapter<String>(DetailActivity@this, android.R.layout.select_dialog_item)
+                val list = season.videos!!.results!!.filterNotNull().filter { it.site == "YouTube" }
+
+                list.forEach({
+                    arrayAdapter.add(it.name)
+                })
+
+                builderSingle.setTitle(getString(R.string.watch_a_trailer))
+                builderSingle.setNegativeButton("cancel", { dialog, _ ->
+                    dialog.dismiss()
+                })
+
+                builderSingle.setAdapter(arrayAdapter, { _, which ->
+                    val id = list[which].key
+                    val appIntent = Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:$id"))
+                    val webIntent = Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=$id"))
+                    try {
+                        DetailActivity@this.startActivity(appIntent)
+                    } catch (e: Exception) {
+                        DetailActivity@this.startActivity(webIntent)
+                    }
+                })
+
+                builderSingle.show()
+            })
+            trailer.visibility = View.VISIBLE
+        }else{
+            trailer.visibility = View.GONE
+        }
+
+        fab.visibility = View.GONE
+        starring.visibility = View.GONE
+        directed_by.visibility = View.GONE
+        seasons.visibility = View.GONE
+        network.visibility = View.GONE
+        country.visibility = View.GONE
+        genre.visibility = View.GONE
     }
 
     private fun removeFromFavorites(movie: TMDBMovie) {
@@ -605,43 +696,4 @@ class DetailActivity : AppCompatActivity() {
         super.onSaveInstanceState(outState)
     }
 
-    inner class CastAdapter(private val items: List<CastItem>) : RecyclerView.Adapter<CastAdapter.Holder>() {
-        override fun onBindViewHolder(holder: Holder, position: Int) = holder.bind(items[position])
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder = Holder(parent.inflate(R.layout.adapter_people_horizontal))
-
-        override fun getItemCount(): Int = if(items.size >= 8) 8 else items.size
-
-        inner class Holder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
-            fun bind(castItem: CastItem) {
-                Picasso.with(itemView.context).load(TMDB_CONST.POSTER_URL_THUMBNAIL + castItem.profilePath).placeholder(R.color.material_grey_600).fit().centerInside().into(itemView.portrait)
-                itemView.name_label.text = castItem.name
-
-                this.itemView.setOnClickListener {
-                    //TODO: implement detail activity UI & behaviour for cast
-                }
-            }
-
-        }
-    }
-
-    inner class SeasonAdapter(private val items: List<Season>) : RecyclerView.Adapter<SeasonAdapter.Holder>() {
-        override fun onBindViewHolder(holder: Holder, position: Int) = holder.bind(items[position])
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder = Holder(parent.inflate(R.layout.adapter_seasons_horizontal))
-
-        override fun getItemCount(): Int = items.size
-
-        inner class Holder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
-            fun bind(season: Season) {
-                Picasso.with(itemView.context).load(TMDB_CONST.POSTER_URL_THUMBNAIL + season.posterPath).placeholder(R.color.material_grey_600).fit().centerInside().into(itemView.portrait)
-                itemView.name_label.text = season.name
-
-                this.itemView.setOnClickListener {
-                    //TODO: implement detail activity UI & behaviour for seasons
-                }
-            }
-
-        }
-    }
 }

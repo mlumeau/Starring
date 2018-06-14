@@ -79,7 +79,7 @@
                     android:contentDescription="@string/media_poster"
                     android:scaleType="centerCrop"
                     android:elevation="4dp"
-                    android:background="@color/colorAccent"
+                    android:background="@color/grey600"
                     android:layout_width="96dp"
                     android:layout_height="144dp" />
 
@@ -376,11 +376,58 @@
                     android:background="@color/dividerDark" />
             </RelativeLayout>
 
+
+            <RelativeLayout
+                android:id="@+id/episodes"
+                android:layout_below="@+id/seasons"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/episodes_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:tint="@color/grey600"
+                    android:src="@drawable/animation_play" />
+
+                <TextView
+                    android:id="@+id/episodes_label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:paddingTop="2dp"
+                    android:layout_toEndOf="@id/episodes_icon"
+                    android:textAlignment="gravity"
+                    android:text="@string/episodes" />
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/episodes_list"
+                    android:layout_below="@id/episodes_label"
+                    app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+                    android:layout_width="match_parent"
+                    android:nestedScrollingEnabled="false"
+                    android:layout_marginBottom="16dp"
+                    android:layout_marginStart="56dp"
+                    android:clipToPadding="false"
+                    android:overScrollMode="never"
+                    tools:listitem="@layout/adapter_episodes"
+                    android:layout_height="wrap_content" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@+id/episodes_list"
+                    android:layout_marginStart="16dp"
+                    android:layout_toEndOf="@+id/episodes_icon"
+                    android:background="@color/dividerDark" />
+            </RelativeLayout>
+
             <RelativeLayout
                 android:id="@+id/trailer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/seasons"
+                android:layout_below="@+id/episodes"
                 android:background="?attr/selectableItemBackground">
 
                 <ImageView

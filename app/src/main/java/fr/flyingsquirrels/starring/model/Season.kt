@@ -21,10 +21,10 @@ data class Season(@SerializedName("air_date")
                         var tvId: Int? = null,
                   @SerializedName("id")
                         var id: Int? = null,
-                  @SerializedName("images")
-                        var images: Images? = null,
                   @SerializedName("videos")
                         var videos: VideoResponse? = null,
+                  @SerializedName("backdrop_path")
+                        var backdropPath: String? = null,
                   @SerializedName("poster_path")
                         var posterPath: String? = null) : Parcelable {
     constructor(parcel: Parcel) : this(
@@ -36,8 +36,8 @@ data class Season(@SerializedName("air_date")
             parcel.readValue(Int::class.java.classLoader) as? Int,
             parcel.readValue(Int::class.java.classLoader) as? Int,
             parcel.readValue(Int::class.java.classLoader) as? Int,
-            parcel.readParcelable(Images::class.java.classLoader),
             parcel.readParcelable(VideoResponse::class.java.classLoader),
+            parcel.readString(),
             parcel.readString())
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -49,8 +49,8 @@ data class Season(@SerializedName("air_date")
         parcel.writeValue(seasonNumber)
         parcel.writeValue(tvId)
         parcel.writeValue(id)
-        parcel.writeParcelable(images, flags)
         parcel.writeParcelable(videos, flags)
+        parcel.writeString(backdropPath)
         parcel.writeString(posterPath)
     }
 

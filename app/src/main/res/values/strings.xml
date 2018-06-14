@@ -17,9 +17,15 @@
     <string name="on_the_air">On the air</string>
     <string name="seasons">Seasons</string>
     <string name="created_by">Created by:</string>
+    <string name="guests">Guests:</string>
+    <string name="episodes">Episodes</string>
 
     <plurals name="seasons_nb">
         <item quantity="one">%d season</item>
         <item quantity="other">%d seasons</item>
+    </plurals>
+    <plurals name="episodes_nb">
+        <item quantity="one">%d episode</item>
+        <item quantity="other">%d episodes</item>
     </plurals>
 </resources>
