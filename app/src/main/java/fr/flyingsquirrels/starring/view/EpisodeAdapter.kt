@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import fr.flyingsquirrels.starring.R
 import fr.flyingsquirrels.starring.model.Episode
 import fr.flyingsquirrels.starring.utils.inflate
+import fr.flyingsquirrels.starring.utils.rotate180
 import kotlinx.android.synthetic.main.adapter_episodes.view.*
 
 class EpisodeAdapter(private val items: List<Episode>) : RecyclerView.Adapter<EpisodeAdapter.Holder>() {
@@ -62,6 +63,7 @@ class EpisodeAdapter(private val items: List<Episode>) : RecyclerView.Adapter<Ep
 
                 itemView.expand.setOnClickListener {
                     itemView.expandable_layout.toggle()
+                    itemView.expand_handle.rotate180()
                 }
             }
 

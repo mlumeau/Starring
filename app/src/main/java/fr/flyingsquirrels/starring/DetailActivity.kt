@@ -479,7 +479,7 @@ class DetailActivity : AppCompatActivity() {
         }
 
         //Seasons
-        if(tvShow.seasons != null && tvShow.numberOfSeasons!=null && tvShow.numberOfSeasons!! > 1){
+        if(tvShow.seasons != null && tvShow.seasons!!.isNotEmpty()){
             seasons.visibility = View.VISIBLE
             seasons_list.adapter = SeasonAdapter(tvShow.seasons!!.filterNotNull().map {
                 it.apply {
