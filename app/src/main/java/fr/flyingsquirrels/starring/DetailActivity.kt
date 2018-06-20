@@ -541,7 +541,7 @@ class DetailActivity : AppCompatActivity() {
         }
 
         //Episodes
-        if(season.episodes != null && season.episodes!!.size > 1){
+        if(season.episodes != null && season.episodes!!.isNotEmpty()){
             episodes.visibility = View.VISIBLE
             episodes_list.adapter = EpisodeAdapter(season.episodes!!.filterNotNull())
         }else{
