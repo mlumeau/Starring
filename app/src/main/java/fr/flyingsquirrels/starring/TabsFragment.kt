@@ -13,6 +13,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import fr.flyingsquirrels.starring.model.TMDBMovieResponse
+import fr.flyingsquirrels.starring.model.TMDBPeopleResponse
 import fr.flyingsquirrels.starring.model.TMDBTVShowResponse
 import fr.flyingsquirrels.starring.utils.dpToPx
 import kotlinx.android.synthetic.main.fragment_tabs.*
@@ -31,6 +32,15 @@ class TVTabsFragment : TabsFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         init(TVShowsPagerAdapter(childFragmentManager))
+    }
+}
+
+
+class PeopleTabsFragment : TabsFragment() {
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        init(PeoplePagerAdapter(childFragmentManager))
     }
 }
 
@@ -153,6 +163,31 @@ abstract class TabsFragment : Fragment(){
                 2 -> this@TabsFragment.getString(R.string.on_the_air)
                 3 -> this@TabsFragment.getString(R.string.popular)
                 4 -> this@TabsFragment.getString(R.string.top_rated)
+                else -> ""
+            }
+        }
+    }
+
+    inner class PeoplePagerAdapter(fm: FragmentManager): FragmentStatePagerAdapter(fm){
+        override fun getItem(position: Int): Fragment {
+
+            val args = Bundle()
+            val type = when(position){
+                0 -> MediaListFragment.FAV_PEOPLE
+                1 -> TMDBPeopleResponse.POPULAR
+                else -> null
+            }
+
+            args.putString(MediaListFragment.TYPE_KEY,type)
+
+            return MediaListFragment.newInstance(args)
+        }
+
+        override fun getCount() = 2
+
+        override fun getPageTitle(position: Int): String {
+            return when(position){
+                1 -> this@TabsFragment.getString(R.string.popular)
                 else -> ""
             }
         }

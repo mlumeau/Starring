@@ -17,16 +17,14 @@ import android.view.ViewGroup
 import com.squareup.picasso.Picasso
 import com.trello.lifecycle2.android.lifecycle.AndroidLifecycle
 import fr.flyingsquirrels.starring.db.StarringDB
-import fr.flyingsquirrels.starring.model.TMDBMovie
-import fr.flyingsquirrels.starring.model.TMDBMovieResponse
-import fr.flyingsquirrels.starring.model.TMDBTVShow
-import fr.flyingsquirrels.starring.model.TMDBTVShowResponse
+import fr.flyingsquirrels.starring.model.*
 import fr.flyingsquirrels.starring.network.TMDBRetrofitService
 import fr.flyingsquirrels.starring.network.TMDB_CONST
 import fr.flyingsquirrels.starring.utils.TMDBMovieDiffCallback
 import fr.flyingsquirrels.starring.utils.TMDBTVShowDiffCallback
 import fr.flyingsquirrels.starring.utils.inflate
 import kotlinx.android.synthetic.main.adapter_movies.view.*
+import kotlinx.android.synthetic.main.adapter_people.view.*
 import kotlinx.android.synthetic.main.fragment_list.*
 import org.koin.android.ext.android.inject
 import retrofit2.Call
@@ -42,6 +40,7 @@ class MediaListFragment : Fragment() {
         const val TYPE_KEY:String="type"
         const val FAV_MOVIE:String="fav_movie"
         const val FAV_TV:String="fav_tv"
+        const val FAV_PEOPLE:String="fav_people"
 
         fun newInstance(args: Bundle?): MediaListFragment {
             val fragment = MediaListFragment()
@@ -55,8 +54,8 @@ class MediaListFragment : Fragment() {
         }
     }
 
-    val tmdb: TMDBRetrofitService by inject()
-    val starringDB: StarringDB by inject()
+    private val tmdb: TMDBRetrofitService by inject()
+    private val starringDB: StarringDB by inject()
 
     var type: String? = null
 
@@ -84,7 +83,7 @@ class MediaListFragment : Fragment() {
         val grid = GridLayoutManager(context, 2)
         list.layoutManager = grid
 
-        view.viewTreeObserver.addOnGlobalLayoutListener({
+        view.viewTreeObserver.addOnGlobalLayoutListener {
 
             val spanCount: Int = if(context!=null
                     && (view.width / context!!.resources.displayMetrics.density + 0.5f)>=480){
@@ -93,7 +92,7 @@ class MediaListFragment : Fragment() {
                 2
             }
             grid.spanCount = spanCount
-        })
+        }
 
         if(type!=null) {
 
@@ -153,6 +152,32 @@ class MediaListFragment : Fragment() {
 
                 movieListRequest?.enqueue(movieRequestCallback)
 
+            } else if (type!!.startsWith("people")) {
+
+                val peopleListRequest: Call<TMDBPeopleResponse>? = when (type) {
+                    TMDBPeopleResponse.POPULAR -> tmdb.getPopularPeople()
+                    else -> null
+                }
+
+                val peopleRequestCallback = object : MediaCallback<TMDBPeopleResponse>() {
+
+                    override fun onResponse(call: Call<TMDBPeopleResponse>?, response: Response<TMDBPeopleResponse>?) {
+                        if (response != null) {
+                            val tmdbResponse = response.body()
+                            list?.adapter = tmdbResponse?.people?.let { PeopleAdapter(it) }
+                            finishLoading()
+                        }
+                    }
+                }
+
+                swipe_refresh.setOnRefreshListener {
+                    peopleListRequest.let {
+                        it?.clone()?.enqueue(peopleRequestCallback)
+                    }
+                }
+
+                peopleListRequest?.enqueue(peopleRequestCallback)
+
             } else if(type!!.startsWith("fav")) {
                 //Favorites fragment
                 swipe_refresh.isEnabled = false
@@ -160,8 +185,8 @@ class MediaListFragment : Fragment() {
                     FAV_MOVIE -> {
                         starringDB.favoritesDao().getFavoriteMovies()
                                 .compose(provider.bindToLifecycle())
-                                .subscribe({
-                                    this@MediaListFragment.activity?.runOnUiThread({
+                                .subscribe {
+                                    this@MediaListFragment.activity?.runOnUiThread {
                                         if (list?.adapter == null) {
                                             list?.adapter = FilmsAdapter(it)
                                         } else {
@@ -171,14 +196,14 @@ class MediaListFragment : Fragment() {
                                         }
 
                                         finishLoading()
-                                    })
-                                })
+                                    }
+                                }
                     }
                     FAV_TV -> {
                         starringDB.favoritesDao().getFavoriteTVShows()
                                 .compose(provider.bindToLifecycle())
-                                .subscribe({
-                                    this@MediaListFragment.activity?.runOnUiThread({
+                                .subscribe {
+                                    this@MediaListFragment.activity?.runOnUiThread {
                                         if (list?.adapter == null) {
                                             list?.adapter = TVAdapter(it)
                                         } else {
@@ -188,8 +213,8 @@ class MediaListFragment : Fragment() {
                                         }
 
                                         finishLoading()
-                                    })
-                                })
+                                    }
+                                }
                     }
                 }
 
@@ -214,24 +239,33 @@ class MediaListFragment : Fragment() {
         loading?.visibility = View.GONE
     }
 
-    inner class TVAdapter(var items: List<TMDBTVShow>) : RecyclerView.Adapter<Holder>() {
-        override fun onBindViewHolder(holder: Holder, position: Int) = holder.bindTVShow(items[position])
+    inner class TVAdapter(var items: List<TMDBTVShow>) : RecyclerView.Adapter<MediaHolder>() {
+        override fun onBindViewHolder(holder: MediaHolder, position: Int) = holder.bindTVShow(items[position])
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder = Holder(parent.inflate(R.layout.adapter_movies))
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MediaHolder = MediaHolder(parent.inflate(R.layout.adapter_movies))
 
         override fun getItemCount(): Int = items.size
     }
 
-    inner class FilmsAdapter(var items: List<TMDBMovie>) : RecyclerView.Adapter<Holder>() {
-        override fun onBindViewHolder(holder: Holder, position: Int) = holder.bindMovie(items[position])
+    inner class FilmsAdapter(var items: List<TMDBMovie>) : RecyclerView.Adapter<MediaHolder>() {
+        override fun onBindViewHolder(holder: MediaHolder, position: Int) = holder.bindMovie(items[position])
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder = Holder(parent.inflate(R.layout.adapter_movies))
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MediaHolder = MediaHolder(parent.inflate(R.layout.adapter_movies))
 
         override fun getItemCount(): Int = items.size
 
     }
 
-    inner class Holder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
+    inner class PeopleAdapter(var items: List<Person>) : RecyclerView.Adapter<PeopleHolder>() {
+        override fun onBindViewHolder(holder: PeopleHolder, position: Int) = holder.bind(items[position])
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PeopleHolder = PeopleHolder(parent.inflate(R.layout.adapter_people_vertical))
+
+        override fun getItemCount(): Int = items.size
+
+    }
+
+    inner class MediaHolder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
         fun bindMovie(movie: TMDBMovie) {
             bind(DetailActivity.EXTRA_MOVIE,movie, TMDB_CONST.POSTER_URL_THUMBNAIL +movie.posterPath)
         }
@@ -241,7 +275,7 @@ class MediaListFragment : Fragment() {
         }
 
         private fun bind(type : String, media : Parcelable, imagePath : String){
-            Picasso.with(itemView.context).load(imagePath).placeholder(R.color.material_grey_600).fit().centerCrop().into(itemView.cover)
+            Picasso.with(itemView.context).load(imagePath).placeholder(R.color.grey600).fit().centerCrop().into(itemView.cover)
 
             this.itemView.setOnClickListener {
 
@@ -266,6 +300,40 @@ class MediaListFragment : Fragment() {
                 intent.putExtras(extras)
 
                 it.context.startActivity(intent, options)
+            }
+        }
+
+    }
+
+    inner class PeopleHolder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
+
+        fun bind(person : Person){
+            Picasso.with(itemView.context).load(TMDB_CONST.POSTER_URL_THUMBNAIL + person.profilePath).placeholder(R.color.grey600).fit().centerCrop().into(itemView.portrait)
+            itemView.name_label.text = person.name
+
+            this.itemView.setOnClickListener {
+/*
+                it.transitionName = DetailActivity.EXTRA_IMAGE
+                val intent = Intent(it.context, DetailActivity::class.java)
+
+                var options: Bundle? = null
+                val extras = Bundle()
+                if (this@MediaListFragment.activity != null) {
+                    options = ActivityOptionsCompat.makeSceneTransitionAnimation(this@MediaListFragment.activity!!, it, DetailActivity.EXTRA_SHARED_POSTER).toBundle()
+                }
+                if(it.cover.drawable != null && it.cover.drawable is BitmapDrawable) {
+                    val b: Bitmap = (itemView.cover.drawable as BitmapDrawable).bitmap
+                    val bs = ByteArrayOutputStream()
+                    b.compress(Bitmap.CompressFormat.JPEG, 50, bs)
+
+                    extras.putByteArray(DetailActivity.EXTRA_THUMBNAIL, bs.toByteArray())
+                }
+                extras.putString(DetailActivity.EXTRA_MEDIA_TYPE, type)
+                extras.putParcelable(DetailActivity.EXTRA_MEDIA, media)
+
+                intent.putExtras(extras)
+                it.context.startActivity(intent, options)
+*/
             }
         }
 

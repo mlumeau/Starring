@@ -7,7 +7,7 @@ import com.google.gson.annotations.SerializedName
 
 data class VideoResponse(
 
-		@field:SerializedName("results")
+		@field:SerializedName("people")
 		val results: List<Video?>? = null
 ) : Parcelable {
 	constructor(parcel: Parcel) : this(parcel.createTypedArrayList(Video))

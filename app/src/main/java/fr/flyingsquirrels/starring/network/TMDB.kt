@@ -5,6 +5,7 @@ import fr.flyingsquirrels.starring.network.TMDB_CONST.AIRING_TODAY
 import fr.flyingsquirrels.starring.network.TMDB_CONST.MOVIE
 import fr.flyingsquirrels.starring.network.TMDB_CONST.NOW_PLAYING
 import fr.flyingsquirrels.starring.network.TMDB_CONST.ON_THE_AIR
+import fr.flyingsquirrels.starring.network.TMDB_CONST.PERSON
 import fr.flyingsquirrels.starring.network.TMDB_CONST.POPULAR
 import fr.flyingsquirrels.starring.network.TMDB_CONST.TOP_RATED
 import fr.flyingsquirrels.starring.network.TMDB_CONST.TV
@@ -23,6 +24,7 @@ object TMDB_CONST {
     const val POSTER_URL_ORIGINAL = "https://image.tmdb.org/t/p/original"
     const val MOVIE = "movie"
     const val TV = "tv"
+    const val PERSON = "person"
 
     const val TOP_RATED = "top_rated"
     const val POPULAR = "popular"
@@ -66,5 +68,8 @@ interface TMDBRetrofitService {
 
     @GET("$TV/{tvId}/season/{seasonNumber}?append_to_response=videos")
     fun getTVShowSeasonDetails(@Path("tvId") tvId: Int,@Path("seasonNumber")  seasonNumber : Int): Call<Season>
+
+    @GET("$PERSON/$POPULAR")
+    fun getPopularPeople(): Call<TMDBPeopleResponse>
 
 }

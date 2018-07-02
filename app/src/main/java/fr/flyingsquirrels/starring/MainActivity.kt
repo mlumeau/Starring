@@ -18,6 +18,7 @@ class MainActivity : AppCompatActivity() {
             tabs_container.currentItem = when(it.itemId){
                 R.id.movies -> 0
                 R.id.tv_shows -> 1
+                R.id.people -> 2
                 else -> 0
             }
             true
@@ -28,14 +29,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     inner class BottomNavAdapter: FragmentStatePagerAdapter(supportFragmentManager){
-        override fun getCount() = 2
+        override fun getCount() = 3
 
         override fun getItem(position: Int) = when(position){
             0 -> MovieTabsFragment()
             1 -> TVTabsFragment()
+            2 -> PeopleTabsFragment()
             else -> null
         }
-
     }
 
 }

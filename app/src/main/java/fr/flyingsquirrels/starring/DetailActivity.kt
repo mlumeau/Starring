@@ -491,13 +491,13 @@ class DetailActivity : AppCompatActivity() {
             seasons.visibility = View.GONE
         }
 
-        fab.setOnClickListener({
+        fab.setOnClickListener {
             if(!isInFavorites){
                 saveAsFavorite(tvShow)
             }else{
                 removeFromFavorites(tvShow)
             }
-        })
+        }
 
         trailer.visibility = View.GONE
         country.visibility = View.GONE
@@ -593,33 +593,33 @@ class DetailActivity : AppCompatActivity() {
     }
 
     private fun removeFromFavorites(movie: TMDBMovie) {
-        Schedulers.io().scheduleDirect({
+        Schedulers.io().scheduleDirect {
             starringDB.favoritesDao().deleteFavoriteMovie(movie)
-        })
+        }
         isInFavorites = false
         fab.setImageDrawable(getDrawable(R.drawable.ic_star_border_black_24dp))
     }
 
     private fun saveAsFavorite(movie: TMDBMovie) {
-        Schedulers.io().scheduleDirect({
+        Schedulers.io().scheduleDirect {
             starringDB.favoritesDao().insertFavoriteMovie(movie)
-        })
+        }
         isInFavorites = true
         fab.setImageDrawable(getDrawable(R.drawable.ic_star_black_24dp))
     }
 
     private fun removeFromFavorites(tvShow: TMDBTVShow) {
-        Schedulers.io().scheduleDirect({
+        Schedulers.io().scheduleDirect {
             starringDB.favoritesDao().deleteFavoriteTVShow(tvShow)
-        })
+        }
         isInFavorites = false
         fab.setImageDrawable(getDrawable(R.drawable.ic_star_border_black_24dp))
     }
 
     private fun saveAsFavorite(tvShow: TMDBTVShow) {
-        Schedulers.io().scheduleDirect({
+        Schedulers.io().scheduleDirect {
             starringDB.favoritesDao().insertFavoriteTVShow(tvShow)
-        })
+        }
         isInFavorites = true
         fab.setImageDrawable(getDrawable(R.drawable.ic_star_black_24dp))
     }
