@@ -7,7 +7,7 @@ import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
 
 @Entity
-data class TMDBTVShow(
+data class TVShow(
         @SerializedName("original_language")
         var originalLanguage: String? = null,
 
@@ -21,7 +21,7 @@ data class TMDBTVShow(
         var backdropPath: String? = null,
 
         @SerializedName("credits")
-        var credits: Credits? = null,
+        var credits: PeopleCredits? = null,
 
         @SerializedName("popularity")
         var popularity: Double? = null,
@@ -90,7 +90,7 @@ data class TMDBTVShow(
             parcel.readValue(Int::class.java.classLoader) as? Int,
             parcel.readString(),
             parcel.readString(),
-            parcel.readParcelable(Credits::class.java.classLoader),
+            parcel.readParcelable(PeopleCredits::class.java.classLoader),
             parcel.readValue(Double::class.java.classLoader) as? Double,
             parcel.readValue(Int::class.java.classLoader) as? Int,
             parcel.readValue(Int::class.java.classLoader) as? Int,
@@ -146,12 +146,12 @@ data class TMDBTVShow(
         return 0
     }
 
-    companion object CREATOR : Parcelable.Creator<TMDBTVShow> {
-        override fun createFromParcel(parcel: Parcel): TMDBTVShow {
-            return TMDBTVShow(parcel)
+    companion object CREATOR : Parcelable.Creator<TVShow> {
+        override fun createFromParcel(parcel: Parcel): TVShow {
+            return TVShow(parcel)
         }
 
-        override fun newArray(size: Int): Array<TMDBTVShow?> {
+        override fun newArray(size: Int): Array<TVShow?> {
             return arrayOfNulls(size)
         }
     }

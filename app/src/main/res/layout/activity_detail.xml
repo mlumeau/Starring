@@ -181,8 +181,41 @@
             </RelativeLayout>
 
             <RelativeLayout
-                android:id="@+id/genre"
+                android:id="@+id/bio"
                 android:layout_below="@+id/country"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/bio_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:tint="@color/grey600"
+                    android:src="@drawable/ic_assignment_black_24dp" />
+
+                <TextView
+                    android:id="@+id/bio_label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:paddingTop="2dp"
+                    android:layout_toEndOf="@id/bio_icon"
+                    android:textAlignment="gravity"
+                    tools:text="@tools:sample/lorem" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@+id/bio_label"
+                    android:layout_marginStart="16dp"
+                    android:layout_toEndOf="@+id/bio_icon"
+                    android:background="@color/dividerDark" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/genre"
+                android:layout_below="@+id/bio"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
 
@@ -295,9 +328,58 @@
                     android:background="@color/dividerDark" />
             </RelativeLayout>
 
+
+            <RelativeLayout
+                android:id="@+id/known_for"
+                android:layout_below="@+id/starring"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/known_for_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:tint="@color/grey600"
+                    android:src="@drawable/ic_local_movies_black_24dp" />
+
+                <TextView
+                    android:id="@+id/known_for_label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:paddingTop="2dp"
+                    android:layout_toEndOf="@id/known_for_icon"
+                    android:textAlignment="gravity"
+                    android:text="@string/known_for" />
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/known_for_list"
+                    android:layout_below="@id/known_for_label"
+                    app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:nestedScrollingEnabled="false"
+                    android:layout_marginBottom="16dp"
+                    android:paddingStart="68dp"
+                    android:paddingEnd="16dp"
+                    android:clipToPadding="false"
+                    android:overScrollMode="never"
+                    tools:listitem="@layout/adapter_people_horizontal"
+                    android:layout_height="wrap_content" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@+id/known_for_list"
+                    android:layout_marginStart="16dp"
+                    android:layout_toEndOf="@+id/known_for_icon"
+                    android:background="@color/dividerDark" />
+            </RelativeLayout>
+
             <RelativeLayout
                 android:id="@+id/plot"
-                android:layout_below="@+id/starring"
+                android:layout_below="@+id/known_for"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
 
@@ -364,7 +446,7 @@
                     android:paddingEnd="16dp"
                     android:clipToPadding="false"
                     android:overScrollMode="never"
-                    tools:listitem="@layout/adapter_seasons_horizontal"
+                    tools:listitem="@layout/adapter_media_horizontal"
                     android:layout_height="wrap_content" />
 
                 <View

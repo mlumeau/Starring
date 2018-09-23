@@ -19,6 +19,8 @@
     <string name="created_by">Created by:</string>
     <string name="guests">Guests:</string>
     <string name="episodes">Episodes</string>
+    <string name="age">%1$d years old</string>
+    <string name="known_for">Known for:</string>
 
     <plurals name="seasons_nb">
         <item quantity="one">%d season</item>

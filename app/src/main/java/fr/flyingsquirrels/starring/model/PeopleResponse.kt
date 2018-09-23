@@ -4,7 +4,7 @@ import android.os.Parcel
 import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
 
-data class TMDBPeopleResponse(
+data class PeopleResponse(
         @SerializedName("page") var page: Int?,
         @SerializedName("total_results") var totalResults: Int?,
         @SerializedName("total_pages") var totalPages: Int?,
@@ -27,12 +27,12 @@ data class TMDBPeopleResponse(
         return 0
     }
 
-    companion object CREATOR : Parcelable.Creator<TMDBPeopleResponse> {
-        override fun createFromParcel(parcel: Parcel): TMDBPeopleResponse {
-            return TMDBPeopleResponse(parcel)
+    companion object CREATOR : Parcelable.Creator<PeopleResponse> {
+        override fun createFromParcel(parcel: Parcel): PeopleResponse {
+            return PeopleResponse(parcel)
         }
 
-        override fun newArray(size: Int): Array<TMDBPeopleResponse?> {
+        override fun newArray(size: Int): Array<PeopleResponse?> {
             return arrayOfNulls(size)
         }
 

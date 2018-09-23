@@ -10,15 +10,21 @@ data class Images(
         val posters: List<Image?>? = null,
 
         @field:SerializedName("backdrops")
-        val backdrops: List<Image?>? = null
+        val backdrops: List<Image?>? = null,
+
+        @field:SerializedName("profiles")
+        val profiles: List<Image?>? = null
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
             parcel.createTypedArrayList(Image),
-            parcel.createTypedArrayList(Image))
+            parcel.createTypedArrayList(Image),
+            parcel.createTypedArrayList(Image)
+    )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeTypedList(posters)
         parcel.writeTypedList(backdrops)
+        parcel.writeTypedList(profiles)
     }
 
     override fun describeContents(): Int {

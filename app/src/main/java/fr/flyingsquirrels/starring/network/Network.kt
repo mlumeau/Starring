@@ -4,6 +4,7 @@ import fr.flyingsquirrels.starring.BuildConfig
 import fr.flyingsquirrels.starring.network.Parameters.CACHE_SIZE
 import okhttp3.Cache
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidApplication
 import org.koin.dsl.module.Module
 import org.koin.dsl.module.applicationContext
@@ -24,8 +25,10 @@ val NetworkModule : Module = applicationContext{
 
 
     bean{
-        OkHttpClient.Builder()
-                .addInterceptor({ chain ->
+
+
+        val builder = OkHttpClient.Builder()
+                .addInterceptor { chain ->
                     chain.proceed(
                             chain.request().newBuilder().url(
                                     chain.request().url().newBuilder()
@@ -34,8 +37,16 @@ val NetworkModule : Module = applicationContext{
                                             .addQueryParameter("include_image_language", "${Locale.getDefault().language},null")
                                             .build()
                             ).build())
-                }).cache(Cache(this.androidApplication().cacheDir, CACHE_SIZE))
-                .build()
+                }
+                .cache(Cache(this.androidApplication().cacheDir, CACHE_SIZE))
+
+        if (BuildConfig.DEBUG) {
+            val logging = HttpLoggingInterceptor()
+            logging.level = HttpLoggingInterceptor.Level.BODY
+            builder.addInterceptor(logging)
+        }
+
+        builder.build()
     }
 
     bean{
@@ -49,7 +60,8 @@ val NetworkModule : Module = applicationContext{
 
     bean{
         val retrofit: Retrofit = get()
-        retrofit.create(TMDBRetrofitService::class.java)
+        retrofit
+                .create(TMDBRetrofitService::class.java)
     }
 
 }

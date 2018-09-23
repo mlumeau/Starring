@@ -2,48 +2,71 @@ package fr.flyingsquirrels.starring.utils
 
 import android.support.v7.util.DiffUtil
 
-import fr.flyingsquirrels.starring.model.TMDBMovie
-import fr.flyingsquirrels.starring.model.TMDBTVShow
+import fr.flyingsquirrels.starring.model.Movie
+import fr.flyingsquirrels.starring.model.Person
+import fr.flyingsquirrels.starring.model.TVShow
 
-class TMDBMovieDiffCallback(private val mOldTMDBMovieList: List<TMDBMovie>, private val mNewTMDBMovieList: List<TMDBMovie>) : DiffUtil.Callback() {
+class MovieDiffCallback(private val mOldMovieList: List<Movie>, private val mNewMovieList: List<Movie>) : DiffUtil.Callback() {
 
     override fun getOldListSize(): Int {
-        return mOldTMDBMovieList.size
+        return mOldMovieList.size
     }
 
     override fun getNewListSize(): Int {
-        return mNewTMDBMovieList.size
+        return mNewMovieList.size
     }
 
     override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        return mOldTMDBMovieList[oldItemPosition].id === mNewTMDBMovieList[newItemPosition].id
+        return mOldMovieList[oldItemPosition].id === mNewMovieList[newItemPosition].id
     }
 
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        val (_, _, _, _, _, _, _, _, _, _, _, id) = mOldTMDBMovieList[oldItemPosition]
-        val (_, _, _, _, _, _, _, _, _, _, _, id1) = mNewTMDBMovieList[newItemPosition]
+        val (_, _, _, _, _, _, _, _, _, _, _, id) = mOldMovieList[oldItemPosition]
+        val (_, _, _, _, _, _, _, _, _, _, _, id1) = mNewMovieList[newItemPosition]
 
         return id == id1
     }
 }
 
-class TMDBTVShowDiffCallback(private val mOldTMDBTVShowList: List<TMDBTVShow>, private val mNewTMDBTVShowList: List<TMDBTVShow>) : DiffUtil.Callback() {
+class TVShowDiffCallback(private val mOldTVShowList: List<TVShow>, private val mNewTVShowList: List<TVShow>) : DiffUtil.Callback() {
 
     override fun getOldListSize(): Int {
-        return mOldTMDBTVShowList.size
+        return mOldTVShowList.size
     }
 
     override fun getNewListSize(): Int {
-        return mNewTMDBTVShowList.size
+        return mNewTVShowList.size
     }
 
     override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        return mOldTMDBTVShowList[oldItemPosition].id === mNewTMDBTVShowList[newItemPosition].id
+        return mOldTVShowList[oldItemPosition].id === mNewTVShowList[newItemPosition].id
     }
 
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        val (_, _, _, _, _, _,  id) = mOldTMDBTVShowList[oldItemPosition]
-        val (_, _, _, _, _, _,  id1) = mNewTMDBTVShowList[newItemPosition]
+        val (_, _, _, _, _, _,  id) = mOldTVShowList[oldItemPosition]
+        val (_, _, _, _, _, _,  id1) = mNewTVShowList[newItemPosition]
+
+        return id == id1
+    }
+}
+
+class PeopleDiffCallback(private val mOldPeople: List<Person>, private val mNewPeople: List<Person>) : DiffUtil.Callback() {
+
+    override fun getOldListSize(): Int {
+        return mOldPeople.size
+    }
+
+    override fun getNewListSize(): Int {
+        return mNewPeople.size
+    }
+
+    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+        return mOldPeople[oldItemPosition].id === mNewPeople[newItemPosition].id
+    }
+
+    override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+        val (_, _, _, _, _, _,  id) = mOldPeople[oldItemPosition]
+        val (_, _, _, _, _, _,  id1) = mNewPeople[newItemPosition]
 
         return id == id1
     }

@@ -20,8 +20,9 @@ import fr.flyingsquirrels.starring.db.StarringDB
 import fr.flyingsquirrels.starring.model.*
 import fr.flyingsquirrels.starring.network.TMDBRetrofitService
 import fr.flyingsquirrels.starring.network.TMDB_CONST
-import fr.flyingsquirrels.starring.utils.TMDBMovieDiffCallback
-import fr.flyingsquirrels.starring.utils.TMDBTVShowDiffCallback
+import fr.flyingsquirrels.starring.utils.MovieDiffCallback
+import fr.flyingsquirrels.starring.utils.PeopleDiffCallback
+import fr.flyingsquirrels.starring.utils.TVShowDiffCallback
 import fr.flyingsquirrels.starring.utils.inflate
 import kotlinx.android.synthetic.main.adapter_movies.view.*
 import kotlinx.android.synthetic.main.adapter_people.view.*
@@ -96,128 +97,150 @@ class MediaListFragment : Fragment() {
 
         if(type!=null) {
 
-            if (type!!.startsWith("tv")) {
+            when {
+                type!!.startsWith("tv") -> {
 
-                val tvListRequest: Call<TMDBTVShowResponse>? = when (type) {
-                    TMDBTVShowResponse.POPULAR -> tmdb.getPopularTVShows()
-                    TMDBTVShowResponse.TOP_RATED -> tmdb.getTopRatedTVShows()
-                    TMDBTVShowResponse.AIRING_TODAY -> tmdb.getAiringTodayTVShows()
-                    TMDBTVShowResponse.ON_THE_AIR -> tmdb.getOnTheAirTVShows()
-                    else -> null
-                }
+                    val tvListRequest: Call<TVShowResponse>? = when (type) {
+                        TVShowResponse.POPULAR -> tmdb.getPopularTVShows()
+                        TVShowResponse.TOP_RATED -> tmdb.getTopRatedTVShows()
+                        TVShowResponse.AIRING_TODAY -> tmdb.getAiringTodayTVShows()
+                        TVShowResponse.ON_THE_AIR -> tmdb.getOnTheAirTVShows()
+                        else -> null
+                    }
 
-                val tvRequestCallback = object : MediaCallback<TMDBTVShowResponse>() {
+                    val tvRequestCallback = object : MediaCallback<TVShowResponse>() {
 
-                    override fun onResponse(call: Call<TMDBTVShowResponse>?, response: Response<TMDBTVShowResponse>?) {
-                        if (response != null) {
-                            val tmdbResponse = response.body()
-                            list?.adapter = tmdbResponse?.results?.let { TVAdapter(it) }
-                            finishLoading()
+                        override fun onResponse(call: Call<TVShowResponse>?, response: Response<TVShowResponse>?) {
+                            if (response != null) {
+                                val tmdbResponse = response.body()
+                                list?.adapter = tmdbResponse?.results?.let { TVAdapter(it) }
+                                finishLoading()
+                            }
                         }
                     }
-                }
 
-                swipe_refresh.setOnRefreshListener {
-                    tvListRequest.let {
-                        it?.clone()?.enqueue(tvRequestCallback)
-                    }
-                }
-                tvListRequest?.enqueue(tvRequestCallback)
-            } else if (type!!.startsWith("movie")) {
-
-                val movieListRequest: Call<TMDBMovieResponse>? = when (type) {
-                    TMDBMovieResponse.POPULAR -> tmdb.getPopularMovies()
-                    TMDBMovieResponse.TOP_RATED -> tmdb.getTopRatedMovies()
-                    TMDBMovieResponse.NOW_PLAYING -> tmdb.getNowPlayingMovies()
-                    TMDBMovieResponse.UPCOMING -> tmdb.getUpcomingMovies()
-                    else -> null
-                }
-
-                val movieRequestCallback = object : MediaCallback<TMDBMovieResponse>() {
-
-                    override fun onResponse(call: Call<TMDBMovieResponse>?, response: Response<TMDBMovieResponse>?) {
-                        if (response != null) {
-                            val tmdbResponse = response.body()
-                            list?.adapter = tmdbResponse?.results?.let { FilmsAdapter(it) }
-                            finishLoading()
+                    swipe_refresh.setOnRefreshListener {
+                        tvListRequest.let {
+                            it?.clone()?.enqueue(tvRequestCallback)
                         }
                     }
+                    tvListRequest?.enqueue(tvRequestCallback)
                 }
+                type!!.startsWith("movie") -> {
 
-                swipe_refresh.setOnRefreshListener {
-                    movieListRequest.let {
-                        it?.clone()?.enqueue(movieRequestCallback)
+                    val movieListRequest: Call<MovieResponse>? = when (type) {
+                        MovieResponse.POPULAR -> tmdb.getPopularMovies()
+                        MovieResponse.TOP_RATED -> tmdb.getTopRatedMovies()
+                        MovieResponse.NOW_PLAYING -> tmdb.getNowPlayingMovies()
+                        MovieResponse.UPCOMING -> tmdb.getUpcomingMovies()
+                        else -> null
                     }
-                }
 
-                movieListRequest?.enqueue(movieRequestCallback)
+                    val movieRequestCallback = object : MediaCallback<MovieResponse>() {
 
-            } else if (type!!.startsWith("people")) {
-
-                val peopleListRequest: Call<TMDBPeopleResponse>? = when (type) {
-                    TMDBPeopleResponse.POPULAR -> tmdb.getPopularPeople()
-                    else -> null
-                }
-
-                val peopleRequestCallback = object : MediaCallback<TMDBPeopleResponse>() {
-
-                    override fun onResponse(call: Call<TMDBPeopleResponse>?, response: Response<TMDBPeopleResponse>?) {
-                        if (response != null) {
-                            val tmdbResponse = response.body()
-                            list?.adapter = tmdbResponse?.people?.let { PeopleAdapter(it) }
-                            finishLoading()
+                        override fun onResponse(call: Call<MovieResponse>?, response: Response<MovieResponse>?) {
+                            if (response != null) {
+                                val tmdbResponse = response.body()
+                                list?.adapter = tmdbResponse?.results?.let { FilmsAdapter(it) }
+                                finishLoading()
+                            }
                         }
                     }
-                }
 
-                swipe_refresh.setOnRefreshListener {
-                    peopleListRequest.let {
-                        it?.clone()?.enqueue(peopleRequestCallback)
+                    swipe_refresh.setOnRefreshListener {
+                        movieListRequest.let {
+                            it?.clone()?.enqueue(movieRequestCallback)
+                        }
                     }
+
+                    movieListRequest?.enqueue(movieRequestCallback)
+
                 }
+                type!!.startsWith("people") -> {
 
-                peopleListRequest?.enqueue(peopleRequestCallback)
+                    val peopleListRequest: Call<PeopleResponse>? = when (type) {
+                        PeopleResponse.POPULAR -> tmdb.getPopularPeople()
+                        else -> null
+                    }
 
-            } else if(type!!.startsWith("fav")) {
-                //Favorites fragment
-                swipe_refresh.isEnabled = false
-                when(type){
-                    FAV_MOVIE -> {
-                        starringDB.favoritesDao().getFavoriteMovies()
-                                .compose(provider.bindToLifecycle())
-                                .subscribe {
-                                    this@MediaListFragment.activity?.runOnUiThread {
-                                        if (list?.adapter == null) {
-                                            list?.adapter = FilmsAdapter(it)
-                                        } else {
-                                            val diffCallback = TMDBMovieDiffCallback((list.adapter as FilmsAdapter).items, it)
-                                            (list.adapter as FilmsAdapter).items = it
-                                            DiffUtil.calculateDiff(diffCallback).dispatchUpdatesTo(list.adapter)
+                    val peopleRequestCallback = object : MediaCallback<PeopleResponse>() {
+
+                        override fun onResponse(call: Call<PeopleResponse>?, response: Response<PeopleResponse>?) {
+                            if (response != null) {
+                                val tmdbResponse = response.body()
+                                list?.adapter = tmdbResponse?.people?.let { PeopleAdapter(it) }
+                                finishLoading()
+                            }
+                        }
+                    }
+
+                    swipe_refresh.setOnRefreshListener {
+                        peopleListRequest.let {
+                            it?.clone()?.enqueue(peopleRequestCallback)
+                        }
+                    }
+
+                    peopleListRequest?.enqueue(peopleRequestCallback)
+
+                }
+                type!!.startsWith("fav") -> {
+                    //Favorites fragment
+                    swipe_refresh.isEnabled = false
+                    when(type){
+                        FAV_MOVIE -> {
+                            starringDB.favoritesDao().getFavoriteMovies()
+                                    .compose(provider.bindToLifecycle())
+                                    .subscribe {
+                                        this@MediaListFragment.activity?.runOnUiThread {
+                                            if (list?.adapter == null) {
+                                                list?.adapter = FilmsAdapter(it)
+                                            } else {
+                                                val diffCallback = MovieDiffCallback((list.adapter as FilmsAdapter).items, it)
+                                                (list.adapter as FilmsAdapter).items = it
+                                                DiffUtil.calculateDiff(diffCallback).dispatchUpdatesTo(list.adapter)
+                                            }
+
+                                            finishLoading()
                                         }
-
-                                        finishLoading()
                                     }
-                                }
-                    }
-                    FAV_TV -> {
-                        starringDB.favoritesDao().getFavoriteTVShows()
-                                .compose(provider.bindToLifecycle())
-                                .subscribe {
-                                    this@MediaListFragment.activity?.runOnUiThread {
-                                        if (list?.adapter == null) {
-                                            list?.adapter = TVAdapter(it)
-                                        } else {
-                                            val diffCallback = TMDBTVShowDiffCallback((list.adapter as TVAdapter).items, it)
-                                            (list.adapter as TVAdapter).items = it
-                                            DiffUtil.calculateDiff(diffCallback).dispatchUpdatesTo(list.adapter)
+                        }
+                        FAV_TV -> {
+                            starringDB.favoritesDao().getFavoriteTVShows()
+                                    .compose(provider.bindToLifecycle())
+                                    .subscribe {
+                                        this@MediaListFragment.activity?.runOnUiThread {
+                                            if (list?.adapter == null) {
+                                                list?.adapter = TVAdapter(it)
+                                            } else {
+                                                val diffCallback = TVShowDiffCallback((list.adapter as TVAdapter).items, it)
+                                                (list.adapter as TVAdapter).items = it
+                                                DiffUtil.calculateDiff(diffCallback).dispatchUpdatesTo(list.adapter)
+                                            }
+
+                                            finishLoading()
                                         }
-
-                                        finishLoading()
                                     }
-                                }
-                    }
-                }
+                        }
+                        FAV_PEOPLE -> {
+                            starringDB.favoritesDao().getFavoritePeople()
+                                    .compose(provider.bindToLifecycle())
+                                    .subscribe {
+                                        this@MediaListFragment.activity?.runOnUiThread {
+                                            if (list?.adapter == null) {
+                                                list?.adapter = PeopleAdapter(it)
+                                            } else {
+                                                val diffCallback = PeopleDiffCallback((list.adapter as PeopleAdapter).items, it)
+                                                (list.adapter as PeopleAdapter).items = it
+                                                DiffUtil.calculateDiff(diffCallback).dispatchUpdatesTo(list.adapter)
+                                            }
 
+                                            finishLoading()
+                                        }
+                                    }
+                        }
+                    }
+
+                }
             }
 
         }
@@ -239,7 +262,7 @@ class MediaListFragment : Fragment() {
         loading?.visibility = View.GONE
     }
 
-    inner class TVAdapter(var items: List<TMDBTVShow>) : RecyclerView.Adapter<MediaHolder>() {
+    inner class TVAdapter(var items: List<TVShow>) : RecyclerView.Adapter<MediaHolder>() {
         override fun onBindViewHolder(holder: MediaHolder, position: Int) = holder.bindTVShow(items[position])
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MediaHolder = MediaHolder(parent.inflate(R.layout.adapter_movies))
@@ -247,7 +270,7 @@ class MediaListFragment : Fragment() {
         override fun getItemCount(): Int = items.size
     }
 
-    inner class FilmsAdapter(var items: List<TMDBMovie>) : RecyclerView.Adapter<MediaHolder>() {
+    inner class FilmsAdapter(var items: List<Movie>) : RecyclerView.Adapter<MediaHolder>() {
         override fun onBindViewHolder(holder: MediaHolder, position: Int) = holder.bindMovie(items[position])
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MediaHolder = MediaHolder(parent.inflate(R.layout.adapter_movies))
@@ -266,16 +289,16 @@ class MediaListFragment : Fragment() {
     }
 
     inner class MediaHolder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
-        fun bindMovie(movie: TMDBMovie) {
+        fun bindMovie(movie: Movie) {
             bind(DetailActivity.EXTRA_MOVIE,movie, TMDB_CONST.POSTER_URL_THUMBNAIL +movie.posterPath)
         }
 
-        fun bindTVShow(movie: TMDBTVShow) {
+        fun bindTVShow(movie: TVShow) {
             bind(DetailActivity.EXTRA_TV_SHOW,movie, TMDB_CONST.POSTER_URL_THUMBNAIL +movie.posterPath)
         }
 
         private fun bind(type : String, media : Parcelable, imagePath : String){
-            Picasso.with(itemView.context).load(imagePath).placeholder(R.color.grey600).fit().centerCrop().into(itemView.cover)
+            Picasso.get().load(imagePath).placeholder(R.color.grey600).fit().centerCrop().into(itemView.cover)
 
             this.itemView.setOnClickListener {
 
@@ -295,7 +318,7 @@ class MediaListFragment : Fragment() {
                     extras.putByteArray(DetailActivity.EXTRA_THUMBNAIL, bs.toByteArray())
                 }
                 extras.putString(DetailActivity.EXTRA_MEDIA_TYPE, type)
-                extras.putParcelable(DetailActivity.EXTRA_MEDIA, media)
+                extras.putParcelable(DetailActivity.EXTRA_PAYLOAD, media)
 
                 intent.putExtras(extras)
 
@@ -308,32 +331,32 @@ class MediaListFragment : Fragment() {
     inner class PeopleHolder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
 
         fun bind(person : Person){
-            Picasso.with(itemView.context).load(TMDB_CONST.POSTER_URL_THUMBNAIL + person.profilePath).placeholder(R.color.grey600).fit().centerCrop().into(itemView.portrait)
+            Picasso.get().load(TMDB_CONST.POSTER_URL_THUMBNAIL + person.profilePath).placeholder(R.color.grey600).fit().centerCrop().into(itemView.portrait)
             itemView.name_label.text = person.name
 
             this.itemView.setOnClickListener {
-/*
+
                 it.transitionName = DetailActivity.EXTRA_IMAGE
                 val intent = Intent(it.context, DetailActivity::class.java)
 
                 var options: Bundle? = null
                 val extras = Bundle()
                 if (this@MediaListFragment.activity != null) {
-                    options = ActivityOptionsCompat.makeSceneTransitionAnimation(this@MediaListFragment.activity!!, it, DetailActivity.EXTRA_SHARED_POSTER).toBundle()
+                    options = ActivityOptionsCompat.makeSceneTransitionAnimation(this@MediaListFragment.activity!!, it, DetailActivity.EXTRA_SHARED_PEOPLE).toBundle()
                 }
-                if(it.cover.drawable != null && it.cover.drawable is BitmapDrawable) {
-                    val b: Bitmap = (itemView.cover.drawable as BitmapDrawable).bitmap
+                if(it.portrait.drawable != null && it.portrait.drawable is BitmapDrawable) {
+                    val b: Bitmap = (itemView.portrait.drawable as BitmapDrawable).bitmap
                     val bs = ByteArrayOutputStream()
                     b.compress(Bitmap.CompressFormat.JPEG, 50, bs)
 
                     extras.putByteArray(DetailActivity.EXTRA_THUMBNAIL, bs.toByteArray())
                 }
-                extras.putString(DetailActivity.EXTRA_MEDIA_TYPE, type)
-                extras.putParcelable(DetailActivity.EXTRA_MEDIA, media)
+                extras.putString(DetailActivity.EXTRA_MEDIA_TYPE, DetailActivity.EXTRA_PERSON)
+                extras.putParcelable(DetailActivity.EXTRA_PAYLOAD, person)
 
                 intent.putExtras(extras)
                 it.context.startActivity(intent, options)
-*/
+
             }
         }
 

@@ -4,7 +4,7 @@ import android.os.Parcel
 import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
 
-data class Credits(
+data class PeopleCredits(
 
         @field:SerializedName("cast")
 	val cast: List<CastItem?>? = null,
@@ -26,12 +26,12 @@ data class Credits(
 		return 0
 	}
 
-	companion object CREATOR : Parcelable.Creator<Credits> {
-		override fun createFromParcel(parcel: Parcel): Credits {
-			return Credits(parcel)
+	companion object CREATOR : Parcelable.Creator<PeopleCredits> {
+		override fun createFromParcel(parcel: Parcel): PeopleCredits {
+			return PeopleCredits(parcel)
 		}
 
-		override fun newArray(size: Int): Array<Credits?> {
+		override fun newArray(size: Int): Array<PeopleCredits?> {
 			return arrayOfNulls(size)
 		}
 	}

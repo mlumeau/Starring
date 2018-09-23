@@ -2,11 +2,13 @@ package fr.flyingsquirrels.starring.db
 
 import android.arch.persistence.room.TypeConverter
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import fr.flyingsquirrels.starring.model.*
+import fr.flyingsquirrels.starring.utils.fromJson
+import org.koin.standalone.KoinComponent
+import org.koin.standalone.inject
 
-object Converters{
-    val gson : Gson = Gson()
+object Converters : KoinComponent{
+    val gson : Gson by inject()
 
     @TypeConverter
     @JvmStatic
@@ -22,19 +24,44 @@ object Converters{
 
     @TypeConverter
     @JvmStatic
-    fun creditsFromString(data: String): Credits? {
+    fun peopleCreditsFromString(data: String): PeopleCredits? {
         return gson.fromJson(data)
     }
 
     @TypeConverter
     @JvmStatic
-    fun creditsToString(data: Credits?): String {
+    fun peopleCreditsToString(data: PeopleCredits?): String {
+        return gson.toJson(data)
+    }
+
+
+    @TypeConverter
+    @JvmStatic
+    fun mediaCreditsFromString(data: String): MediaCredits? {
+        return gson.fromJson(data)
+    }
+
+    @TypeConverter
+    @JvmStatic
+    fun mediaCreditsToString(data: MediaCredits?): String {
         return gson.toJson(data)
     }
 
     @TypeConverter
     @JvmStatic
-    fun genreistFromString(data: String): List<Genre?>? {
+    fun mediaCreditListFromString(data: String): List<MediaCredit?>? {
+        return gson.fromJson(data)
+    }
+
+    @TypeConverter
+    @JvmStatic
+    fun mediaCreditListToString(data: List<MediaCredit?>?): String {
+        return gson.toJson(data)
+    }
+
+    @TypeConverter
+    @JvmStatic
+    fun genreListFromString(data: String): List<Genre?>? {
         return gson.fromJson(data)
     }
 
@@ -152,7 +179,4 @@ object Converters{
         return gson.toJson(data)
     }
 
-
-
-    private inline fun <reified T> Gson.fromJson(json: String) = this.fromJson<T>(json, object: TypeToken<T>() {}.type)
 }

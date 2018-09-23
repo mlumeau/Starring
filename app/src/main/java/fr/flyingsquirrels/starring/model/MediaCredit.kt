@@ -4,13 +4,14 @@ import android.os.Parcel
 import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
 
-data class KnownFor(
+data class MediaCredit(
         @SerializedName("vote_average") var voteAverage: Double?,
         @SerializedName("vote_count") var voteCount: Int?,
         @SerializedName("id") var id: Int?,
         @SerializedName("video") var video: Boolean?,
         @SerializedName("media_type") var mediaType: String?,
         @SerializedName("title") var title: String?,
+        @SerializedName("name") var name: String?,
         @SerializedName("popularity") var popularity: Double?,
         @SerializedName("poster_path") var posterPath: String?,
         @SerializedName("original_language") var originalLanguage: String?,
@@ -26,6 +27,7 @@ data class KnownFor(
             parcel.readValue(Int::class.java.classLoader) as? Int,
             parcel.readValue(Int::class.java.classLoader) as? Int,
             parcel.readValue(Boolean::class.java.classLoader) as? Boolean,
+            parcel.readString(),
             parcel.readString(),
             parcel.readString(),
             parcel.readValue(Double::class.java.classLoader) as? Double,
@@ -45,6 +47,7 @@ data class KnownFor(
         parcel.writeValue(video)
         parcel.writeString(mediaType)
         parcel.writeString(title)
+        parcel.writeString(name)
         parcel.writeValue(popularity)
         parcel.writeString(posterPath)
         parcel.writeString(originalLanguage)
@@ -60,12 +63,12 @@ data class KnownFor(
         return 0
     }
 
-    companion object CREATOR : Parcelable.Creator<KnownFor> {
-        override fun createFromParcel(parcel: Parcel): KnownFor {
-            return KnownFor(parcel)
+    companion object CREATOR : Parcelable.Creator<MediaCredit> {
+        override fun createFromParcel(parcel: Parcel): MediaCredit {
+            return MediaCredit(parcel)
         }
 
-        override fun newArray(size: Int): Array<KnownFor?> {
+        override fun newArray(size: Int): Array<MediaCredit?> {
             return arrayOfNulls(size)
         }
     }

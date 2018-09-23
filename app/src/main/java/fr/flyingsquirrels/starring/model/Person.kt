@@ -1,31 +1,47 @@
 package fr.flyingsquirrels.starring.model
 
+import android.arch.persistence.room.Entity
+import android.arch.persistence.room.PrimaryKey
 import android.os.Parcel
 import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
 
+@Entity
 data class Person(
-        @SerializedName("popularity") var popularity: Double?,
-        @SerializedName("id") var id: Int?,
-        @SerializedName("profile_path") var profilePath: String?,
-        @SerializedName("name") var name: String?,
-        @SerializedName("known_for") var knownFor: List<KnownFor?>?,
-        @SerializedName("adult") var adult: Boolean?
-) : Parcelable {
+        @SerializedName("popularity") var popularity: Double? = null,
+        @PrimaryKey
+        @SerializedName("id") var id: Int? = null,
+        @SerializedName("profile_path") var profilePath: String? = null,
+        @SerializedName("name") var name: String? = null,
+        @SerializedName("birthday") var birthday: String? = null,
+        @SerializedName("deathday") var deathday: String? = null,
+        @SerializedName("biography") var biography: String? = null,
+        @SerializedName("images") var images: Images? = null,
+        @SerializedName("combined_credits") var mediaCredits: MediaCredits? = null,
+        @SerializedName("adult") var adult: Boolean? = null
+        ) : Parcelable {
     constructor(parcel: Parcel) : this(
             parcel.readValue(Double::class.java.classLoader) as? Double,
             parcel.readValue(Int::class.java.classLoader) as? Int,
             parcel.readString(),
             parcel.readString(),
-            parcel.createTypedArrayList(KnownFor),
+            parcel.readString(),
+            parcel.readString(),
+            parcel.readString(),
+            parcel.readParcelable(Images::class.java.classLoader),
+            parcel.readParcelable(MediaCredits::class.java.classLoader),
             parcel.readValue(Boolean::class.java.classLoader) as? Boolean)
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeValue(popularity)
         parcel.writeValue(id)
-        parcel.readString()
+        parcel.writeString(profilePath)
         parcel.writeString(name)
-        parcel.writeTypedList(knownFor)
+        parcel.writeString(birthday)
+        parcel.writeString(deathday)
+        parcel.writeString(biography)
+        parcel.writeParcelable(images,flags)
+        parcel.writeParcelable(mediaCredits,flags)
         parcel.writeValue(adult)
     }
 

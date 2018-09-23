@@ -194,11 +194,11 @@ class ImagesActivity : AppCompatActivity() {
                 val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
                 image.setImageBitmap(bitmap)
             }
-            Picasso.with(context).load(url).fit().centerInside().placeholder(image.drawable).into(image)
+            Picasso.get().load(url).fit().centerInside().placeholder(image.drawable).into(image)
 
-            image.setOnPhotoTapListener({ _,_,_ ->
+            image.setOnPhotoTapListener { _, _, _ ->
                 (activity as ImagesActivity).toggle()
-            })
+            }
         }
 
         companion object {
@@ -224,7 +224,7 @@ class ImagesActivity : AppCompatActivity() {
                         .translationY(-112f)
                         .setDuration(200L)
                         .setInterpolator(AccelerateDecelerateInterpolator())
-                        .withEndAction({ ab.hide() })
+                        .withEndAction { ab.hide() }
                         .start()
             } else {
                 ab.hide()

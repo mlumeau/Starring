@@ -9,7 +9,7 @@ import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
 
 @Entity
-data class TMDBMovie(
+data class Movie(
 
         @field:SerializedName("original_language")
         var originalLanguage: String? = null,
@@ -33,7 +33,7 @@ data class TMDBMovie(
         var revenue: Int? = null,
 
         @field:SerializedName("credits")
-        var credits: Credits? = null,
+        var credits: PeopleCredits? = null,
 
         @field:SerializedName("genres")
         var genres: List<Genre?>? = null,
@@ -95,13 +95,13 @@ data class TMDBMovie(
 
 ) : Parcelable{
 
-    companion object CREATOR : Parcelable.Creator<TMDBMovie>{
+    companion object CREATOR : Parcelable.Creator<Movie>{
 
-        override fun createFromParcel(parcel: Parcel): TMDBMovie {
-            return TMDBMovie(parcel)
+        override fun createFromParcel(parcel: Parcel): Movie {
+            return Movie(parcel)
         }
 
-        override fun newArray(size: Int): Array<TMDBMovie?> {
+        override fun newArray(size: Int): Array<Movie?> {
             return arrayOfNulls(size)
         }
     }
@@ -114,7 +114,7 @@ data class TMDBMovie(
             parcel.readString(),
             parcel.readString(),
             parcel.readValue(Int::class.java.classLoader) as? Int,
-            parcel.readParcelable(Credits::class.java.classLoader),
+            parcel.readParcelable(PeopleCredits::class.java.classLoader),
             parcel.createTypedArrayList(Genre),
             parcel.readValue(Double::class.java.classLoader) as? Double,
             parcel.createTypedArrayList(ProductionCountry),

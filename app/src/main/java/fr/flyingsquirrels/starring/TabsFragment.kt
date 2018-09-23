@@ -12,9 +12,9 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import fr.flyingsquirrels.starring.model.TMDBMovieResponse
-import fr.flyingsquirrels.starring.model.TMDBPeopleResponse
-import fr.flyingsquirrels.starring.model.TMDBTVShowResponse
+import fr.flyingsquirrels.starring.model.MovieResponse
+import fr.flyingsquirrels.starring.model.PeopleResponse
+import fr.flyingsquirrels.starring.model.TVShowResponse
 import fr.flyingsquirrels.starring.utils.dpToPx
 import kotlinx.android.synthetic.main.fragment_tabs.*
 
@@ -112,10 +112,10 @@ abstract class TabsFragment : Fragment(){
             val args = Bundle()
             val type = when(position){
                 0 -> MediaListFragment.FAV_MOVIE
-                1 -> TMDBMovieResponse.NOW_PLAYING
-                2 -> TMDBMovieResponse.UPCOMING
-                3 -> TMDBMovieResponse.POPULAR
-                4 -> TMDBMovieResponse.TOP_RATED
+                1 -> MovieResponse.NOW_PLAYING
+                2 -> MovieResponse.UPCOMING
+                3 -> MovieResponse.POPULAR
+                4 -> MovieResponse.TOP_RATED
                 else -> null
             }
 
@@ -143,10 +143,10 @@ abstract class TabsFragment : Fragment(){
             val args = Bundle()
             val type = when(position){
                 0 -> MediaListFragment.FAV_TV
-                1 -> TMDBTVShowResponse.AIRING_TODAY
-                2 -> TMDBTVShowResponse.ON_THE_AIR
-                3 -> TMDBTVShowResponse.POPULAR
-                4 -> TMDBTVShowResponse.TOP_RATED
+                1 -> TVShowResponse.AIRING_TODAY
+                2 -> TVShowResponse.ON_THE_AIR
+                3 -> TVShowResponse.POPULAR
+                4 -> TVShowResponse.TOP_RATED
                 else -> null
             }
 
@@ -174,7 +174,7 @@ abstract class TabsFragment : Fragment(){
             val args = Bundle()
             val type = when(position){
                 0 -> MediaListFragment.FAV_PEOPLE
-                1 -> TMDBPeopleResponse.POPULAR
+                1 -> PeopleResponse.POPULAR
                 else -> null
             }
 
