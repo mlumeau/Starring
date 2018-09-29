@@ -18,8 +18,8 @@ The aim of this project is to play around with state-of-the-art Android developm
 - ~~TV shows lists~~
 - ~~TV shows details~~
 - ~~Seasons & episode details~~
-- People lists
-- People details
+- ~~People lists~~
+- ~~People details~~
 - Paginated lists & infinite scroll
 - Search
 

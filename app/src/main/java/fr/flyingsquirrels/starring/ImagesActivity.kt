@@ -140,13 +140,13 @@ class ImagesActivity : AppCompatActivity() {
          * Whether or not the system UI should be auto-hidden after
          * [AUTO_HIDE_DELAY_MILLIS] milliseconds.
          */
-        private val AUTO_HIDE = true
+        private const val AUTO_HIDE = true
 
         /**
          * If [AUTO_HIDE] is set, the number of milliseconds to wait after
          * user interaction before hiding the system UI.
          */
-        private val AUTO_HIDE_DELAY_MILLIS = 3000
+        private const val AUTO_HIDE_DELAY_MILLIS = 3000
 
         const val EXTRA_THUMBNAIL = "thumbnail"
         const val EXTRA_URL = "url"

@@ -3,7 +3,15 @@ package fr.flyingsquirrels.starring
 import android.os.Bundle
 import android.support.v4.app.FragmentStatePagerAdapter
 import android.support.v7.app.AppCompatActivity
+import androidx.navigation.findNavController
+import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.navigation.ui.setupWithNavController
 import kotlinx.android.synthetic.main.activity_main.*
+import android.text.TextUtils
+import androidx.navigation.NavDestination
+import androidx.navigation.NavController
+
+
 
 
 class MainActivity : AppCompatActivity() {
@@ -14,30 +22,17 @@ class MainActivity : AppCompatActivity() {
 
         setSupportActionBar(toolbar)
 
-        nav.setOnNavigationItemSelectedListener {
-            tabs_container.currentItem = when(it.itemId){
-                R.id.movies -> 0
-                R.id.tv_shows -> 1
-                R.id.people -> 2
-                else -> 0
-            }
-            true
-        }
+        val navController = findNavController(R.id.nav_host_fragment)
+        nav.setupWithNavController(navController)
 
-        tabs_container.adapter = BottomNavAdapter()
+        //setupActionBarWithNavController(navController)
 
     }
 
-    inner class BottomNavAdapter: FragmentStatePagerAdapter(supportFragmentManager){
-        override fun getCount() = 3
+    override fun onSupportNavigateUp() =
+            findNavController(R.id.nav_host_fragment).navigateUp()
 
-        override fun getItem(position: Int) = when(position){
-            0 -> MovieTabsFragment()
-            1 -> TVTabsFragment()
-            2 -> PeopleTabsFragment()
-            else -> null
-        }
-    }
+
 
 }
 

@@ -31,11 +31,16 @@
                 android:layout_height="?android:attr/actionBarSize"/>
         </android.support.design.widget.AppBarLayout>
 
-        <view class="fr.flyingsquirrels.starring.utils.NavViewPager"
-            android:id="@+id/tabs_container"
+        <fragment
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+            android:id="@+id/nav_host_fragment"
+            android:name="androidx.navigation.fragment.NavHostFragment"
+            tools:layout="@layout/fragment_tabs"
+            app:navGraph="@navigation/nav_graph"
+            app:defaultNavHost="true"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            />
 
     </android.support.design.widget.CoordinatorLayout>
 

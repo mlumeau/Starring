@@ -1,4 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<navigation xmlns:android="http://schemas.android.com/apk/res/android">
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/nav_graph"
+    app:startDestination="@id/movies">
 
+    <fragment
+        android:id="@+id/movies"
+        android:name="fr.flyingsquirrels.starring.MovieTabsFragment"
+        android:label="MovieTabsFragment" />
+    <fragment
+        android:id="@+id/tv_shows"
+        android:name="fr.flyingsquirrels.starring.TVTabsFragment"
+        android:label="tvTabsFragment" />
+    <fragment
+        android:id="@+id/people"
+        android:name="fr.flyingsquirrels.starring.PeopleTabsFragment"
+        android:label="PeopleTabsFragment" />
 </navigation>
