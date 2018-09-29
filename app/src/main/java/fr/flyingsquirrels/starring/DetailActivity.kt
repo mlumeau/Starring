@@ -9,7 +9,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.content.ContextCompat
-import android.support.v4.content.ContextCompat.startActivity
 import android.support.v4.view.ViewCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
@@ -20,26 +19,21 @@ import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.ImageView
 import com.squareup.picasso.Picasso
-import fr.flyingsquirrels.starring.R.id.backdrop
-import fr.flyingsquirrels.starring.R.id.fab
+import com.trello.rxlifecycle2.android.lifecycle.kotlin.bindToLifecycle
 import fr.flyingsquirrels.starring.db.StarringDB
 import fr.flyingsquirrels.starring.model.*
+import fr.flyingsquirrels.starring.network.TMDBCONST
 import fr.flyingsquirrels.starring.network.TMDBRetrofitService
-import fr.flyingsquirrels.starring.network.TMDB_CONST
 import fr.flyingsquirrels.starring.view.CastAdapter
 import fr.flyingsquirrels.starring.view.EpisodeAdapter
 import fr.flyingsquirrels.starring.view.MediaCreditAdapter
 import fr.flyingsquirrels.starring.view.SeasonAdapter
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_detail.*
 import org.koin.android.ext.android.inject
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import java.io.ByteArrayOutputStream
-import java.text.DateFormat
 import java.text.SimpleDateFormat
-import java.time.Instant
 import java.util.*
 
 
@@ -51,7 +45,7 @@ class DetailActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_IMAGE = "image"
-        const val EXTRA_PAYLOAD = "payload"
+        const val EXTRA_PAYLOAD = "data"
         const val EXTRA_MOVIE = "movie"
         const val EXTRA_TV_SHOW = "tv_show"
         const val EXTRA_TV_SHOW_SEASON = "tv_show_season"
@@ -120,7 +114,7 @@ class DetailActivity : AppCompatActivity() {
                     bindMovie(intentMovie)
 
                     Schedulers.io().scheduleDirect {
-                        starringDB.favoritesDao().getFavoriteMovieWithId(intentMovie.id).subscribe {
+                        starringDB.favoritesDao().getFavoriteMovieWithId(intentMovie.id).bindToLifecycle(this).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe {
                             runOnUiThread {
                                 isInFavorites = true
                                 fab.setImageDrawable(getDrawable(R.drawable.ic_star_black_24dp))
@@ -128,18 +122,7 @@ class DetailActivity : AppCompatActivity() {
                         }
                     }
                     intentMovie.id?.let { id ->
-                        tmdb.getMovieDetails(id).enqueue(object : Callback<Movie> {
-                            override fun onFailure(call: Call<Movie>?, t: Throwable?) {
-
-                            }
-
-                            override fun onResponse(call: Call<Movie>?, response: Response<Movie>?) {
-                                response?.body()?.let { responseMovie ->
-                                    bindMovie(responseMovie)
-                                }
-                            }
-                        })
-
+                        tmdb.getMovieDetails(id).bindToLifecycle(this).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(this@DetailActivity::bindMovie)
                     }
 
 
@@ -162,18 +145,7 @@ class DetailActivity : AppCompatActivity() {
                         }
                     }
                     intentShow.id?.let { id ->
-                        tmdb.getTVShowDetails(id).enqueue(object : Callback<TVShow> {
-                            override fun onFailure(call: Call<TVShow>?, t: Throwable?) {
-
-                            }
-
-                            override fun onResponse(call: Call<TVShow>?, response: Response<TVShow>?) {
-                                response?.body()?.let { responseTVShow ->
-                                    bindTVShow(responseTVShow)
-                                }
-                            }
-                        })
-
+                        tmdb.getTVShowDetails(id).bindToLifecycle(this).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(this@DetailActivity::bindTVShow)
                     }
 
 
@@ -186,21 +158,16 @@ class DetailActivity : AppCompatActivity() {
                 tvSeason?.let { intentSeason ->
                     bindTVShowSeason(intentSeason)
                     if(intentSeason.tvId != null && intentSeason.seasonNumber != null) {
-                        tmdb.getTVShowSeasonDetails(intentSeason.tvId!!, intentSeason.seasonNumber!!).enqueue(object : Callback<Season> {
-                            override fun onFailure(call: Call<Season>?, t: Throwable?) {
 
+                        tmdb.getTVShowSeasonDetails(intentSeason.tvId!!, intentSeason.seasonNumber!!).bindToLifecycle(this)
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread()).subscribe{ responseTVShowSeason ->
+                            responseTVShowSeason.apply {
+                                tvId = intentSeason.id
+                                backdropPath = intentSeason.backdropPath
                             }
-
-                            override fun onResponse(call: Call<Season>?, response: Response<Season>?) {
-                                response?.body()?.let { responseTVShowSeason ->
-                                    responseTVShowSeason.apply {
-                                        tvId = intentSeason.id
-                                        backdropPath = intentSeason.backdropPath
-                                    }
-                                    bindTVShowSeason(responseTVShowSeason)
-                                }
-                            }
-                        })
+                            bindTVShowSeason(responseTVShowSeason)
+                        }
 
                     }
                 }
@@ -221,18 +188,7 @@ class DetailActivity : AppCompatActivity() {
                         }
                     }
                     intentPerson.id?.let { id ->
-                        tmdb.getPersonDetails(id).enqueue(object : Callback<Person> {
-                            override fun onFailure(call: Call<Person>?, t: Throwable?) {
-
-                            }
-
-                            override fun onResponse(call: Call<Person>?, response: Response<Person>?) {
-                                response?.body()?.let { responsePerson ->
-                                    bindPerson(responsePerson)
-                                }
-                            }
-                        })
-
+                        tmdb.getPersonDetails(id).bindToLifecycle(this).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(this@DetailActivity::bindPerson)
                     }
 
 
@@ -255,8 +211,8 @@ class DetailActivity : AppCompatActivity() {
     }
 
     private fun setUpPoster() {
-        Picasso.get().load(TMDB_CONST.POSTER_URL_THUMBNAIL + posterPath).placeholder(poster.drawable).fit().centerCrop().into(poster)
-        Picasso.get().load(TMDB_CONST.POSTER_URL_LARGE + backdropPath).fit().centerCrop().into(backdrop)
+        Picasso.get().load(TMDBCONST.POSTER_URL_THUMBNAIL + posterPath).placeholder(poster.drawable).fit().centerCrop().into(poster)
+        Picasso.get().load(TMDBCONST.POSTER_URL_LARGE + backdropPath).fit().centerCrop().into(backdrop)
 
     }
 
@@ -796,21 +752,23 @@ class DetailActivity : AppCompatActivity() {
 
         val extras = Bundle()
 
-        val b: Bitmap = (view.drawable as BitmapDrawable).bitmap
-        val bs = ByteArrayOutputStream()
-        b.compress(Bitmap.CompressFormat.JPEG, 50, bs)
+        val b: Bitmap?? = (view.drawable as BitmapDrawable?)?.bitmap
+        b?.let{ bitmap ->
+            val bs = ByteArrayOutputStream()
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, bs)
 
-        val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, view, EXTRA_IMAGE).toBundle()
+            val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, view, EXTRA_IMAGE).toBundle()
 
-        val intent = Intent(this, ImagesActivity::class.java)
-        extras.putByteArray(ImagesActivity.EXTRA_THUMBNAIL, bs.toByteArray())
-        extras.putString(ImagesActivity.EXTRA_TITLE, movie.title)
-        extras.putStringArray(ImagesActivity.EXTRA_URL, (if(view == backdrop) movie.images?.backdrops else movie.images?.posters)?.asSequence()?.filterNotNull()?.map {
-            TMDB_CONST.POSTER_URL_ORIGINAL + it.file_path
-        }?.toList()?.toTypedArray())
-        intent.putExtras(extras)
+            val intent = Intent(this, ImagesActivity::class.java)
+            extras.putByteArray(ImagesActivity.EXTRA_THUMBNAIL, bs.toByteArray())
+            extras.putString(ImagesActivity.EXTRA_TITLE, movie.title)
+            extras.putStringArray(ImagesActivity.EXTRA_URL, (if(view == backdrop) movie.images?.backdrops else movie.images?.posters)?.asSequence()?.filterNotNull()?.map {
+                TMDBCONST.POSTER_URL_ORIGINAL + it.file_path
+            }?.toList()?.toTypedArray())
+            intent.putExtras(extras)
 
-        startActivity(intent,options)
+            startActivity(intent,options)
+        }
     }
 
 
@@ -829,7 +787,7 @@ class DetailActivity : AppCompatActivity() {
         extras.putByteArray(ImagesActivity.EXTRA_THUMBNAIL, bs.toByteArray())
         extras.putString(ImagesActivity.EXTRA_TITLE, tvShow.name)
         extras.putStringArray(ImagesActivity.EXTRA_URL, (if(view == backdrop) tvShow.images?.backdrops else tvShow.images?.posters)?.asSequence()?.filterNotNull()?.map {
-            TMDB_CONST.POSTER_URL_ORIGINAL + it.file_path
+            TMDBCONST.POSTER_URL_ORIGINAL + it.file_path
         }?.toList()?.toTypedArray())
         intent.putExtras(extras)
 
@@ -852,7 +810,7 @@ class DetailActivity : AppCompatActivity() {
         extras.putByteArray(ImagesActivity.EXTRA_THUMBNAIL, bs.toByteArray())
         extras.putString(ImagesActivity.EXTRA_TITLE, person.name)
         extras.putStringArray(ImagesActivity.EXTRA_URL, (person.images?.profiles)?.asSequence()?.filterNotNull()?.map {
-            TMDB_CONST.POSTER_URL_ORIGINAL + it.file_path
+            TMDBCONST.POSTER_URL_ORIGINAL + it.file_path
         }?.toList()?.toTypedArray())
         intent.putExtras(extras)
 

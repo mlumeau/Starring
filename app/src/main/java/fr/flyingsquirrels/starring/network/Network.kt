@@ -9,6 +9,7 @@ import org.koin.android.ext.koin.androidApplication
 import org.koin.dsl.module.Module
 import org.koin.dsl.module.applicationContext
 import retrofit2.Retrofit
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.*
 
@@ -35,6 +36,7 @@ val NetworkModule : Module = applicationContext{
                                             .addQueryParameter("api_key", BuildConfig.api_key)
                                             .addQueryParameter("language", "${Locale.getDefault().language}-${Locale.getDefault().country}")
                                             .addQueryParameter("include_image_language", "${Locale.getDefault().language},null")
+                                            .addQueryParameter("include_adult", "false")
                                             .build()
                             ).build())
                 }
@@ -53,6 +55,7 @@ val NetworkModule : Module = applicationContext{
         Retrofit.Builder()
                 .baseUrl(BuildConfig.base_url)
                 .client(get())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
     }

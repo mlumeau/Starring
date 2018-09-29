@@ -14,11 +14,8 @@ import fr.flyingsquirrels.starring.DetailActivity
 import fr.flyingsquirrels.starring.R
 import fr.flyingsquirrels.starring.model.MediaCredit
 import fr.flyingsquirrels.starring.model.Movie
-import fr.flyingsquirrels.starring.model.Season
 import fr.flyingsquirrels.starring.model.TVShow
-import fr.flyingsquirrels.starring.network.TMDB_CONST
-import fr.flyingsquirrels.starring.network.TMDB_CONST.MOVIE
-import fr.flyingsquirrels.starring.network.TMDB_CONST.TV
+import fr.flyingsquirrels.starring.network.TMDBCONST
 import fr.flyingsquirrels.starring.utils.inflate
 import kotlinx.android.synthetic.main.adapter_media.view.*
 import java.io.ByteArrayOutputStream
@@ -32,7 +29,7 @@ class MediaCreditAdapter(private val items: List<MediaCredit>) : RecyclerView.Ad
 
     inner class Holder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
         fun bind(mediaCredit: MediaCredit) {
-            Picasso.get().load(TMDB_CONST.POSTER_URL_THUMBNAIL + mediaCredit.posterPath).placeholder(R.color.material_grey_600).fit().centerInside().into(itemView.portrait)
+            Picasso.get().load(TMDBCONST.POSTER_URL_THUMBNAIL + mediaCredit.posterPath).placeholder(R.color.material_grey_600).fit().centerInside().into(itemView.portrait)
             itemView.name_label.text = when(mediaCredit.mediaType) {
                 MOVIE -> mediaCredit.title
                 TV -> mediaCredit.name

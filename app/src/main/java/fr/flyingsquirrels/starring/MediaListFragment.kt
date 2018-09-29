@@ -16,21 +16,24 @@ import android.view.View
 import android.view.ViewGroup
 import com.squareup.picasso.Picasso
 import com.trello.lifecycle2.android.lifecycle.AndroidLifecycle
+import com.trello.rxlifecycle2.android.lifecycle.kotlin.bindToLifecycle
 import fr.flyingsquirrels.starring.db.StarringDB
 import fr.flyingsquirrels.starring.model.*
+import fr.flyingsquirrels.starring.network.TMDBCONST
 import fr.flyingsquirrels.starring.network.TMDBRetrofitService
-import fr.flyingsquirrels.starring.network.TMDB_CONST
 import fr.flyingsquirrels.starring.utils.MovieDiffCallback
 import fr.flyingsquirrels.starring.utils.PeopleDiffCallback
 import fr.flyingsquirrels.starring.utils.TVShowDiffCallback
 import fr.flyingsquirrels.starring.utils.inflate
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.adapter_movies.view.*
 import kotlinx.android.synthetic.main.adapter_people.view.*
 import kotlinx.android.synthetic.main.fragment_list.*
 import org.koin.android.ext.android.inject
 import retrofit2.Call
 import retrofit2.Callback
-import retrofit2.Response
 import java.io.ByteArrayOutputStream
 
 
@@ -100,35 +103,37 @@ class MediaListFragment : Fragment() {
             when {
                 type!!.startsWith("tv") -> {
 
-                    val tvListRequest: Call<TVShowResponse>? = when (type) {
+                    val tvListRequest: Observable<TVShowResponse>? = when (type) {
                         TVShowResponse.POPULAR -> tmdb.getPopularTVShows()
                         TVShowResponse.TOP_RATED -> tmdb.getTopRatedTVShows()
                         TVShowResponse.AIRING_TODAY -> tmdb.getAiringTodayTVShows()
                         TVShowResponse.ON_THE_AIR -> tmdb.getOnTheAirTVShows()
                         else -> null
                     }
-
-                    val tvRequestCallback = object : MediaCallback<TVShowResponse>() {
-
-                        override fun onResponse(call: Call<TVShowResponse>?, response: Response<TVShowResponse>?) {
-                            if (response != null) {
-                                val tmdbResponse = response.body()
-                                list?.adapter = tmdbResponse?.results?.let { TVAdapter(it) }
+                    swipe_refresh.setOnRefreshListener {
+                        tvListRequest?.bindToLifecycle(this)?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())?.subscribe(
+                                { response ->
+                                    list?.adapter = response?.results?.let { TVAdapter(it) }
+                                    finishLoading()
+                                },
+                                {
+                                    finishLoading()
+                                }
+                        )
+                    }
+                    tvListRequest?.bindToLifecycle(this)?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())?.subscribe(
+                            { response ->
+                                list?.adapter = response?.results?.let { TVAdapter(it) }
+                                finishLoading()
+                            },
+                            {
                                 finishLoading()
                             }
-                        }
-                    }
-
-                    swipe_refresh.setOnRefreshListener {
-                        tvListRequest.let {
-                            it?.clone()?.enqueue(tvRequestCallback)
-                        }
-                    }
-                    tvListRequest?.enqueue(tvRequestCallback)
+                    )
                 }
                 type!!.startsWith("movie") -> {
 
-                    val movieListRequest: Call<MovieResponse>? = when (type) {
+                    val movieListRequest: Observable<MovieResponse>? = when (type) {
                         MovieResponse.POPULAR -> tmdb.getPopularMovies()
                         MovieResponse.TOP_RATED -> tmdb.getTopRatedMovies()
                         MovieResponse.NOW_PLAYING -> tmdb.getNowPlayingMovies()
@@ -136,51 +141,55 @@ class MediaListFragment : Fragment() {
                         else -> null
                     }
 
-                    val movieRequestCallback = object : MediaCallback<MovieResponse>() {
-
-                        override fun onResponse(call: Call<MovieResponse>?, response: Response<MovieResponse>?) {
-                            if (response != null) {
-                                val tmdbResponse = response.body()
-                                list?.adapter = tmdbResponse?.results?.let { FilmsAdapter(it) }
+                    swipe_refresh.setOnRefreshListener {
+                        movieListRequest?.bindToLifecycle(this)?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())?.subscribe(
+                                { response ->
+                                    list?.adapter = response?.results?.let { FilmsAdapter(it) }
+                                    finishLoading()
+                                },
+                                {
+                                    finishLoading()
+                                }
+                        )
+                    }
+                    movieListRequest?.bindToLifecycle(this)?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())?.subscribe(
+                            { response ->
+                                list?.adapter = response?.results?.let { FilmsAdapter(it) }
+                                finishLoading()
+                            },
+                            {
                                 finishLoading()
                             }
-                        }
-                    }
-
-                    swipe_refresh.setOnRefreshListener {
-                        movieListRequest.let {
-                            it?.clone()?.enqueue(movieRequestCallback)
-                        }
-                    }
-
-                    movieListRequest?.enqueue(movieRequestCallback)
+                    )
 
                 }
                 type!!.startsWith("people") -> {
 
-                    val peopleListRequest: Call<PeopleResponse>? = when (type) {
+                    val peopleListRequest: Observable<PeopleResponse>? = when (type) {
                         PeopleResponse.POPULAR -> tmdb.getPopularPeople()
                         else -> null
                     }
 
-                    val peopleRequestCallback = object : MediaCallback<PeopleResponse>() {
-
-                        override fun onResponse(call: Call<PeopleResponse>?, response: Response<PeopleResponse>?) {
-                            if (response != null) {
-                                val tmdbResponse = response.body()
-                                list?.adapter = tmdbResponse?.people?.let { PeopleAdapter(it) }
+                    swipe_refresh.setOnRefreshListener {
+                        peopleListRequest?.bindToLifecycle(this)?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())?.subscribe(
+                                { response ->
+                                    list?.adapter = response?.people?.let { PeopleAdapter(it) }
+                                    finishLoading()
+                                },
+                                {
+                                    finishLoading()
+                                }
+                        )
+                    }
+                    peopleListRequest?.bindToLifecycle(this)?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())?.subscribe(
+                            { response ->
+                                list?.adapter = response?.people?.let { PeopleAdapter(it) }
+                                finishLoading()
+                            },
+                            {
                                 finishLoading()
                             }
-                        }
-                    }
-
-                    swipe_refresh.setOnRefreshListener {
-                        peopleListRequest.let {
-                            it?.clone()?.enqueue(peopleRequestCallback)
-                        }
-                    }
-
-                    peopleListRequest?.enqueue(peopleRequestCallback)
+                    )
 
                 }
                 type!!.startsWith("fav") -> {
@@ -290,11 +299,11 @@ class MediaListFragment : Fragment() {
 
     inner class MediaHolder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
         fun bindMovie(movie: Movie) {
-            bind(DetailActivity.EXTRA_MOVIE,movie, TMDB_CONST.POSTER_URL_THUMBNAIL +movie.posterPath)
+            bind(DetailActivity.EXTRA_MOVIE,movie, TMDBCONST.POSTER_URL_THUMBNAIL +movie.posterPath)
         }
 
-        fun bindTVShow(movie: TVShow) {
-            bind(DetailActivity.EXTRA_TV_SHOW,movie, TMDB_CONST.POSTER_URL_THUMBNAIL +movie.posterPath)
+        fun bindTVShow(tvShow: TVShow) {
+            bind(DetailActivity.EXTRA_TV_SHOW,tvShow, TMDBCONST.POSTER_URL_THUMBNAIL +tvShow.posterPath)
         }
 
         private fun bind(type : String, media : Parcelable, imagePath : String){
@@ -331,7 +340,7 @@ class MediaListFragment : Fragment() {
     inner class PeopleHolder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
 
         fun bind(person : Person){
-            Picasso.get().load(TMDB_CONST.POSTER_URL_THUMBNAIL + person.profilePath).placeholder(R.color.grey600).fit().centerCrop().into(itemView.portrait)
+            Picasso.get().load(TMDBCONST.POSTER_URL_THUMBNAIL + person.profilePath).placeholder(R.color.grey600).fit().centerCrop().into(itemView.portrait)
             itemView.name_label.text = person.name
 
             this.itemView.setOnClickListener {

@@ -14,7 +14,7 @@ import fr.flyingsquirrels.starring.DetailActivity
 import fr.flyingsquirrels.starring.R
 import fr.flyingsquirrels.starring.model.CastItem
 import fr.flyingsquirrels.starring.model.Person
-import fr.flyingsquirrels.starring.network.TMDB_CONST
+import fr.flyingsquirrels.starring.network.TMDBCONST
 import fr.flyingsquirrels.starring.utils.inflate
 import kotlinx.android.synthetic.main.adapter_media.view.*
 import java.io.ByteArrayOutputStream
@@ -28,7 +28,7 @@ class CastAdapter(private val items: List<CastItem>) : RecyclerView.Adapter<Cast
 
         inner class Holder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
             fun bind(castItem: CastItem) {
-                Picasso.get().load(TMDB_CONST.POSTER_URL_THUMBNAIL + castItem.profilePath).placeholder(R.color.material_grey_600).fit().centerInside().into(itemView.portrait)
+                Picasso.get().load(TMDBCONST.POSTER_URL_THUMBNAIL + castItem.profilePath).placeholder(R.color.material_grey_600).fit().centerInside().into(itemView.portrait)
                 itemView.name_label.text = castItem.name
 
                 itemView.setOnClickListener {
