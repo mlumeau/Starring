@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent"
     tools:showIn="@layout/adapter_media_horizontal"
+    android:foreground="?attr/selectableItemBackground"
     android:layout_margin="4dp">
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"

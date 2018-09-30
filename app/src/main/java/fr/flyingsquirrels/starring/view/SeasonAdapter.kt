@@ -34,7 +34,7 @@ class SeasonAdapter(private val items: List<Season>) : RecyclerView.Adapter<Seas
 
                     it.transitionName = DetailActivity.EXTRA_IMAGE
                     val intent = Intent(it.context, DetailActivity::class.java)
-                    val options: Bundle? = ActivityOptionsCompat.makeSceneTransitionAnimation(it.context as Activity, it.portrait, DetailActivity.EXTRA_SHARED_SEASON).toBundle()
+                    val options: Bundle? = ActivityOptionsCompat.makeSceneTransitionAnimation(it.context as Activity, it.portrait, DetailActivity.EXTRA_SHARED_POSTER).toBundle()
                     val extras = Bundle()
 
                     if(it.portrait.drawable != null && it.portrait.drawable is BitmapDrawable) {

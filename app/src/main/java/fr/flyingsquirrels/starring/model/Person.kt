@@ -1,9 +1,9 @@
 package fr.flyingsquirrels.starring.model
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
 import android.os.Parcel
 import android.os.Parcelable
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 
 @Entity
@@ -29,7 +29,7 @@ data class Person(
             parcel.readString(),
             parcel.readString(),
             parcel.readParcelable(Images::class.java.classLoader),
-            parcel.readParcelable(MediaCredits::class.java.classLoader),
+            null,
             parcel.readValue(Boolean::class.java.classLoader) as? Boolean)
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -41,7 +41,7 @@ data class Person(
         parcel.writeString(deathday)
         parcel.writeString(biography)
         parcel.writeParcelable(images,flags)
-        parcel.writeParcelable(mediaCredits,flags)
+        //parcel.writeParcelable(mediaCredits,flags)
         parcel.writeValue(adult)
     }
 

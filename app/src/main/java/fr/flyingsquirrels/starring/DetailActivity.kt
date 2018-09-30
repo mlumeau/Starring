@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
 import android.text.TextUtils
 import android.view.MenuItem
 import android.view.View
@@ -51,13 +52,11 @@ class DetailActivity : AppCompatActivity() {
         const val EXTRA_MOVIE = "movie"
         const val EXTRA_TV_SHOW = "tv_show"
         const val EXTRA_TV_SHOW_SEASON = "tv_show_season"
-        const val EXTRA_TV_SHOW_EPISODE = "tv_show_episode"
         const val EXTRA_PERSON = "person"
         const val EXTRA_MEDIA_TYPE = "type"
         const val EXTRA_THUMBNAIL = "thumbnail"
         const val EXTRA_SHARED_POSTER = "poster"
-        const val EXTRA_SHARED_SEASON= "season"
-        const val EXTRA_SHARED_PEOPLE= "people"
+        const val EXTRA_SHARED_NAV = "nav"
 
         private const val DRAW_POSTER_ON_CREATE = "draw_poster_on_create"
     }
@@ -80,6 +79,8 @@ class DetailActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
+
+        ViewCompat.setTransitionName(nav, EXTRA_SHARED_NAV)
 
         intent.extras?.getByteArray(EXTRA_THUMBNAIL)?.let { byteArray ->
             val bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
@@ -130,7 +131,7 @@ class DetailActivity : AppCompatActivity() {
 
 
                 }
-
+                nav.selectedItemId = R.id.movies
             }
 
             EXTRA_TV_SHOW -> {
@@ -149,10 +150,11 @@ class DetailActivity : AppCompatActivity() {
 
 
                 }
+                nav.selectedItemId = R.id.tv_shows
             }
 
             EXTRA_TV_SHOW_SEASON -> {
-                ViewCompat.setTransitionName(poster, EXTRA_SHARED_SEASON)
+                ViewCompat.setTransitionName(poster, EXTRA_SHARED_POSTER)
                 val tvSeason: Season? = intent.extras?.getParcelable(EXTRA_PAYLOAD)
                 tvSeason?.let { intentSeason ->
                     bindTVShowSeason(intentSeason)
@@ -170,15 +172,16 @@ class DetailActivity : AppCompatActivity() {
 
                     }
                 }
+                nav.selectedItemId = R.id.tv_shows
             }
 
             EXTRA_PERSON -> {
-                ViewCompat.setTransitionName(poster, EXTRA_SHARED_PEOPLE)
+                ViewCompat.setTransitionName(poster, EXTRA_SHARED_POSTER)
                 val person: Person? = intent.extras?.getParcelable(EXTRA_PAYLOAD)
                 person?.let { intentPerson ->
                     bindPerson(intentPerson)
 
-                    starringDB.favoritesDao().getFavoriteMovieWithId(intentPerson.id).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).autoDisposable(scopeProvider).subscribe {
+                    starringDB.favoritesDao().getFavoritePersonWithId(intentPerson.id).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).autoDisposable(scopeProvider).subscribe {
                         isInFavorites = true
                         fab.setImageDrawable(getDrawable(R.drawable.ic_star_black_24dp))
                     }
@@ -188,7 +191,7 @@ class DetailActivity : AppCompatActivity() {
 
 
                 }
-
+                nav.selectedItemId = R.id.people
             }
         }
 
@@ -197,8 +200,22 @@ class DetailActivity : AppCompatActivity() {
             title_bar.alpha = 1.0f - Math.abs(i / appBarLayout.totalScrollRange.toFloat())
         })
 
+        nav.setOnNavigationItemSelectedListener {
+            val intent = Intent(this,MainActivity::class.java)
+
+            intent.putExtra(MainActivity.SELECTED_TAB, it.itemId)
+
+            val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, nav, EXTRA_SHARED_NAV).toBundle()
+
+            startActivity(intent, options)
+            Handler().postDelayed({
+                finishAffinity()
+            },2000)
+            false
+        }
 
     }
+
 
     override fun onEnterAnimationComplete() {
         super.onEnterAnimationComplete()
@@ -656,7 +673,7 @@ class DetailActivity : AppCompatActivity() {
         }
 
         //Known for
-        starring.visibility = View.GONE
+        known_for.visibility = View.GONE
         person.mediaCredits?.let{ mediaCredits ->
             val cast = arrayListOf<MediaCredit?>()
             val crew = arrayListOf<MediaCredit?>()
@@ -772,21 +789,23 @@ class DetailActivity : AppCompatActivity() {
 
         val extras = Bundle()
 
-        val b: Bitmap = (view.drawable as BitmapDrawable).bitmap
-        val bs = ByteArrayOutputStream()
-        b.compress(Bitmap.CompressFormat.JPEG, 50, bs)
+        val b: Bitmap? = (view.drawable as BitmapDrawable?)?.bitmap
+        b?.let { bitmap ->
+            val bs = ByteArrayOutputStream()
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, bs)
 
-        val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, view, EXTRA_IMAGE).toBundle()
+            val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, view, EXTRA_IMAGE).toBundle()
 
-        val intent = Intent(this, ImagesActivity::class.java)
-        extras.putByteArray(ImagesActivity.EXTRA_THUMBNAIL, bs.toByteArray())
-        extras.putString(ImagesActivity.EXTRA_TITLE, tvShow.name)
-        extras.putStringArray(ImagesActivity.EXTRA_URL, (if(view == backdrop) tvShow.images?.backdrops else tvShow.images?.posters)?.asSequence()?.filterNotNull()?.map {
-            TMDBCONST.POSTER_URL_ORIGINAL + it.file_path
-        }?.toList()?.toTypedArray())
-        intent.putExtras(extras)
+            val intent = Intent(this, ImagesActivity::class.java)
+            extras.putByteArray(ImagesActivity.EXTRA_THUMBNAIL, bs.toByteArray())
+            extras.putString(ImagesActivity.EXTRA_TITLE, tvShow.name)
+            extras.putStringArray(ImagesActivity.EXTRA_URL, (if (view == backdrop) tvShow.images?.backdrops else tvShow.images?.posters)?.asSequence()?.filterNotNull()?.map {
+                TMDBCONST.POSTER_URL_ORIGINAL + it.file_path
+            }?.toList()?.toTypedArray())
+            intent.putExtras(extras)
 
-        startActivity(intent,options)
+            startActivity(intent, options)
+        }
     }
 
 
@@ -795,21 +814,24 @@ class DetailActivity : AppCompatActivity() {
 
         val extras = Bundle()
 
-        val b: Bitmap = (view.drawable as BitmapDrawable).bitmap
-        val bs = ByteArrayOutputStream()
-        b.compress(Bitmap.CompressFormat.JPEG, 50, bs)
+        val b: Bitmap? = (view.drawable as BitmapDrawable?)?.bitmap
+        b?.let { bitmap ->
 
-        val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, view, EXTRA_IMAGE).toBundle()
+            val bs = ByteArrayOutputStream()
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, bs)
 
-        val intent = Intent(this, ImagesActivity::class.java)
-        extras.putByteArray(ImagesActivity.EXTRA_THUMBNAIL, bs.toByteArray())
-        extras.putString(ImagesActivity.EXTRA_TITLE, person.name)
-        extras.putStringArray(ImagesActivity.EXTRA_URL, (person.images?.profiles)?.asSequence()?.filterNotNull()?.map {
-            TMDBCONST.POSTER_URL_ORIGINAL + it.file_path
-        }?.toList()?.toTypedArray())
-        intent.putExtras(extras)
+            val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, view, EXTRA_IMAGE).toBundle()
 
-        startActivity(intent,options)
+            val intent = Intent(this, ImagesActivity::class.java)
+            extras.putByteArray(ImagesActivity.EXTRA_THUMBNAIL, bs.toByteArray())
+            extras.putString(ImagesActivity.EXTRA_TITLE, person.name)
+            extras.putStringArray(ImagesActivity.EXTRA_URL, (person.images?.profiles)?.asSequence()?.filterNotNull()?.map {
+                TMDBCONST.POSTER_URL_ORIGINAL + it.file_path
+            }?.toList()?.toTypedArray())
+            intent.putExtras(extras)
+
+            startActivity(intent, options)
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

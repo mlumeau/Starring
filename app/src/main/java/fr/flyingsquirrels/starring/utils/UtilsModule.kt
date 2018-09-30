@@ -15,3 +15,5 @@ val UtilsModule : Module = applicationContext{
 }
 
 inline fun <reified T> Gson.fromJson(json: String): T = this.fromJson<T>(json, object: TypeToken<T>() {}.type)
+
+typealias AndroidPair<T,U> = androidx.core.util.Pair<T,U>

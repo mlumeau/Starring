@@ -20,19 +20,20 @@ import fr.flyingsquirrels.starring.db.StarringDB
 import fr.flyingsquirrels.starring.model.*
 import fr.flyingsquirrels.starring.network.TMDBCONST
 import fr.flyingsquirrels.starring.network.TMDBRetrofitService
-import fr.flyingsquirrels.starring.utils.MovieDiffCallback
-import fr.flyingsquirrels.starring.utils.PeopleDiffCallback
-import fr.flyingsquirrels.starring.utils.TVShowDiffCallback
-import fr.flyingsquirrels.starring.utils.inflate
+import fr.flyingsquirrels.starring.utils.*
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.adapter_movies.view.*
 import kotlinx.android.synthetic.main.adapter_people.view.*
 import kotlinx.android.synthetic.main.fragment_list.*
 import org.koin.android.ext.android.inject
 import timber.log.Timber
 import java.io.ByteArrayOutputStream
+
+
 
 
 
@@ -62,6 +63,8 @@ class MediaListFragment : Fragment() {
     private val starringDB: StarringDB by inject()
 
     var type: String? = null
+
+    private val compositeDisposable = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -178,54 +181,57 @@ class MediaListFragment : Fragment() {
                     when(type){
                         FAV_MOVIE -> {
                             starringDB.favoritesDao().getFavoriteMovies()
-                                    .autoDisposable(scopeProvider)
+                                    .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+                                    //.autoDisposable(scopeProvider)
                                     .subscribe( {
-                                        this@MediaListFragment.activity?.runOnUiThread {
-                                            if (list?.adapter == null) {
-                                                list?.adapter = FilmsAdapter(it)
-                                            } else {
-                                                val diffCallback = MovieDiffCallback((list.adapter as FilmsAdapter).items, it)
-                                                (list.adapter as FilmsAdapter).items = it
-                                                DiffUtil.calculateDiff(diffCallback).dispatchUpdatesTo(list.adapter as FilmsAdapter)
-                                            }
-
-                                            finishLoading()
+                                        if (list?.adapter == null) {
+                                            list?.adapter = FilmsAdapter(it)
+                                        } else {
+                                            val diffCallback = MovieDiffCallback((list.adapter as FilmsAdapter).items, it)
+                                            (list.adapter as FilmsAdapter).items = it
+                                            DiffUtil.calculateDiff(diffCallback).dispatchUpdatesTo(list.adapter as FilmsAdapter)
                                         }
-                                    }, this::handleError)
+
+                                        finishLoading()
+                                    }, this::handleError).let{
+                                        compositeDisposable.add(it)
+                                    }
                         }
                         FAV_TV -> {
                             starringDB.favoritesDao().getFavoriteTVShows()
-                                    .autoDisposable(scopeProvider)
+                                    .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+                                    //.autoDisposable(scopeProvider)
                                     .subscribe( {
-                                        this@MediaListFragment.activity?.runOnUiThread {
-                                            if (list?.adapter == null) {
-                                                list?.adapter = TVAdapter(it)
-                                            } else {
-                                                val diffCallback = TVShowDiffCallback((list.adapter as TVAdapter).items, it)
-                                                (list.adapter as TVAdapter).items = it
-                                                DiffUtil.calculateDiff(diffCallback).dispatchUpdatesTo(list.adapter as TVAdapter)
-                                            }
-
-                                            finishLoading()
+                                        if (list?.adapter == null) {
+                                            list?.adapter = TVAdapter(it)
+                                        } else {
+                                            val diffCallback = TVShowDiffCallback((list.adapter as TVAdapter).items, it)
+                                            (list.adapter as TVAdapter).items = it
+                                            DiffUtil.calculateDiff(diffCallback).dispatchUpdatesTo(list.adapter as TVAdapter)
                                         }
-                                    }, this::handleError)
+
+                                        finishLoading()
+                                    }, this::handleError).let{
+                                        compositeDisposable.add(it)
+                                    }
                         }
                         FAV_PEOPLE -> {
                             starringDB.favoritesDao().getFavoritePeople()
-                                    .autoDisposable(scopeProvider)
+                                    .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+                                    //.autoDisposable(scopeProvider)
                                     .subscribe( {
-                                        this@MediaListFragment.activity?.runOnUiThread {
-                                            if (list?.adapter == null) {
-                                                list?.adapter = PeopleAdapter(it)
-                                            } else {
-                                                val diffCallback = PeopleDiffCallback((list.adapter as PeopleAdapter).items, it)
-                                                (list.adapter as PeopleAdapter).items = it
-                                                DiffUtil.calculateDiff(diffCallback).dispatchUpdatesTo(list.adapter as PeopleAdapter)
-                                            }
-
-                                            finishLoading()
+                                        if (list?.adapter == null) {
+                                            list?.adapter = PeopleAdapter(it)
+                                        } else {
+                                            val diffCallback = PeopleDiffCallback((list.adapter as PeopleAdapter).items, it)
+                                            (list.adapter as PeopleAdapter).items = it
+                                            DiffUtil.calculateDiff(diffCallback).dispatchUpdatesTo(list.adapter as PeopleAdapter)
                                         }
-                                    }, this::handleError)
+
+                                        finishLoading()
+                                    }, this::handleError).let{
+                                        compositeDisposable.add(it)
+                                    }
                         }
                     }
 
@@ -239,7 +245,7 @@ class MediaListFragment : Fragment() {
         loading.visibility = View.VISIBLE
     }
 
-    fun handleError(t: Throwable){
+    private fun handleError(t: Throwable){
         Timber.e(t)
         finishLoading()
     }
@@ -247,6 +253,11 @@ class MediaListFragment : Fragment() {
     private fun finishLoading() {
         swipe_refresh?.isRefreshing = false
         loading?.visibility = View.GONE
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        compositeDisposable.clear()
     }
 
     inner class TVAdapter(var items: List<TVShow>) : RecyclerView.Adapter<MediaHolder>() {
@@ -295,7 +306,10 @@ class MediaListFragment : Fragment() {
                 var options: Bundle? = null
                 val extras = Bundle()
                 if (this@MediaListFragment.activity != null) {
-                    options = ActivityOptionsCompat.makeSceneTransitionAnimation(this@MediaListFragment.activity!!, it, DetailActivity.EXTRA_SHARED_POSTER).toBundle()
+                    options = ActivityOptionsCompat.makeSceneTransitionAnimation(this@MediaListFragment.activity!!,
+                            AndroidPair.create<View, String>(it, DetailActivity.EXTRA_SHARED_POSTER),
+                            AndroidPair.create<View, String>(activity?.nav, DetailActivity.EXTRA_SHARED_NAV)
+                    ).toBundle()
                 }
                 if(it.cover.drawable != null && it.cover.drawable is BitmapDrawable) {
                     val b: Bitmap = (itemView.cover.drawable as BitmapDrawable).bitmap
@@ -329,7 +343,10 @@ class MediaListFragment : Fragment() {
                 var options: Bundle? = null
                 val extras = Bundle()
                 if (this@MediaListFragment.activity != null) {
-                    options = ActivityOptionsCompat.makeSceneTransitionAnimation(this@MediaListFragment.activity!!, it, DetailActivity.EXTRA_SHARED_PEOPLE).toBundle()
+                    options = ActivityOptionsCompat.makeSceneTransitionAnimation(this@MediaListFragment.activity!!,
+                            AndroidPair.create<View, String>(it, DetailActivity.EXTRA_SHARED_POSTER),
+                            AndroidPair.create<View, String>(activity?.nav, DetailActivity.EXTRA_SHARED_NAV)
+                    ).toBundle()
                 }
                 if(it.portrait.drawable != null && it.portrait.drawable is BitmapDrawable) {
                     val b: Bitmap = (itemView.portrait.drawable as BitmapDrawable).bitmap

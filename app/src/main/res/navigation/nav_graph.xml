@@ -17,16 +17,4 @@
         android:id="@+id/people"
         android:name="fr.flyingsquirrels.starring.PeopleTabsFragment"
         android:label="PeopleTabsFragment" />
-    <fragment
-        android:id="@+id/detailsFragment"
-        android:name="fr.flyingsquirrels.starring.DetailsFragment"
-        android:label="fragment_details"
-        tools:layout="@layout/fragment_details" >
-        <argument
-            android:name="type"
-            app:argType="string" />
-    </fragment>
-    <action
-        android:id="@+id/action_global_detailsFragment"
-        app:destination="@id/detailsFragment" />
 </navigation>

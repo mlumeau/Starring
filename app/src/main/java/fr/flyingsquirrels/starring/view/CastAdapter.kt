@@ -35,7 +35,7 @@ class CastAdapter(private val items: List<CastItem>) : RecyclerView.Adapter<Cast
 
                     it.transitionName = DetailActivity.EXTRA_IMAGE
                     val intent = Intent(it.context, DetailActivity::class.java)
-                    val options: Bundle? = ActivityOptionsCompat.makeSceneTransitionAnimation(it.context as Activity, it.portrait, DetailActivity.EXTRA_SHARED_PEOPLE).toBundle()
+                    val options: Bundle? = ActivityOptionsCompat.makeSceneTransitionAnimation(it.context as Activity, it.portrait, DetailActivity.EXTRA_SHARED_POSTER).toBundle()
                     val extras = Bundle()
 
                     if(it.portrait.drawable != null && it.portrait.drawable is BitmapDrawable) {
