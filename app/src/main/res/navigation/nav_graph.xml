@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/nav_graph"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
     app:startDestination="@id/movies">
 
     <fragment
@@ -15,4 +17,16 @@
         android:id="@+id/people"
         android:name="fr.flyingsquirrels.starring.PeopleTabsFragment"
         android:label="PeopleTabsFragment" />
+    <fragment
+        android:id="@+id/detailsFragment"
+        android:name="fr.flyingsquirrels.starring.DetailsFragment"
+        android:label="fragment_details"
+        tools:layout="@layout/fragment_details" >
+        <argument
+            android:name="type"
+            app:argType="string" />
+    </fragment>
+    <action
+        android:id="@+id/action_global_detailsFragment"
+        app:destination="@id/detailsFragment" />
 </navigation>

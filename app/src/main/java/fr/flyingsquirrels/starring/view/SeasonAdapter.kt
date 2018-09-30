@@ -5,10 +5,10 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
-import android.support.v4.app.ActivityOptionsCompat
-import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.app.ActivityOptionsCompat
+import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 import fr.flyingsquirrels.starring.DetailActivity
 import fr.flyingsquirrels.starring.R
@@ -21,11 +21,11 @@ import java.io.ByteArrayOutputStream
 class SeasonAdapter(private val items: List<Season>) : RecyclerView.Adapter<SeasonAdapter.Holder>() {
         override fun onBindViewHolder(holder: Holder, position: Int) = holder.bind(items[position])
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder = Holder(parent.inflate(R.layout.adapter_media_horizontal))
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder = Holder(parent.inflate(R.layout.adapter_media_horizontal)!!)
 
         override fun getItemCount(): Int = items.size
 
-        inner class Holder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
+        inner class Holder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             fun bind(season: Season) {
                 Picasso.get().load(TMDBCONST.POSTER_URL_THUMBNAIL + season.posterPath).placeholder(R.color.material_grey_600).fit().centerInside().into(itemView.portrait)
                 itemView.name_label.text = season.name

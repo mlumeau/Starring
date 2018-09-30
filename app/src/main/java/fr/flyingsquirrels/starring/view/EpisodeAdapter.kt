@@ -1,8 +1,8 @@
 package fr.flyingsquirrels.starring.view
 
-import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
 import fr.flyingsquirrels.starring.R
 import fr.flyingsquirrels.starring.model.Episode
 import fr.flyingsquirrels.starring.utils.inflate
@@ -12,11 +12,11 @@ import kotlinx.android.synthetic.main.adapter_episodes.view.*
 class EpisodeAdapter(private val items: List<Episode>) : RecyclerView.Adapter<EpisodeAdapter.Holder>() {
         override fun onBindViewHolder(holder: Holder, position: Int) = holder.bind(items[position])
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder = Holder(parent.inflate(R.layout.adapter_episodes))
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder = Holder(parent.inflate(R.layout.adapter_episodes)!!)
 
         override fun getItemCount(): Int = items.size
 
-        inner class Holder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
+        inner class Holder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             fun bind(episode: Episode) {
 
                 itemView.episode_name.text = episode.name

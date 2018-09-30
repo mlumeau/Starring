@@ -3,17 +3,17 @@ package fr.flyingsquirrels.starring
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.os.Handler
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentPagerAdapter
-import android.support.v4.view.ViewCompat
-import android.support.v4.view.ViewPager
-import android.support.v7.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentPagerAdapter
+import androidx.viewpager.widget.ViewPager
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_images.*
 import kotlinx.android.synthetic.main.fragment_image.*
@@ -47,7 +47,7 @@ class ImagesActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayShowHomeEnabled(true)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = intent.extras.getString(EXTRA_TITLE)
+        supportActionBar?.title = intent.extras?.getString(EXTRA_TITLE)
 
         mVisible = true
 
@@ -58,7 +58,7 @@ class ImagesActivity : AppCompatActivity() {
         // while interacting with the UI.
         images_viewpager.setOnTouchListener(mDelayHideTouchListener)
 
-        val adapter = ImagesAdapter(supportFragmentManager, intent.extras.getStringArray(EXTRA_URL), intent.extras.getByteArray(EXTRA_THUMBNAIL))
+        val adapter = ImagesAdapter(supportFragmentManager, intent.extras?.getStringArray(EXTRA_URL), intent.extras?.getByteArray(EXTRA_THUMBNAIL))
         images_viewpager.adapter = adapter
         images_viewpager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
             override fun onPageSelected(position: Int) {
@@ -154,22 +154,21 @@ class ImagesActivity : AppCompatActivity() {
         const val EXTRA_IMAGE = "image"
     }
 
-    class ImagesAdapter( fragmentManager: FragmentManager, private val images: Array<String>, private val thumbnail: ByteArray) : FragmentPagerAdapter(fragmentManager) {
+    class ImagesAdapter(fragmentManager: FragmentManager, private val images: Array<String>?, private val thumbnail: ByteArray?) : FragmentPagerAdapter(fragmentManager) {
         override fun getItem(position: Int): Fragment {
             return if(position==0){
-                ImageFragment.newInstance(images[0],thumbnail)
+                ImageFragment.newInstance(images?.get(0),thumbnail)
             }else{
-                ImageFragment.newInstance(images[position], null)
+                ImageFragment.newInstance(images?.get(position), null)
             }
         }
 
-        override fun getCount() = images.size
+        override fun getCount() = images?.size ?: 0
 
     }
 
 
     class ImageFragment : Fragment() {
-        private var type: String? = null
         private var url: String? = null
         private var thumbnail: ByteArray? = null
 
@@ -203,7 +202,7 @@ class ImagesActivity : AppCompatActivity() {
 
         companion object {
             @JvmStatic
-            fun newInstance(url: String, thumbnail: ByteArray?) =
+            fun newInstance(url: String?, thumbnail: ByteArray?) =
                     ImageFragment().apply {
                         arguments = Bundle().apply {
                             putString(EXTRA_URL, url)

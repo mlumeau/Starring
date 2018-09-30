@@ -34,7 +34,7 @@ data class MediaCredit(
             parcel.readString(),
             parcel.readString(),
             parcel.readString(),
-            parcel.createIntArray().toList(),
+            parcel.createIntArray()?.toList(),
             parcel.readString(),
             parcel.readValue(Boolean::class.java.classLoader) as? Boolean,
             parcel.readString(),

@@ -1,9 +1,9 @@
 package fr.flyingsquirrels.starring.model
 
-import android.arch.persistence.room.Entity
-import android.arch.persistence.room.PrimaryKey
 import android.os.Parcel
 import android.os.Parcelable
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 
 @Entity
@@ -106,7 +106,7 @@ data class TVShow(
             parcel.readString(),
             parcel.readValue(Double::class.java.classLoader) as? Double,
             parcel.readString(),
-            parcel.createIntArray().asList(),
+            parcel.createIntArray()?.asList(),
             parcel.readValue(Boolean::class.java.classLoader) as? Boolean,
             parcel.readString(),
             parcel.readString(),

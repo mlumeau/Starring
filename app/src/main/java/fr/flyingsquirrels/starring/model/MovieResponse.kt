@@ -11,7 +11,7 @@ data class MovieResponse(
         val page: Int? = null,
 
         @SerializedName("results")
-        val results: List<Movie>
+        val results: List<Movie>?
 
 ) : Parcelable {
     constructor(parcel: Parcel) : this(

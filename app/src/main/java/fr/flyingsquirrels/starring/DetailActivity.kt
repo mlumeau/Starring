@@ -7,19 +7,21 @@ import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
-import android.support.v4.app.ActivityOptionsCompat
-import android.support.v4.content.ContextCompat
-import android.support.v4.view.ViewCompat
-import android.support.v7.app.AlertDialog
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.graphics.Palette
 import android.text.TextUtils
 import android.view.MenuItem
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.ImageView
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityOptionsCompat
+import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.palette.graphics.Palette
+import com.google.android.material.appbar.AppBarLayout
 import com.squareup.picasso.Picasso
-import com.trello.rxlifecycle2.android.lifecycle.kotlin.bindToLifecycle
+import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider
+import com.uber.autodispose.autoDisposable
 import fr.flyingsquirrels.starring.db.StarringDB
 import fr.flyingsquirrels.starring.model.*
 import fr.flyingsquirrels.starring.network.TMDBCONST
@@ -60,6 +62,8 @@ class DetailActivity : AppCompatActivity() {
         private const val DRAW_POSTER_ON_CREATE = "draw_poster_on_create"
     }
 
+    private val scopeProvider by lazy { AndroidLifecycleScopeProvider.from(this) }
+
     private val tmdb: TMDBRetrofitService by inject()
     private val starringDB: StarringDB by inject()
 
@@ -77,24 +81,27 @@ class DetailActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
 
-        intent.extras.getByteArray(EXTRA_THUMBNAIL)?.let { byteArray ->
+        intent.extras?.getByteArray(EXTRA_THUMBNAIL)?.let { byteArray ->
             val bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
             poster.setImageBitmap(bitmap)
-            Palette.from(bitmap).generate {
+            Palette.from(bitmap).generate { palette ->
 
-                val dominantColor = it.getDominantColor(ContextCompat.getColor(this, R.color.colorPrimary))
-                val mutedColor = it.getMutedColor(ContextCompat.getColor(this, R.color.colorPrimary))
-                val vibrantColor = it.getVibrantColor(ContextCompat.getColor(this, R.color.colorAccent))
-                val lightVibrantColor = it.getLightVibrantColor(ContextCompat.getColor(this, R.color.colorAccent))
+                palette?.let{
 
-                collapsing_toolbar.setBackgroundColor(dominantColor)
-                collapsing_toolbar.setContentScrimColor(mutedColor)
-                collapsing_toolbar.setStatusBarScrimColor(mutedColor)
-                topSlidingPanel.setBackgroundColor(mutedColor)
-                bottomSlidingPanel.setBackgroundColor(mutedColor)
-                fab.backgroundTintList = ColorStateList.valueOf(vibrantColor)
-                fab.rippleColor = lightVibrantColor
-                trailer_label.setTextColor(vibrantColor)
+                    val dominantColor = it.getDominantColor(ContextCompat.getColor(this, R.color.colorPrimary))
+                    val mutedColor = it.getMutedColor(ContextCompat.getColor(this, R.color.colorPrimary))
+                    val vibrantColor = it.getVibrantColor(ContextCompat.getColor(this, R.color.colorAccent))
+                    val lightVibrantColor = it.getLightVibrantColor(ContextCompat.getColor(this, R.color.colorAccent))
+
+                    collapsing_toolbar.setBackgroundColor(dominantColor)
+                    collapsing_toolbar.setContentScrimColor(mutedColor)
+                    collapsing_toolbar.setStatusBarScrimColor(mutedColor)
+                    topSlidingPanel.setBackgroundColor(mutedColor)
+                    bottomSlidingPanel.setBackgroundColor(mutedColor)
+                    fab.backgroundTintList = ColorStateList.valueOf(vibrantColor)
+                    fab.rippleColor = lightVibrantColor
+                    trailer_label.setTextColor(vibrantColor)
+                }
             }
 
         }
@@ -109,20 +116,16 @@ class DetailActivity : AppCompatActivity() {
         when (intent.extras?.getString(EXTRA_MEDIA_TYPE)) {
             EXTRA_MOVIE -> {
                 ViewCompat.setTransitionName(poster, EXTRA_SHARED_POSTER)
-                val movie: Movie? = intent.extras.getParcelable(EXTRA_PAYLOAD)
+                val movie: Movie? = intent.extras?.getParcelable(EXTRA_PAYLOAD)
                 movie?.let { intentMovie ->
                     bindMovie(intentMovie)
 
-                    Schedulers.io().scheduleDirect {
-                        starringDB.favoritesDao().getFavoriteMovieWithId(intentMovie.id).bindToLifecycle(this).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe {
-                            runOnUiThread {
-                                isInFavorites = true
-                                fab.setImageDrawable(getDrawable(R.drawable.ic_star_black_24dp))
-                            }
-                        }
+                    starringDB.favoritesDao().getFavoriteMovieWithId(intentMovie.id).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).autoDisposable(scopeProvider).subscribe {
+                        isInFavorites = true
+                        fab.setImageDrawable(getDrawable(R.drawable.ic_star_black_24dp))
                     }
                     intentMovie.id?.let { id ->
-                        tmdb.getMovieDetails(id).bindToLifecycle(this).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(this@DetailActivity::bindMovie)
+                        tmdb.getMovieDetails(id).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).autoDisposable(scopeProvider).subscribe(this@DetailActivity::bindMovie)
                     }
 
 
@@ -132,20 +135,16 @@ class DetailActivity : AppCompatActivity() {
 
             EXTRA_TV_SHOW -> {
                 ViewCompat.setTransitionName(poster, EXTRA_SHARED_POSTER)
-                val tvShow: TVShow? = intent.extras.getParcelable(EXTRA_PAYLOAD)
+                val tvShow: TVShow? = intent.extras?.getParcelable(EXTRA_PAYLOAD)
                 tvShow?.let { intentShow ->
                     bindTVShow(intentShow)
 
-                    Schedulers.io().scheduleDirect {
-                        starringDB.favoritesDao().getFavoriteTVShowWithId(intentShow.id).subscribe {
-                            runOnUiThread {
-                                isInFavorites = true
-                                fab.setImageDrawable(getDrawable(R.drawable.ic_star_black_24dp))
-                            }
-                        }
+                    starringDB.favoritesDao().getFavoriteTVShowWithId(intentShow.id).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).autoDisposable(scopeProvider).subscribe {
+                        isInFavorites = true
+                        fab.setImageDrawable(getDrawable(R.drawable.ic_star_black_24dp))
                     }
                     intentShow.id?.let { id ->
-                        tmdb.getTVShowDetails(id).bindToLifecycle(this).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(this@DetailActivity::bindTVShow)
+                        tmdb.getTVShowDetails(id).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).autoDisposable(scopeProvider).subscribe(this@DetailActivity::bindTVShow)
                     }
 
 
@@ -154,20 +153,20 @@ class DetailActivity : AppCompatActivity() {
 
             EXTRA_TV_SHOW_SEASON -> {
                 ViewCompat.setTransitionName(poster, EXTRA_SHARED_SEASON)
-                val tvSeason: Season? = intent.extras.getParcelable(EXTRA_PAYLOAD)
+                val tvSeason: Season? = intent.extras?.getParcelable(EXTRA_PAYLOAD)
                 tvSeason?.let { intentSeason ->
                     bindTVShowSeason(intentSeason)
                     if(intentSeason.tvId != null && intentSeason.seasonNumber != null) {
 
-                        tmdb.getTVShowSeasonDetails(intentSeason.tvId!!, intentSeason.seasonNumber!!).bindToLifecycle(this)
+                        tmdb.getTVShowSeasonDetails(intentSeason.tvId!!, intentSeason.seasonNumber!!)
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(AndroidSchedulers.mainThread()).subscribe{ responseTVShowSeason ->
-                            responseTVShowSeason.apply {
-                                tvId = intentSeason.id
-                                backdropPath = intentSeason.backdropPath
-                            }
-                            bindTVShowSeason(responseTVShowSeason)
-                        }
+                                    responseTVShowSeason.apply {
+                                        tvId = intentSeason.id
+                                        backdropPath = intentSeason.backdropPath
+                                    }
+                                    bindTVShowSeason(responseTVShowSeason)
+                                }
 
                     }
                 }
@@ -175,20 +174,16 @@ class DetailActivity : AppCompatActivity() {
 
             EXTRA_PERSON -> {
                 ViewCompat.setTransitionName(poster, EXTRA_SHARED_PEOPLE)
-                val person: Person? = intent.extras.getParcelable(EXTRA_PAYLOAD)
+                val person: Person? = intent.extras?.getParcelable(EXTRA_PAYLOAD)
                 person?.let { intentPerson ->
                     bindPerson(intentPerson)
 
-                    Schedulers.io().scheduleDirect {
-                        starringDB.favoritesDao().getFavoritePersonWithId(intentPerson.id).subscribe {
-                            runOnUiThread {
-                                isInFavorites = true
-                                fab.setImageDrawable(getDrawable(R.drawable.ic_star_black_24dp))
-                            }
-                        }
+                    starringDB.favoritesDao().getFavoriteMovieWithId(intentPerson.id).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).autoDisposable(scopeProvider).subscribe {
+                        isInFavorites = true
+                        fab.setImageDrawable(getDrawable(R.drawable.ic_star_black_24dp))
                     }
                     intentPerson.id?.let { id ->
-                        tmdb.getPersonDetails(id).bindToLifecycle(this).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(this@DetailActivity::bindPerson)
+                        tmdb.getPersonDetails(id).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).autoDisposable(scopeProvider).subscribe(this@DetailActivity::bindPerson)
                     }
 
 
@@ -198,9 +193,9 @@ class DetailActivity : AppCompatActivity() {
         }
 
 
-        appbar.addOnOffsetChangedListener { appBarLayout, verticalOffset ->
-            title_bar.alpha = 1.0f - Math.abs(verticalOffset / appBarLayout.totalScrollRange.toFloat())
-        }
+        appbar.addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener { appBarLayout, i ->
+            title_bar.alpha = 1.0f - Math.abs(i / appBarLayout.totalScrollRange.toFloat())
+        })
 
 
     }
@@ -399,7 +394,7 @@ class DetailActivity : AppCompatActivity() {
         val endYear = tvShow.lastAirDate?.substring(0,4)
         var info=""
 
-        debutYear?.let{
+        debutYear?.let{ _ ->
             info+=debutYear
             if(tvShow.inProduction != true && endYear!=debutYear) {
                 endYear?.let {
@@ -519,8 +514,8 @@ class DetailActivity : AppCompatActivity() {
 
         var info=""
 
-        season.airDate?.let{
-            if(it.length>=4){
+        season.airDate?.let{ airDate ->
+            if(airDate.length>=4){
                 val year = season.airDate?.substring(0,4)
 
                 year?.let{
@@ -591,7 +586,7 @@ class DetailActivity : AppCompatActivity() {
 
         known_for.visibility = View.GONE
         bio.visibility = View.GONE
-        fab.visibility = View.GONE
+        fab.systemUiVisibility = View.GONE
         starring.visibility = View.GONE
         directed_by.visibility = View.GONE
         seasons.visibility = View.GONE
@@ -752,7 +747,7 @@ class DetailActivity : AppCompatActivity() {
 
         val extras = Bundle()
 
-        val b: Bitmap?? = (view.drawable as BitmapDrawable?)?.bitmap
+        val b: Bitmap? = (view.drawable as BitmapDrawable?)?.bitmap
         b?.let{ bitmap ->
             val bs = ByteArrayOutputStream()
             bitmap.compress(Bitmap.CompressFormat.JPEG, 50, bs)
@@ -834,7 +829,7 @@ class DetailActivity : AppCompatActivity() {
 
     private fun prepareFinish() {
         supportActionBar?.setDisplayHomeAsUpEnabled(false)
-        fab.visibility = View.GONE
+        fab.systemUiVisibility = View.GONE
         supportFinishAfterTransition()
     }
 

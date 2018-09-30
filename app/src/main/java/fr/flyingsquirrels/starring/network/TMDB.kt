@@ -10,7 +10,7 @@ import fr.flyingsquirrels.starring.network.TMDBCONST.POPULAR
 import fr.flyingsquirrels.starring.network.TMDBCONST.TOP_RATED
 import fr.flyingsquirrels.starring.network.TMDBCONST.TV
 import fr.flyingsquirrels.starring.network.TMDBCONST.UPCOMING
-import io.reactivex.Observable
+import io.reactivex.Single
 import retrofit2.http.GET
 import retrofit2.http.Path
 
@@ -37,42 +37,42 @@ object TMDBCONST {
 interface TMDBRetrofitService {
 
     @GET("$MOVIE/$TOP_RATED")
-    fun getTopRatedMovies(): Observable<MovieResponse>
+    fun getTopRatedMovies(): Single<MovieResponse>
 
     @GET("$MOVIE/$POPULAR")
-    fun getPopularMovies(): Observable<MovieResponse>
+    fun getPopularMovies(): Single<MovieResponse>
 
     @GET("$MOVIE/$NOW_PLAYING")
-    fun getNowPlayingMovies(): Observable<MovieResponse>
+    fun getNowPlayingMovies(): Single<MovieResponse>
 
     @GET("$MOVIE/$UPCOMING")
-    fun getUpcomingMovies(): Observable<MovieResponse>
+    fun getUpcomingMovies(): Single<MovieResponse>
 
     @GET("$MOVIE/{movieId}?append_to_response=credits%2Cvideos%2Cimages")
-    fun getMovieDetails(@Path("movieId") movieId: Int): Observable<Movie>
+    fun getMovieDetails(@Path("movieId") movieId: Int): Single<Movie>
 
     @GET("$TV/$POPULAR")
-    fun getPopularTVShows(): Observable<TVShowResponse>
+    fun getPopularTVShows(): Single<TVShowResponse>
 
     @GET("$TV/$TOP_RATED")
-    fun getTopRatedTVShows(): Observable<TVShowResponse>
+    fun getTopRatedTVShows(): Single<TVShowResponse>
 
     @GET("$TV/$AIRING_TODAY")
-    fun getAiringTodayTVShows(): Observable<TVShowResponse>
+    fun getAiringTodayTVShows(): Single<TVShowResponse>
 
     @GET("$TV/$ON_THE_AIR")
-    fun getOnTheAirTVShows(): Observable<TVShowResponse>
+    fun getOnTheAirTVShows(): Single<TVShowResponse>
 
     @GET("$TV/{tvId}?append_to_response=credits%2Cvideos%2Cimages")
-    fun getTVShowDetails(@Path("tvId") tvId: Int): Observable<TVShow>
+    fun getTVShowDetails(@Path("tvId") tvId: Int): Single<TVShow>
 
     @GET("$TV/{tvId}/season/{seasonNumber}?append_to_response=videos")
-    fun getTVShowSeasonDetails(@Path("tvId") tvId: Int,@Path("seasonNumber")  seasonNumber : Int): Observable<Season>
+    fun getTVShowSeasonDetails(@Path("tvId") tvId: Int,@Path("seasonNumber")  seasonNumber : Int): Single<Season>
 
     @GET("$PERSON/$POPULAR")
-    fun getPopularPeople(): Observable<PeopleResponse>
+    fun getPopularPeople(): Single<PeopleResponse>
 
     @GET("$PERSON/{personId}?append_to_response=combined_credits%2Cimages")
-    fun getPersonDetails(@Path("personId") personId: Int): Observable<Person>
+    fun getPersonDetails(@Path("personId") personId: Int): Single<Person>
 
 }

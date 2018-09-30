@@ -18,12 +18,12 @@ package fr.flyingsquirrels.starring.utils
 
 
 import android.content.Context
-import android.support.design.widget.AppBarLayout
-import android.support.design.widget.CoordinatorLayout
-import android.support.v4.view.ViewCompat
-import android.support.v7.widget.RecyclerView
 import android.util.AttributeSet
 import android.view.View
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.ViewCompat
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.appbar.AppBarLayout
 
 /**
  * Workaround AppBarLayout.Behavior for https://issuetracker.google.com/66996774
@@ -75,6 +75,8 @@ class FixAppBarLayoutBehavior : AppBarLayout.Behavior {
         return super.onNestedFling(coordinatorLayout, child, target, velocityX, newVelocityY, newConsumed)
     }
 
+
+    @Suppress("OverridingDeprecatedMember", "DEPRECATION")
     override fun onNestedPreScroll(coordinatorLayout: CoordinatorLayout, child: AppBarLayout, target: View, dx: Int, dy: Int, consumed: IntArray) {
         super.onNestedPreScroll(coordinatorLayout, child, target, dx, dy, consumed)
         isPositive = dy > 0

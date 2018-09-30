@@ -1,9 +1,9 @@
 package fr.flyingsquirrels.starring.db;
 
-import android.arch.persistence.room.Database
-import android.arch.persistence.room.Room
-import android.arch.persistence.room.RoomDatabase
-import android.arch.persistence.room.TypeConverters
+import androidx.room.Database
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import fr.flyingsquirrels.starring.dao.FavoritesDao
 import fr.flyingsquirrels.starring.model.Movie
 import fr.flyingsquirrels.starring.model.Person

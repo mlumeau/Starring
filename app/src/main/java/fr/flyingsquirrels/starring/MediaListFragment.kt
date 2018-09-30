@@ -5,18 +5,17 @@ import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.os.Parcelable
-import android.support.v4.app.ActivityOptionsCompat
-import android.support.v4.app.Fragment
-import android.support.v7.util.DiffUtil
-import android.support.v7.widget.GridLayoutManager
-import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.app.ActivityOptionsCompat
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
-import com.trello.lifecycle2.android.lifecycle.AndroidLifecycle
-import com.trello.rxlifecycle2.android.lifecycle.kotlin.bindToLifecycle
+import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider
+import com.uber.autodispose.autoDisposable
 import fr.flyingsquirrels.starring.db.StarringDB
 import fr.flyingsquirrels.starring.model.*
 import fr.flyingsquirrels.starring.network.TMDBCONST
@@ -25,15 +24,14 @@ import fr.flyingsquirrels.starring.utils.MovieDiffCallback
 import fr.flyingsquirrels.starring.utils.PeopleDiffCallback
 import fr.flyingsquirrels.starring.utils.TVShowDiffCallback
 import fr.flyingsquirrels.starring.utils.inflate
-import io.reactivex.Observable
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.adapter_movies.view.*
 import kotlinx.android.synthetic.main.adapter_people.view.*
 import kotlinx.android.synthetic.main.fragment_list.*
 import org.koin.android.ext.android.inject
-import retrofit2.Call
-import retrofit2.Callback
+import timber.log.Timber
 import java.io.ByteArrayOutputStream
 
 
@@ -57,13 +55,13 @@ class MediaListFragment : Fragment() {
             return fragment
         }
     }
+    
+    private val scopeProvider by lazy { AndroidLifecycleScopeProvider.from(this) }
 
     private val tmdb: TMDBRetrofitService by inject()
     private val starringDB: StarringDB by inject()
 
     var type: String? = null
-
-    private val provider = AndroidLifecycle.createLifecycleProvider(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -103,7 +101,7 @@ class MediaListFragment : Fragment() {
             when {
                 type!!.startsWith("tv") -> {
 
-                    val tvListRequest: Observable<TVShowResponse>? = when (type) {
+                    val tvListRequest: Single<TVShowResponse>? = when (type) {
                         TVShowResponse.POPULAR -> tmdb.getPopularTVShows()
                         TVShowResponse.TOP_RATED -> tmdb.getTopRatedTVShows()
                         TVShowResponse.AIRING_TODAY -> tmdb.getAiringTodayTVShows()
@@ -111,29 +109,23 @@ class MediaListFragment : Fragment() {
                         else -> null
                     }
                     swipe_refresh.setOnRefreshListener {
-                        tvListRequest?.bindToLifecycle(this)?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())?.subscribe(
+                        tvListRequest?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())?.autoDisposable(scopeProvider)?.subscribe(
                                 { response ->
                                     list?.adapter = response?.results?.let { TVAdapter(it) }
                                     finishLoading()
-                                },
-                                {
-                                    finishLoading()
-                                }
+                                }, this::handleError
                         )
                     }
-                    tvListRequest?.bindToLifecycle(this)?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())?.subscribe(
+                    tvListRequest?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())?.autoDisposable(scopeProvider)?.subscribe(
                             { response ->
                                 list?.adapter = response?.results?.let { TVAdapter(it) }
                                 finishLoading()
-                            },
-                            {
-                                finishLoading()
-                            }
+                            }, this::handleError
                     )
                 }
                 type!!.startsWith("movie") -> {
 
-                    val movieListRequest: Observable<MovieResponse>? = when (type) {
+                    val movieListRequest: Single<MovieResponse>? = when (type) {
                         MovieResponse.POPULAR -> tmdb.getPopularMovies()
                         MovieResponse.TOP_RATED -> tmdb.getTopRatedMovies()
                         MovieResponse.NOW_PLAYING -> tmdb.getNowPlayingMovies()
@@ -142,53 +134,41 @@ class MediaListFragment : Fragment() {
                     }
 
                     swipe_refresh.setOnRefreshListener {
-                        movieListRequest?.bindToLifecycle(this)?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())?.subscribe(
+                        movieListRequest?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())?.autoDisposable(scopeProvider)?.subscribe(
                                 { response ->
                                     list?.adapter = response?.results?.let { FilmsAdapter(it) }
                                     finishLoading()
-                                },
-                                {
-                                    finishLoading()
-                                }
+                                }, this::handleError
                         )
                     }
-                    movieListRequest?.bindToLifecycle(this)?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())?.subscribe(
+                    movieListRequest?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())?.autoDisposable(scopeProvider)?.subscribe(
                             { response ->
                                 list?.adapter = response?.results?.let { FilmsAdapter(it) }
                                 finishLoading()
-                            },
-                            {
-                                finishLoading()
-                            }
+                            }, this::handleError
                     )
 
                 }
                 type!!.startsWith("people") -> {
 
-                    val peopleListRequest: Observable<PeopleResponse>? = when (type) {
+                    val peopleListRequest: Single<PeopleResponse>? = when (type) {
                         PeopleResponse.POPULAR -> tmdb.getPopularPeople()
                         else -> null
                     }
 
                     swipe_refresh.setOnRefreshListener {
-                        peopleListRequest?.bindToLifecycle(this)?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())?.subscribe(
+                        peopleListRequest?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())?.autoDisposable(scopeProvider)?.subscribe(
                                 { response ->
                                     list?.adapter = response?.people?.let { PeopleAdapter(it) }
                                     finishLoading()
-                                },
-                                {
-                                    finishLoading()
-                                }
+                                }, this::handleError
                         )
                     }
-                    peopleListRequest?.bindToLifecycle(this)?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())?.subscribe(
+                    peopleListRequest?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())?.autoDisposable(scopeProvider)?.subscribe(
                             { response ->
                                 list?.adapter = response?.people?.let { PeopleAdapter(it) }
                                 finishLoading()
-                            },
-                            {
-                                finishLoading()
-                            }
+                            }, this::handleError
                     )
 
                 }
@@ -198,54 +178,54 @@ class MediaListFragment : Fragment() {
                     when(type){
                         FAV_MOVIE -> {
                             starringDB.favoritesDao().getFavoriteMovies()
-                                    .compose(provider.bindToLifecycle())
-                                    .subscribe {
+                                    .autoDisposable(scopeProvider)
+                                    .subscribe( {
                                         this@MediaListFragment.activity?.runOnUiThread {
                                             if (list?.adapter == null) {
                                                 list?.adapter = FilmsAdapter(it)
                                             } else {
                                                 val diffCallback = MovieDiffCallback((list.adapter as FilmsAdapter).items, it)
                                                 (list.adapter as FilmsAdapter).items = it
-                                                DiffUtil.calculateDiff(diffCallback).dispatchUpdatesTo(list.adapter)
+                                                DiffUtil.calculateDiff(diffCallback).dispatchUpdatesTo(list.adapter as FilmsAdapter)
                                             }
 
                                             finishLoading()
                                         }
-                                    }
+                                    }, this::handleError)
                         }
                         FAV_TV -> {
                             starringDB.favoritesDao().getFavoriteTVShows()
-                                    .compose(provider.bindToLifecycle())
-                                    .subscribe {
+                                    .autoDisposable(scopeProvider)
+                                    .subscribe( {
                                         this@MediaListFragment.activity?.runOnUiThread {
                                             if (list?.adapter == null) {
                                                 list?.adapter = TVAdapter(it)
                                             } else {
                                                 val diffCallback = TVShowDiffCallback((list.adapter as TVAdapter).items, it)
                                                 (list.adapter as TVAdapter).items = it
-                                                DiffUtil.calculateDiff(diffCallback).dispatchUpdatesTo(list.adapter)
+                                                DiffUtil.calculateDiff(diffCallback).dispatchUpdatesTo(list.adapter as TVAdapter)
                                             }
 
                                             finishLoading()
                                         }
-                                    }
+                                    }, this::handleError)
                         }
                         FAV_PEOPLE -> {
                             starringDB.favoritesDao().getFavoritePeople()
-                                    .compose(provider.bindToLifecycle())
-                                    .subscribe {
+                                    .autoDisposable(scopeProvider)
+                                    .subscribe( {
                                         this@MediaListFragment.activity?.runOnUiThread {
                                             if (list?.adapter == null) {
                                                 list?.adapter = PeopleAdapter(it)
                                             } else {
                                                 val diffCallback = PeopleDiffCallback((list.adapter as PeopleAdapter).items, it)
                                                 (list.adapter as PeopleAdapter).items = it
-                                                DiffUtil.calculateDiff(diffCallback).dispatchUpdatesTo(list.adapter)
+                                                DiffUtil.calculateDiff(diffCallback).dispatchUpdatesTo(list.adapter as PeopleAdapter)
                                             }
 
                                             finishLoading()
                                         }
-                                    }
+                                    }, this::handleError)
                         }
                     }
 
@@ -254,16 +234,14 @@ class MediaListFragment : Fragment() {
 
         }
 
-        list.addOnScrollListener(onScrollChangeListener)
+        onScrollChangeListener?.let { list.addOnScrollListener(it) }
 
         loading.visibility = View.VISIBLE
     }
 
-    abstract inner class MediaCallback<T> : Callback<T> {
-        override fun onFailure(call: Call<T>?, t: Throwable?) {
-            Log.e("", "error", t)
-            finishLoading()
-        }
+    fun handleError(t: Throwable){
+        Timber.e(t)
+        finishLoading()
     }
 
     private fun finishLoading() {
@@ -274,7 +252,7 @@ class MediaListFragment : Fragment() {
     inner class TVAdapter(var items: List<TVShow>) : RecyclerView.Adapter<MediaHolder>() {
         override fun onBindViewHolder(holder: MediaHolder, position: Int) = holder.bindTVShow(items[position])
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MediaHolder = MediaHolder(parent.inflate(R.layout.adapter_movies))
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MediaHolder = MediaHolder(parent.inflate(R.layout.adapter_movies)!!)
 
         override fun getItemCount(): Int = items.size
     }
@@ -282,7 +260,7 @@ class MediaListFragment : Fragment() {
     inner class FilmsAdapter(var items: List<Movie>) : RecyclerView.Adapter<MediaHolder>() {
         override fun onBindViewHolder(holder: MediaHolder, position: Int) = holder.bindMovie(items[position])
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MediaHolder = MediaHolder(parent.inflate(R.layout.adapter_movies))
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MediaHolder = MediaHolder(parent.inflate(R.layout.adapter_movies)!!)
 
         override fun getItemCount(): Int = items.size
 
@@ -291,13 +269,13 @@ class MediaListFragment : Fragment() {
     inner class PeopleAdapter(var items: List<Person>) : RecyclerView.Adapter<PeopleHolder>() {
         override fun onBindViewHolder(holder: PeopleHolder, position: Int) = holder.bind(items[position])
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PeopleHolder = PeopleHolder(parent.inflate(R.layout.adapter_people_vertical))
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PeopleHolder = PeopleHolder(parent.inflate(R.layout.adapter_people_vertical)!!)
 
         override fun getItemCount(): Int = items.size
 
     }
 
-    inner class MediaHolder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
+    inner class MediaHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bindMovie(movie: Movie) {
             bind(DetailActivity.EXTRA_MOVIE,movie, TMDBCONST.POSTER_URL_THUMBNAIL +movie.posterPath)
         }
@@ -337,7 +315,7 @@ class MediaListFragment : Fragment() {
 
     }
 
-    inner class PeopleHolder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
+    inner class PeopleHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         fun bind(person : Person){
             Picasso.get().load(TMDBCONST.POSTER_URL_THUMBNAIL + person.profilePath).placeholder(R.color.grey600).fit().centerCrop().into(itemView.portrait)

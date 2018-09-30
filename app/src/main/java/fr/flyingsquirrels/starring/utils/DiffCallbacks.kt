@@ -1,6 +1,6 @@
 package fr.flyingsquirrels.starring.utils
 
-import android.support.v7.util.DiffUtil
+import androidx.recyclerview.widget.DiffUtil
 
 import fr.flyingsquirrels.starring.model.Movie
 import fr.flyingsquirrels.starring.model.Person

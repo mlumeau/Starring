@@ -1,6 +1,6 @@
 package fr.flyingsquirrels.starring.db
 
-import android.arch.persistence.room.TypeConverter
+import androidx.room.TypeConverter
 import com.google.gson.Gson
 import fr.flyingsquirrels.starring.model.*
 import fr.flyingsquirrels.starring.utils.fromJson
