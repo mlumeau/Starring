@@ -90,15 +90,15 @@ data class TVShow(
             parcel.readValue(Int::class.java.classLoader) as? Int,
             parcel.readString(),
             parcel.readString(),
-            parcel.readParcelable(PeopleCredits::class.java.classLoader),
+            null,//parcel.readParcelable(PeopleCredits::class.java.classLoader),
             parcel.readValue(Double::class.java.classLoader) as? Double,
             parcel.readValue(Int::class.java.classLoader) as? Int,
             parcel.readValue(Int::class.java.classLoader) as? Int,
             parcel.readValue(Int::class.java.classLoader) as? Int,
             parcel.readString(),
             parcel.readString(),
-            parcel.createTypedArrayList(Season),
-            parcel.readParcelable(Images::class.java.classLoader),
+            null,//parcel.createTypedArrayList(Season),
+            null,//parcel.readParcelable(Images::class.java.classLoader),
             parcel.createTypedArrayList(CreatedByItem),
             parcel.createTypedArrayList(TVNetwork),
             parcel.readString(),
@@ -118,15 +118,15 @@ data class TVShow(
             writeValue(numberOfEpisodes)
             writeString(type)
             writeString(backdropPath)
-            writeParcelable(credits, flags)
+            //writeParcelable(credits, flags)
             writeValue(popularity)
             writeValue(id)
             writeValue(numberOfSeasons)
             writeValue(voteCount)
             writeString(firstAirDate)
             writeString(overview)
-            writeTypedList(seasons)
-            writeParcelable(images, flags)
+            //writeTypedList(seasons)
+            //writeParcelable(images, flags)
             writeTypedList(createdBy)
             writeTypedList(networks)
             writeString(posterPath)

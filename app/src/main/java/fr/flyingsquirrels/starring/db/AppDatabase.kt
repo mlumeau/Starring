@@ -8,8 +8,7 @@ import fr.flyingsquirrels.starring.dao.FavoritesDao
 import fr.flyingsquirrels.starring.model.Movie
 import fr.flyingsquirrels.starring.model.Person
 import fr.flyingsquirrels.starring.model.TVShow
-import org.koin.dsl.module.Module
-import org.koin.dsl.module.applicationContext
+import org.koin.dsl.module.module
 
 @Database(entities = [(Movie::class), (TVShow::class), (Person::class)], version = 1)
 @TypeConverters(Converters::class)
@@ -18,9 +17,9 @@ abstract class StarringDB : RoomDatabase() {
         abstract fun favoritesDao(): FavoritesDao
 }
 
-val DatabaseModule : Module = applicationContext {
+val DatabaseModule = module {
 
-    bean {
+    single {
         Room.databaseBuilder(get(),
                 StarringDB::class.java, "starring.db")
                 .build()

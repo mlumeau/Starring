@@ -7,7 +7,8 @@ The aim of this project is to play around with state-of-the-art Android developm
 
 ## Developed using:
 - TMDB api
-- Architecture Components (Room DB)
+- MVVM architecture
+- Jetpack : Architecture Components, Room DB...
 - RxAndroid
 - Kotlin
 

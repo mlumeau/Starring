@@ -31,12 +31,12 @@ data class Season(@SerializedName("air_date")
             parcel.readString(),
             parcel.readString(),
             parcel.readValue(Int::class.java.classLoader) as? Int,
-            parcel.createTypedArrayList(Episode),
+            null,//parcel.createTypedArrayList(Episode),
             parcel.readString(),
             parcel.readValue(Int::class.java.classLoader) as? Int,
             parcel.readValue(Int::class.java.classLoader) as? Int,
             parcel.readValue(Int::class.java.classLoader) as? Int,
-            parcel.readParcelable(VideoResponse::class.java.classLoader),
+            null,//parcel.readParcelable(VideoResponse::class.java.classLoader),
             parcel.readString(),
             parcel.readString())
 
@@ -44,12 +44,12 @@ data class Season(@SerializedName("air_date")
         parcel.writeString(airDate)
         parcel.writeString(overview)
         parcel.writeValue(episodeCount)
-        parcel.writeTypedList(episodes)
+        //parcel.writeTypedList(episodes)
         parcel.writeString(name)
         parcel.writeValue(seasonNumber)
         parcel.writeValue(tvId)
         parcel.writeValue(id)
-        parcel.writeParcelable(videos, flags)
+        //parcel.writeParcelable(videos, flags)
         parcel.writeString(backdropPath)
         parcel.writeString(posterPath)
     }

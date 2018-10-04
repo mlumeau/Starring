@@ -6,8 +6,7 @@ import okhttp3.Cache
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidApplication
-import org.koin.dsl.module.Module
-import org.koin.dsl.module.applicationContext
+import org.koin.dsl.module.module
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
@@ -22,10 +21,10 @@ object Parameters{
     const val CACHE_SIZE: Long = 10*1024*1024
 }
 
-val NetworkModule : Module = applicationContext{
+val NetworkModule = module{
 
 
-    bean{
+    single{
 
 
         val builder = OkHttpClient.Builder()
@@ -51,7 +50,7 @@ val NetworkModule : Module = applicationContext{
         builder.build()
     }
 
-    bean{
+    single{
         Retrofit.Builder()
                 .baseUrl(BuildConfig.base_url)
                 .client(get())
@@ -61,7 +60,7 @@ val NetworkModule : Module = applicationContext{
     }
 
 
-    bean{
+    single{
         val retrofit: Retrofit = get()
         retrofit
                 .create(TMDBRetrofitService::class.java)

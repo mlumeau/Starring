@@ -1,4 +1,4 @@
-package fr.flyingsquirrels.starring.view
+package fr.flyingsquirrels.starring.tvshows.view
 
 import android.view.View
 import android.view.ViewGroup

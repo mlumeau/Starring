@@ -33,12 +33,8 @@ import com.google.android.material.appbar.AppBarLayout
  *
  * Change the package name as you wish.
  */
-class FixAppBarLayoutBehavior : AppBarLayout.Behavior {
+class FixAppBarLayoutBehavior(context: Context, attrs: AttributeSet) : AppBarLayout.Behavior(context, attrs) {
     private var isPositive: Boolean = false
-
-    constructor() : super() {}
-
-    constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {}
 
 
     override fun onNestedScroll(coordinatorLayout: CoordinatorLayout, child: AppBarLayout, target: View, dxConsumed: Int, dyConsumed: Int, dxUnconsumed: Int, dyUnconsumed: Int, type: Int) {

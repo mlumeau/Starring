@@ -2,13 +2,12 @@ package fr.flyingsquirrels.starring.utils
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import org.koin.dsl.module.Module
-import org.koin.dsl.module.applicationContext
+import org.koin.dsl.module.module
 
 
-val UtilsModule : Module = applicationContext{
+val UtilsModule = module{
 
-    bean {
+    single {
         Gson()
     }
 

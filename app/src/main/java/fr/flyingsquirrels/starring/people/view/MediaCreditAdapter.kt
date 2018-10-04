@@ -1,4 +1,4 @@
-package fr.flyingsquirrels.starring.view
+package fr.flyingsquirrels.starring.people.view
 
 import android.app.Activity
 import android.content.Intent
@@ -10,13 +10,16 @@ import android.view.ViewGroup
 import androidx.core.app.ActivityOptionsCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
-import fr.flyingsquirrels.starring.DetailActivity
+import fr.flyingsquirrels.starring.BaseDetailActivity
 import fr.flyingsquirrels.starring.R
 import fr.flyingsquirrels.starring.model.MediaCredit
 import fr.flyingsquirrels.starring.model.Movie
 import fr.flyingsquirrels.starring.model.TVShow
+import fr.flyingsquirrels.starring.movies.MovieDetailActivity
 import fr.flyingsquirrels.starring.network.TMDBCONST
+import fr.flyingsquirrels.starring.tvshows.TVShowDetailActivity
 import fr.flyingsquirrels.starring.utils.inflate
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.adapter_media.view.*
 import java.io.ByteArrayOutputStream
 
@@ -36,25 +39,30 @@ class MediaCreditAdapter(private val items: List<MediaCredit>) : RecyclerView.Ad
                 else -> ""
             }
 
-            itemView.setOnClickListener {
+            itemView.setOnClickListener { view ->
 
-                it.transitionName = DetailActivity.EXTRA_IMAGE
-                val intent = Intent(it.context, DetailActivity::class.java)
-                val options: Bundle? = ActivityOptionsCompat.makeSceneTransitionAnimation(it.context as Activity, it.portrait, DetailActivity.EXTRA_SHARED_POSTER).toBundle()
+                var intent: Intent? = null
+
+                view.transitionName = BaseDetailActivity.EXTRA_IMAGE
+                val options: Bundle? = ActivityOptionsCompat.makeSceneTransitionAnimation(view.context as Activity, view.portrait, BaseDetailActivity.EXTRA_SHARED_POSTER).toBundle()
                 val extras = Bundle()
 
-                if(it.portrait.drawable != null && it.portrait.drawable is BitmapDrawable) {
-                    val b: Bitmap = (it.portrait.drawable as BitmapDrawable).bitmap
+                if(view.portrait.drawable != null && view.portrait.drawable is BitmapDrawable) {
+                    val b: Bitmap = (view.portrait.drawable as BitmapDrawable).bitmap
                     val bs = ByteArrayOutputStream()
                     b.compress(Bitmap.CompressFormat.JPEG, 50, bs)
 
-                    extras.putByteArray(DetailActivity.EXTRA_THUMBNAIL, bs.toByteArray())
+                    extras.putByteArray(BaseDetailActivity.EXTRA_THUMBNAIL, bs.toByteArray())
                 }
-                val type: String
+                if(view.context is BaseDetailActivity<*>) {
+                    extras.putInt(BaseDetailActivity.EXTRA_NAV_ITEM, (view.context as BaseDetailActivity<*>).nav.selectedItemId)
+                }
+
+
                 when(mediaCredit.mediaType){
                     MOVIE -> {
-                        type = DetailActivity.EXTRA_MOVIE
-                        extras.putParcelable(DetailActivity.EXTRA_PAYLOAD,
+                        intent = Intent(view.context, MovieDetailActivity::class.java)
+                        extras.putParcelable(BaseDetailActivity.EXTRA_PAYLOAD,
                                 Movie(title = mediaCredit.title,
                                         id = mediaCredit.id,
                                         posterPath = mediaCredit.posterPath,
@@ -62,22 +70,20 @@ class MediaCreditAdapter(private val items: List<MediaCredit>) : RecyclerView.Ad
                                         backdropPath = mediaCredit.backdropPath))
                     }
                     TV -> {
-                        type = DetailActivity.EXTRA_TV_SHOW
-                        extras.putParcelable(DetailActivity.EXTRA_PAYLOAD,
+                        intent = Intent(view.context, TVShowDetailActivity::class.java)
+                        extras.putParcelable(BaseDetailActivity.EXTRA_PAYLOAD,
                                 TVShow(name = mediaCredit.name,
                                         id = mediaCredit.id,
                                         posterPath = mediaCredit.posterPath,
                                         overview = mediaCredit.overview,
                                         backdropPath = mediaCredit.backdropPath))
                     }
-                    else -> type = ""
                 }
 
-                extras.putString(DetailActivity.EXTRA_MEDIA_TYPE, type)
-
-                intent.putExtras(extras)
-
-                it.context.startActivity(intent, options)
+                intent?.let{
+                    it.putExtras(extras)
+                    view.context.startActivity(it, options)
+                }
             }
         }
     }

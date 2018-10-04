@@ -7,14 +7,14 @@
 
     <fragment
         android:id="@+id/movies"
-        android:name="fr.flyingsquirrels.starring.MovieTabsFragment"
+        android:name="fr.flyingsquirrels.starring.movies.MovieTabsFragment"
         android:label="MovieTabsFragment" />
     <fragment
         android:id="@+id/tv_shows"
-        android:name="fr.flyingsquirrels.starring.TVTabsFragment"
+        android:name="fr.flyingsquirrels.starring.tvshows.TVTabsFragment"
         android:label="tvTabsFragment" />
     <fragment
         android:id="@+id/people"
-        android:name="fr.flyingsquirrels.starring.PeopleTabsFragment"
+        android:name="fr.flyingsquirrels.starring.people.PeopleTabsFragment"
         android:label="PeopleTabsFragment" />
 </navigation>

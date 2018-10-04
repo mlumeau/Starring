@@ -1,11 +1,11 @@
 package fr.flyingsquirrels.starring.model
 
 
+import android.os.Parcel
+import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
-import android.os.Parcel
-import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
 
 @Entity
@@ -109,12 +109,12 @@ data class Movie(
     constructor(parcel: Parcel) : this(
             parcel.readString(),
             parcel.readString(),
-            parcel.readParcelable(VideoResponse::class.java.classLoader),
+            null,//parcel.readParcelable(VideoResponse::class.java.classLoader),
             parcel.readValue(Boolean::class.java.classLoader) as? Boolean,
             parcel.readString(),
             parcel.readString(),
             parcel.readValue(Int::class.java.classLoader) as? Int,
-            parcel.readParcelable(PeopleCredits::class.java.classLoader),
+            null,//parcel.readParcelable(PeopleCredits::class.java.classLoader),
             parcel.createTypedArrayList(Genre),
             parcel.readValue(Double::class.java.classLoader) as? Double,
             parcel.createTypedArrayList(ProductionCountry),
@@ -133,18 +133,18 @@ data class Movie(
             parcel.readValue(Boolean::class.java.classLoader) as? Boolean,
             parcel.readString(),
             parcel.readString(),
-            parcel.readParcelable(Images::class.java.classLoader)
+            null//parcel.readParcelable(Images::class.java.classLoader)
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(originalLanguage)
         parcel.writeString(imdbId)
-        parcel.writeParcelable(videos, flags)
+        //parcel.writeParcelable(videos, flags)
         parcel.writeValue(video)
         parcel.writeString(title)
         parcel.writeString(backdropPath)
         parcel.writeValue(revenue)
-        parcel.writeParcelable(credits, flags)
+        //parcel.writeParcelable(credits, flags)
         parcel.writeTypedList(genres)
         parcel.writeValue(popularity)
         parcel.writeTypedList(productionCountries)
@@ -163,7 +163,7 @@ data class Movie(
         parcel.writeValue(adult)
         parcel.writeString(homepage)
         parcel.writeString(status)
-        parcel.writeParcelable(images, flags)
+        //parcel.writeParcelable(images, flags)
     }
 
     fun getDirectors() : List<CrewItem?>? {

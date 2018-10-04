@@ -38,7 +38,6 @@ interface FavoritesDao {
     @Delete
     fun deleteFavoriteTVShow(TVShow: TVShow)
 
-
     @Query("SELECT * from Person")
     fun getFavoritePeople(): Flowable<List<Person>>
 

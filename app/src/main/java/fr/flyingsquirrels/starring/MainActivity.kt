@@ -25,13 +25,18 @@ class MainActivity : AppCompatActivity() {
 
         //setupActionBarWithNavController(navController)
 
-        ViewCompat.setTransitionName(nav, DetailActivity.EXTRA_SHARED_NAV)
+        ViewCompat.setTransitionName(nav, BaseDetailActivity.EXTRA_SHARED_NAV)
         intent?.extras?.getInt(SELECTED_TAB)?.let {
             nav.selectedItemId = it
             intent.extras?.clear()
-
-
         }
+    }
+
+    override fun onBackPressed() {
+        if(nav.selectedItemId == R.id.movies){
+            finishAffinity()
+        }
+        super.onBackPressed()
     }
 
     override fun onSupportNavigateUp() =

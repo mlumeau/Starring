@@ -1,4 +1,4 @@
-package fr.flyingsquirrels.starring.view
+package fr.flyingsquirrels.starring.tvshows.view
 
 import android.app.Activity
 import android.content.Intent
@@ -10,11 +10,13 @@ import android.view.ViewGroup
 import androidx.core.app.ActivityOptionsCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
-import fr.flyingsquirrels.starring.DetailActivity
+import fr.flyingsquirrels.starring.BaseDetailActivity
 import fr.flyingsquirrels.starring.R
 import fr.flyingsquirrels.starring.model.Season
 import fr.flyingsquirrels.starring.network.TMDBCONST
+import fr.flyingsquirrels.starring.tvshows.TVShowSeasonDetailActivity
 import fr.flyingsquirrels.starring.utils.inflate
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.adapter_media.view.*
 import java.io.ByteArrayOutputStream
 
@@ -32,9 +34,9 @@ class SeasonAdapter(private val items: List<Season>) : RecyclerView.Adapter<Seas
 
                 itemView.setOnClickListener {
 
-                    it.transitionName = DetailActivity.EXTRA_IMAGE
-                    val intent = Intent(it.context, DetailActivity::class.java)
-                    val options: Bundle? = ActivityOptionsCompat.makeSceneTransitionAnimation(it.context as Activity, it.portrait, DetailActivity.EXTRA_SHARED_POSTER).toBundle()
+                    it.transitionName = BaseDetailActivity.EXTRA_IMAGE
+                    val intent = Intent(it.context, TVShowSeasonDetailActivity::class.java)
+                    val options: Bundle? = ActivityOptionsCompat.makeSceneTransitionAnimation(it.context as Activity, it.portrait, BaseDetailActivity.EXTRA_SHARED_POSTER).toBundle()
                     val extras = Bundle()
 
                     if(it.portrait.drawable != null && it.portrait.drawable is BitmapDrawable) {
@@ -42,10 +44,14 @@ class SeasonAdapter(private val items: List<Season>) : RecyclerView.Adapter<Seas
                         val bs = ByteArrayOutputStream()
                         b.compress(Bitmap.CompressFormat.JPEG, 50, bs)
 
-                        extras.putByteArray(DetailActivity.EXTRA_THUMBNAIL, bs.toByteArray())
+                        extras.putByteArray(BaseDetailActivity.EXTRA_THUMBNAIL, bs.toByteArray())
                     }
-                    extras.putString(DetailActivity.EXTRA_MEDIA_TYPE, DetailActivity.EXTRA_TV_SHOW_SEASON)
-                    extras.putParcelable(DetailActivity.EXTRA_PAYLOAD, season)
+
+                    if(it.context is BaseDetailActivity<*>) {
+                        extras.putInt(BaseDetailActivity.EXTRA_NAV_ITEM, (it.context as BaseDetailActivity<*>).nav.selectedItemId)
+                    }
+
+                    extras.putParcelable(BaseDetailActivity.EXTRA_PAYLOAD, season)
 
                     intent.putExtras(extras)
 
