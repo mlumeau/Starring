@@ -65,10 +65,6 @@ dependencies {
     //Rx
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.0'
     implementation 'io.reactivex.rxjava2:rxjava:2.2.0'
-    def autodispose_version = "1.0.0-RC2"
-    implementation "com.uber.autodispose:autodispose-ktx:$autodispose_version"
-    implementation "com.uber.autodispose:autodispose-android-ktx:$autodispose_version"
-    implementation "com.uber.autodispose:autodispose-android-archcomponents-ktx:$autodispose_version"
 
     //Room DB
     def room_version = "2.0.0"

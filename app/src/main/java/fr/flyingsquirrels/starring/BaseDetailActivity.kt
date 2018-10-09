@@ -15,10 +15,10 @@ import androidx.core.view.ViewCompat
 import androidx.palette.graphics.Palette
 import com.google.android.material.appbar.AppBarLayout
 import com.squareup.picasso.Picasso
-import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider
 import fr.flyingsquirrels.starring.db.StarringDB
 import fr.flyingsquirrels.starring.network.TMDBCONST
 import fr.flyingsquirrels.starring.network.TMDBRetrofitService
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.activity_detail.*
 import org.koin.android.ext.android.inject
 
@@ -40,8 +40,6 @@ abstract class BaseDetailActivity<T> : AppCompatActivity() {
         protected const val DRAW_POSTER_ON_CREATE = "draw_poster_on_create"
     }
 
-    protected val scopeProvider: AndroidLifecycleScopeProvider by lazy { AndroidLifecycleScopeProvider.from(this) }
-
     protected val tmdb: TMDBRetrofitService by inject()
     protected val starringDB: StarringDB by inject()
 
@@ -49,6 +47,8 @@ abstract class BaseDetailActivity<T> : AppCompatActivity() {
     protected var backdropPath: String = ""
     protected var drawPosterOnCreate = false
     protected var isInFavorites = false
+
+    protected var disposables = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -135,11 +135,11 @@ abstract class BaseDetailActivity<T> : AppCompatActivity() {
 
     protected open fun saveAsFavorite(data: T){
         isInFavorites = true
-        fab.setImageDrawable(getDrawable(R.drawable.ic_star_black_24dp))
+        fab.setImageResource(R.drawable.ic_star_black_24dp)
     }
     protected open fun removeFromFavorites(data: T){
         isInFavorites = false
-        fab.setImageDrawable(getDrawable(R.drawable.ic_star_border_black_24dp))
+        fab.setImageResource(R.drawable.ic_star_border_black_24dp)
     }
 
 
@@ -174,4 +174,8 @@ abstract class BaseDetailActivity<T> : AppCompatActivity() {
         super.onSaveInstanceState(outState)
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        disposables.clear()
+    }
 }

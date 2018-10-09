@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.fragment_list.*
 import timber.log.Timber
 
@@ -16,8 +16,8 @@ abstract class BaseListFragment : Fragment() {
     companion object {
         const val TYPE_KEY: String = "type"
     }
-    
-    protected val scopeProvider: AndroidLifecycleScopeProvider by lazy { AndroidLifecycleScopeProvider.from(this) }
+
+    protected var disposables = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,8 +50,15 @@ abstract class BaseListFragment : Fragment() {
         }
 
         onScrollChangeListener?.let { list.addOnScrollListener(it) }
-
-        loading.visibility = View.VISIBLE
+        list.adapter?.let{
+            if(it.itemCount == 0) {
+                loading.visibility = View.VISIBLE
+            }else {
+                loading.visibility = View.GONE
+            }
+        } ?: run {
+            loading.visibility = View.VISIBLE
+        }
     }
 
     protected fun handleError(t: Throwable){
@@ -62,5 +69,10 @@ abstract class BaseListFragment : Fragment() {
     protected fun finishLoading() {
         swipe_refresh?.isRefreshing = false
         loading?.visibility = View.GONE
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        disposables.clear()
     }
 }

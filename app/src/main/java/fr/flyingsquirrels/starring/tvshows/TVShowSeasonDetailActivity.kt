@@ -38,6 +38,8 @@ class TVShowSeasonDetailActivity : BaseDetailActivity<Season>() {
                                 backdropPath = intentSeason.backdropPath
                             }
                             bindData(responseTVShowSeason)
+                        }?.let{
+                            disposables.add(it)
                         }
 
             }

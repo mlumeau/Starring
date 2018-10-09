@@ -9,7 +9,6 @@ import android.text.TextUtils
 import android.view.View
 import android.widget.ImageView
 import androidx.core.app.ActivityOptionsCompat
-import com.uber.autodispose.autoDisposable
 import fr.flyingsquirrels.starring.BaseDetailActivity
 import fr.flyingsquirrels.starring.ImagesActivity
 import fr.flyingsquirrels.starring.R
@@ -26,10 +25,6 @@ import java.io.ByteArrayOutputStream
 
 class TVShowDetailActivity : BaseDetailActivity<TVShow>() {
 
-    companion object {
-        const val EXTRA_TV_SHOW = "tv_show"
-    }
-
 
     private val vm : TVShowDetailViewModel by viewModel()
 
@@ -40,12 +35,22 @@ class TVShowDetailActivity : BaseDetailActivity<TVShow>() {
         tvShow?.let { intentShow ->
             bindData(intentShow)
 
-            vm.getFavoriteTVShowWithId(intentShow.id).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).autoDisposable(scopeProvider).subscribe {
-                isInFavorites = true
-                fab.setImageDrawable(getDrawable(R.drawable.ic_star_black_24dp))
-            }
+            vm.getFavoriteTVShowWithId(intentShow.id)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe {
+                        isInFavorites = true
+                        fab.setImageDrawable(getDrawable(R.drawable.ic_star_black_24dp))
+                    }?.let{
+                        disposables.add(it)
+                    }
             intentShow.id?.let { id ->
-                vm.getTVShowDetails(id).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).autoDisposable(scopeProvider).subscribe(this@TVShowDetailActivity::bindData)
+                vm.getTVShowDetails(id)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(this@TVShowDetailActivity::bindData)?.let{
+                            disposables.add(it)
+                        }
             }
 
 
@@ -187,14 +192,16 @@ class TVShowDetailActivity : BaseDetailActivity<TVShow>() {
 
     override fun removeFromFavorites(data: TVShow) {
         super.removeFromFavorites(data)
-
-        vm.deleteFavoriteTVShow(data).subscribeOn(Schedulers.io()).autoDisposable(scopeProvider).subscribe()
+        vm.deleteFavoriteTVShow(data).subscribeOn(Schedulers.io()).subscribe()?.let{
+            disposables.add(it)
+        }
     }
 
     override fun saveAsFavorite(data: TVShow) {
         super.saveAsFavorite(data)
-
-        vm.insertFavoriteTVShow(data).subscribeOn(Schedulers.io()).autoDisposable(scopeProvider).subscribe()
+        vm.insertFavoriteTVShow(data).subscribeOn(Schedulers.io()).subscribe()?.let{
+            disposables.add(it)
+        }
     }
 
     override fun viewImages(view: ImageView, data: TVShow) {

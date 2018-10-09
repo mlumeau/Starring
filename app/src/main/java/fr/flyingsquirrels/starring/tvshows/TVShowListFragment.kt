@@ -2,7 +2,6 @@ package fr.flyingsquirrels.starring.tvshows
 
 import android.os.Bundle
 import android.view.View
-import com.uber.autodispose.autoDisposable
 import fr.flyingsquirrels.starring.BaseListFragment
 import fr.flyingsquirrels.starring.model.TVShowResponse
 import fr.flyingsquirrels.starring.tvshows.view.TVShowAdapter
@@ -41,18 +40,22 @@ class TVShowListFragment : BaseListFragment(){
             else -> null
         }
         swipe_refresh.setOnRefreshListener {
-            tvListRequest?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())?.autoDisposable(scopeProvider)?.subscribe(
+            tvListRequest?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())?.subscribe(
                     { response ->
                         list?.adapter = response?.results?.let { TVShowAdapter(it) }
                         finishLoading()
                     }, this::handleError
-            )
+            )?.let{
+                disposables.add(it)
+            }
         }
-        tvListRequest?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())?.autoDisposable(scopeProvider)?.subscribe(
+        tvListRequest?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())?.subscribe(
                 { response ->
                     list?.adapter = response?.results?.let { TVShowAdapter(it) }
                     finishLoading()
                 }, this::handleError
-        )
+        )?.let{
+            disposables.add(it)
+        }
     }
 }

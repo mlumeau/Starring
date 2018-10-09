@@ -12,7 +12,6 @@ import android.widget.ArrayAdapter
 import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityOptionsCompat
-import com.uber.autodispose.autoDisposable
 import fr.flyingsquirrels.starring.BaseDetailActivity
 import fr.flyingsquirrels.starring.ImagesActivity
 import fr.flyingsquirrels.starring.R
@@ -28,10 +27,6 @@ import java.io.ByteArrayOutputStream
 
 class MovieDetailActivity : BaseDetailActivity<Movie>() {
 
-    companion object {
-        const val EXTRA_MOVIE = "movie"
-    }
-
     private val vm : MovieDetailViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,12 +36,22 @@ class MovieDetailActivity : BaseDetailActivity<Movie>() {
         movie?.let { intentMovie ->
             bindData(intentMovie)
 
-            vm.getFavoriteMovieWithId(intentMovie.id).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).autoDisposable(scopeProvider).subscribe {
-                isInFavorites = true
-                fab.setImageDrawable(getDrawable(R.drawable.ic_star_black_24dp))
-            }
+            vm.getFavoriteMovieWithId(intentMovie.id)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe {
+                        isInFavorites = true
+                        fab.setImageDrawable(getDrawable(R.drawable.ic_star_black_24dp))
+                    }?.let{
+                        disposables.add(it)
+                    }
             intentMovie.id?.let { id ->
-                vm.getMovieDetails(id).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).autoDisposable(scopeProvider).subscribe(this@MovieDetailActivity::bindData)
+                vm.getMovieDetails(id)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(this@MovieDetailActivity::bindData)?.let{
+                            disposables.add(it)
+                        }
             }
         }
     }
@@ -217,12 +222,16 @@ class MovieDetailActivity : BaseDetailActivity<Movie>() {
 
     override fun removeFromFavorites(data: Movie) {
         super.removeFromFavorites(data)
-        vm.deleteFavoriteMovie(data).subscribeOn(Schedulers.io()).autoDisposable(scopeProvider).subscribe()
+        vm.deleteFavoriteMovie(data).subscribeOn(Schedulers.io()).subscribe()?.let{
+            disposables.add(it)
+        }
     }
 
     override fun saveAsFavorite(data: Movie) {
         super.saveAsFavorite(data)
-        vm.insertFavoriteMovie(data).subscribeOn(Schedulers.io()).autoDisposable(scopeProvider).subscribe()
+        vm.insertFavoriteMovie(data).subscribeOn(Schedulers.io()).subscribe()?.let{
+            disposables.add(it)
+        }
     }
 
     override fun viewImages(view: ImageView, data: Movie) {

@@ -3,9 +3,7 @@ package fr.flyingsquirrels.starring.tvshows
 import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.DiffUtil
-import com.uber.autodispose.autoDisposable
 import fr.flyingsquirrels.starring.BaseListFragment
-import fr.flyingsquirrels.starring.movies.FavoriteMoviesListFragment
 import fr.flyingsquirrels.starring.tvshows.view.TVShowAdapter
 import fr.flyingsquirrels.starring.tvshows.viewmodel.FavoriteTVShowsListViewModel
 import fr.flyingsquirrels.starring.utils.TVShowDiffCallback
@@ -17,8 +15,8 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class FavoriteTVShowsListFragment : BaseListFragment(){
 
     companion object {
-        fun newInstance(args: Bundle? = null): FavoriteMoviesListFragment {
-            val fragment = FavoriteMoviesListFragment()
+        fun newInstance(args: Bundle? = null): FavoriteTVShowsListFragment {
+            val fragment = FavoriteTVShowsListFragment()
 
             fragment.arguments = args
             if (args == null) {
@@ -38,7 +36,6 @@ class FavoriteTVShowsListFragment : BaseListFragment(){
         vm.getFavoriteTVShows()
                 .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                 .map { tvItems -> tvItems.sortedBy { it.name} }
-                .autoDisposable(scopeProvider)
                 .subscribe( {
                     if (list?.adapter == null) {
                         list?.adapter = TVShowAdapter(it)
@@ -49,6 +46,8 @@ class FavoriteTVShowsListFragment : BaseListFragment(){
                     }
 
                     finishLoading()
-                }, this::handleError)
+                }, this::handleError)?.let{
+                    disposables.add(it)
+                }
     }
 }

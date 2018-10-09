@@ -2,7 +2,6 @@ package fr.flyingsquirrels.starring.movies
 
 import android.os.Bundle
 import android.view.View
-import com.uber.autodispose.autoDisposable
 import fr.flyingsquirrels.starring.BaseListFragment
 import fr.flyingsquirrels.starring.model.MovieResponse
 import fr.flyingsquirrels.starring.movies.view.MovieAdapter
@@ -42,18 +41,22 @@ class MovieListFragment : BaseListFragment(){
         }
 
         swipe_refresh.setOnRefreshListener {
-            movieListRequest?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())?.autoDisposable(scopeProvider)?.subscribe(
+            movieListRequest?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())?.subscribe(
                     { response ->
                         list?.adapter = response?.results?.let { MovieAdapter(it) }
                         finishLoading()
                     }, this::handleError
-            )
+            )?.let{
+                disposables.add(it)
+            }
         }
-        movieListRequest?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())?.autoDisposable(scopeProvider)?.subscribe(
+        movieListRequest?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())?.subscribe(
                 { response ->
                     list?.adapter = response?.results?.let { MovieAdapter(it) }
                     finishLoading()
                 }, this::handleError
-        )
+        )?.let{
+            disposables.add(it)
+        }
     }
 }

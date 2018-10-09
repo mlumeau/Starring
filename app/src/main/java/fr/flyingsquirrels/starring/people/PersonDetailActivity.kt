@@ -8,7 +8,6 @@ import android.os.Handler
 import android.view.View
 import android.widget.ImageView
 import androidx.core.app.ActivityOptionsCompat
-import com.uber.autodispose.autoDisposable
 import fr.flyingsquirrels.starring.BaseDetailActivity
 import fr.flyingsquirrels.starring.ImagesActivity
 import fr.flyingsquirrels.starring.R
@@ -37,12 +36,23 @@ class PersonDetailActivity : BaseDetailActivity<Person>() {
         person?.let { intentPerson ->
             bindData(intentPerson)
 
-            vm.getFavoritePersonWithId(intentPerson.id).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).autoDisposable(scopeProvider).subscribe {
-                isInFavorites = true
-                fab.setImageDrawable(getDrawable(R.drawable.ic_star_black_24dp))
-            }
+            vm.getFavoritePersonWithId(intentPerson.id)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe {
+                        isInFavorites = true
+                        fab.setImageDrawable(getDrawable(R.drawable.ic_star_black_24dp))
+                    }?.let{
+                        disposables.add(it)
+                    }
             intentPerson.id?.let { id ->
-                vm.getPersonDetails(id).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).autoDisposable(scopeProvider).subscribe(this@PersonDetailActivity::bindData)
+                vm.getPersonDetails(id)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers
+                                .mainThread())
+                        .subscribe(this@PersonDetailActivity::bindData)?.let{
+                            disposables.add(it)
+                        }
             }
 
 
@@ -152,14 +162,16 @@ class PersonDetailActivity : BaseDetailActivity<Person>() {
 
     override fun removeFromFavorites(data: Person) {
         super.removeFromFavorites(data)
-
-        vm.deleteFavoritePerson(data).subscribeOn(Schedulers.io()).autoDisposable(scopeProvider).subscribe()
+        vm.deleteFavoritePerson(data).subscribeOn(Schedulers.io()).subscribe()?.let{
+            disposables.add(it)
+        }
     }
 
     override fun saveAsFavorite(data: Person) {
         super.saveAsFavorite(data)
-
-        vm.insertFavoritePerson(data).subscribeOn(Schedulers.io()).autoDisposable(scopeProvider).subscribe()
+        vm.insertFavoritePerson(data).subscribeOn(Schedulers.io()).subscribe()?.let{
+            disposables.add(it)
+        }
     }
 
 

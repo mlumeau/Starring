@@ -3,7 +3,6 @@ package fr.flyingsquirrels.starring.movies
 import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.DiffUtil
-import com.uber.autodispose.autoDisposable
 import fr.flyingsquirrels.starring.BaseListFragment
 import fr.flyingsquirrels.starring.movies.view.MovieAdapter
 import fr.flyingsquirrels.starring.movies.viewmodel.FavoriteMoviesListViewModel
@@ -37,7 +36,6 @@ class FavoriteMoviesListFragment : BaseListFragment(){
         vm.getFavoriteMovies()
                 .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                 .map { tvItems -> tvItems.sortedBy { it.title} }
-                .autoDisposable(scopeProvider)
                 .subscribe( {
                     if (list?.adapter == null) {
                         list?.adapter = MovieAdapter(it)
@@ -48,6 +46,8 @@ class FavoriteMoviesListFragment : BaseListFragment(){
                     }
 
                     finishLoading()
-                }, this::handleError)
+                }, this::handleError)?.let{
+                    disposables.add(it)
+                }
     }
 }

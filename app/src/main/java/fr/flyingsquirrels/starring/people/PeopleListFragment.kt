@@ -2,7 +2,6 @@ package fr.flyingsquirrels.starring.people
 
 import android.os.Bundle
 import android.view.View
-import com.uber.autodispose.autoDisposable
 import fr.flyingsquirrels.starring.BaseListFragment
 import fr.flyingsquirrels.starring.model.PeopleResponse
 import fr.flyingsquirrels.starring.people.view.PeopleAdapter
@@ -39,18 +38,22 @@ class PeopleListFragment : BaseListFragment(){
         }
 
         swipe_refresh.setOnRefreshListener {
-            peopleListRequest?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())?.autoDisposable(scopeProvider)?.subscribe(
+            peopleListRequest?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())?.subscribe(
                     { response ->
                         list?.adapter = response?.people?.let { PeopleAdapter(it) }
                         finishLoading()
                     }, this::handleError
-            )
+            )?.let{
+                disposables.add(it)
+            }
         }
-        peopleListRequest?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())?.autoDisposable(scopeProvider)?.subscribe(
+        peopleListRequest?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())?.subscribe(
                 { response ->
                     list?.adapter = response?.people?.let { PeopleAdapter(it) }
                     finishLoading()
                 }, this::handleError
-        )
+        )?.let{
+            disposables.add(it)
+        }
     }
 }
