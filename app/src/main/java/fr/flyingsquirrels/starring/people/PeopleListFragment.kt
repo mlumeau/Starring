@@ -2,11 +2,13 @@ package fr.flyingsquirrels.starring.people
 
 import android.os.Bundle
 import android.view.View
+import androidx.recyclerview.widget.DiffUtil
 import fr.flyingsquirrels.starring.BaseListFragment
 import fr.flyingsquirrels.starring.model.PeopleResponse
+import fr.flyingsquirrels.starring.model.Person
 import fr.flyingsquirrels.starring.people.view.PeopleAdapter
 import fr.flyingsquirrels.starring.people.viewmodel.PeopleListViewModel
-import io.reactivex.Single
+import fr.flyingsquirrels.starring.utils.PeopleDiffCallback
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_list.*
@@ -32,28 +34,33 @@ class PeopleListFragment : BaseListFragment(){
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val peopleListRequest: Single<PeopleResponse>? = when (arguments?.get(BaseListFragment.TYPE_KEY)) {
-            PeopleResponse.POPULAR -> vm.getPopularPeople()
-            else -> null
-        }
-
-        swipe_refresh.setOnRefreshListener {
-            peopleListRequest?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())?.subscribe(
-                    { response ->
-                        list?.adapter = response?.people?.let { PeopleAdapter(it) }
-                        finishLoading()
-                    }, this::handleError
-            )?.let{
-                disposables.add(it)
-            }
-        }
-        peopleListRequest?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())?.subscribe(
-                { response ->
-                    list?.adapter = response?.people?.let { PeopleAdapter(it) }
+        paginator.onBackpressureDrop()
+                .concatMap {
+                    when (arguments?.get(BaseListFragment.TYPE_KEY)) {
+                        PeopleResponse.POPULAR -> vm.getPopularPeople(it).toFlowable()
+                        else -> null
+                    }?.subscribeOn(Schedulers.io())
+                }?.map {
+                    it.results ?: listOf()
+                }?.observeOn(AndroidSchedulers.mainThread())
+                ?.subscribe({ results ->
+                    if (list?.adapter == null) {
+                        list?.adapter = PeopleAdapter(results)
+                    } else {
+                        val newList = mutableListOf<Person>().apply {
+                            addAll((list.adapter as PeopleAdapter).items)
+                            addAll(results)
+                        }
+                        val diffCallback = PeopleDiffCallback((list.adapter as PeopleAdapter).items, newList)
+                        (list.adapter as PeopleAdapter).items = newList
+                        DiffUtil.calculateDiff(diffCallback).dispatchUpdatesTo(list.adapter as PeopleAdapter)
+                    }
                     finishLoading()
                 }, this::handleError
-        )?.let{
-            disposables.add(it)
-        }
+                )?.let{
+                    disposables.add(it)
+                }
+
+        nextPage()
     }
 }

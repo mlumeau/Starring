@@ -21,7 +21,7 @@ The aim of this project is to play around with state-of-the-art Android developm
 - ~~Seasons & episode details~~
 - ~~People lists~~
 - ~~People details~~
-- Paginated lists & infinite scroll
+- ~~Paged lists & infinite scroll~~
 - Search
 
 ## Usage

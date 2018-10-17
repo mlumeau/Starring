@@ -13,6 +13,7 @@ import fr.flyingsquirrels.starring.network.TMDBCONST.UPCOMING
 import io.reactivex.Single
 import retrofit2.http.GET
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 /**
  * Created by mlumeau on 26/02/2018.
@@ -37,31 +38,31 @@ object TMDBCONST {
 interface TMDBRetrofitService {
 
     @GET("$MOVIE/$TOP_RATED")
-    fun getTopRatedMovies(): Single<MovieResponse>
+    fun getTopRatedMovies(@Query("page") page: Int): Single<MovieResponse>
 
     @GET("$MOVIE/$POPULAR")
-    fun getPopularMovies(): Single<MovieResponse>
+    fun getPopularMovies(@Query("page") page: Int): Single<MovieResponse>
 
     @GET("$MOVIE/$NOW_PLAYING")
-    fun getNowPlayingMovies(): Single<MovieResponse>
+    fun getNowPlayingMovies(@Query("page") page: Int): Single<MovieResponse>
 
     @GET("$MOVIE/$UPCOMING")
-    fun getUpcomingMovies(): Single<MovieResponse>
+    fun getUpcomingMovies(@Query("page") page: Int): Single<MovieResponse>
 
     @GET("$MOVIE/{movieId}?append_to_response=credits%2Cvideos%2Cimages")
     fun getMovieDetails(@Path("movieId") movieId: Int): Single<Movie>
 
     @GET("$TV/$POPULAR")
-    fun getPopularTVShows(): Single<TVShowResponse>
+    fun getPopularTVShows(@Query("page") page: Int): Single<TVShowResponse>
 
     @GET("$TV/$TOP_RATED")
-    fun getTopRatedTVShows(): Single<TVShowResponse>
+    fun getTopRatedTVShows(@Query("page") page: Int): Single<TVShowResponse>
 
     @GET("$TV/$AIRING_TODAY")
-    fun getAiringTodayTVShows(): Single<TVShowResponse>
+    fun getAiringTodayTVShows(@Query("page") page: Int): Single<TVShowResponse>
 
     @GET("$TV/$ON_THE_AIR")
-    fun getOnTheAirTVShows(): Single<TVShowResponse>
+    fun getOnTheAirTVShows(@Query("page") page: Int): Single<TVShowResponse>
 
     @GET("$TV/{tvId}?append_to_response=credits%2Cvideos%2Cimages")
     fun getTVShowDetails(@Path("tvId") tvId: Int): Single<TVShow>
@@ -70,7 +71,7 @@ interface TMDBRetrofitService {
     fun getTVShowSeasonDetails(@Path("tvId") tvId: Int,@Path("seasonNumber")  seasonNumber : Int): Single<Season>
 
     @GET("$PERSON/$POPULAR")
-    fun getPopularPeople(): Single<PeopleResponse>
+    fun getPopularPeople(@Query("page") page: Int): Single<PeopleResponse>
 
     @GET("$PERSON/{personId}?append_to_response=combined_credits%2Cimages")
     fun getPersonDetails(@Path("personId") personId: Int): Single<Person>

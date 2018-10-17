@@ -140,6 +140,7 @@ abstract class BaseDetailActivity<T> : AppCompatActivity() {
     protected open fun removeFromFavorites(data: T){
         isInFavorites = false
         fab.setImageResource(R.drawable.ic_star_border_black_24dp)
+
     }
 
 

@@ -2,11 +2,13 @@ package fr.flyingsquirrels.starring.tvshows
 
 import android.os.Bundle
 import android.view.View
+import androidx.recyclerview.widget.DiffUtil
 import fr.flyingsquirrels.starring.BaseListFragment
+import fr.flyingsquirrels.starring.model.TVShow
 import fr.flyingsquirrels.starring.model.TVShowResponse
 import fr.flyingsquirrels.starring.tvshows.view.TVShowAdapter
 import fr.flyingsquirrels.starring.tvshows.viewmodel.TVShowListViewModel
-import io.reactivex.Single
+import fr.flyingsquirrels.starring.utils.TVShowDiffCallback
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_list.*
@@ -32,30 +34,36 @@ class TVShowListFragment : BaseListFragment(){
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val tvListRequest: Single<TVShowResponse>? = when (arguments?.get(BaseListFragment.TYPE_KEY)) {
-            TVShowResponse.POPULAR -> vm.getPopularTVShows()
-            TVShowResponse.TOP_RATED -> vm.getTopRatedTVShows()
-            TVShowResponse.AIRING_TODAY -> vm.getAiringTodayTVShows()
-            TVShowResponse.ON_THE_AIR -> vm.getOnTheAirTVShows()
-            else -> null
-        }
-        swipe_refresh.setOnRefreshListener {
-            tvListRequest?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())?.subscribe(
-                    { response ->
-                        list?.adapter = response?.results?.let { TVShowAdapter(it) }
-                        finishLoading()
-                    }, this::handleError
-            )?.let{
-                disposables.add(it)
-            }
-        }
-        tvListRequest?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())?.subscribe(
-                { response ->
-                    list?.adapter = response?.results?.let { TVShowAdapter(it) }
+        paginator.onBackpressureDrop()
+                .concatMap {
+                    when (arguments?.get(BaseListFragment.TYPE_KEY)) {
+                        TVShowResponse.POPULAR -> vm.getPopularTVShows(it).toFlowable()
+                        TVShowResponse.TOP_RATED -> vm.getTopRatedTVShows(it).toFlowable()
+                        TVShowResponse.AIRING_TODAY -> vm.getAiringTodayTVShows(it).toFlowable()
+                        TVShowResponse.ON_THE_AIR -> vm.getOnTheAirTVShows(it).toFlowable()
+                        else -> null
+                    }?.subscribeOn(Schedulers.io())
+                }?.map {
+                    it.results ?: listOf()
+                }?.observeOn(AndroidSchedulers.mainThread())
+                ?.subscribe({ results ->
+                    if (list?.adapter == null) {
+                        list?.adapter = TVShowAdapter(results)
+                    } else {
+                        val newList = mutableListOf<TVShow>().apply {
+                            addAll((list.adapter as TVShowAdapter).items)
+                            addAll(results)
+                        }
+                        val diffCallback = TVShowDiffCallback((list.adapter as TVShowAdapter).items, newList)
+                        (list.adapter as TVShowAdapter).items = newList
+                        DiffUtil.calculateDiff(diffCallback).dispatchUpdatesTo(list.adapter as TVShowAdapter)
+                    }
                     finishLoading()
                 }, this::handleError
-        )?.let{
-            disposables.add(it)
-        }
+                )?.let{
+                    disposables.add(it)
+                }
+
+        nextPage()
     }
 }
