@@ -50,7 +50,7 @@ class PersonDetailActivity : BaseDetailActivity<Person>() {
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers
                                 .mainThread())
-                        .subscribe(this@PersonDetailActivity::bindData)?.let{
+                        .subscribe(::bindData, ::handleError)?.let{
                             disposables.add(it)
                         }
             }

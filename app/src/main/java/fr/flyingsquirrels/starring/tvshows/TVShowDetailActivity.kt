@@ -48,7 +48,7 @@ class TVShowDetailActivity : BaseDetailActivity<TVShow>() {
                 vm.getTVShowDetails(id)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(this@TVShowDetailActivity::bindData)?.let{
+                        .subscribe(::bindData, ::handleError)?.let{
                             disposables.add(it)
                         }
             }

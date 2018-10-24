@@ -49,7 +49,7 @@ class MovieDetailActivity : BaseDetailActivity<Movie>() {
                 vm.getMovieDetails(id)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(this@MovieDetailActivity::bindData)?.let{
+                        .subscribe(::bindData, ::handleError)?.let{
                             disposables.add(it)
                         }
             }

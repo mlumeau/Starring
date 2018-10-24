@@ -21,6 +21,7 @@ import fr.flyingsquirrels.starring.network.TMDBRetrofitService
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.activity_detail.*
 import org.koin.android.ext.android.inject
+import timber.log.Timber
 
 
 /**
@@ -157,6 +158,11 @@ abstract class BaseDetailActivity<T> : AppCompatActivity() {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+
+    protected fun handleError(t: Throwable){
+        Timber.e(t)
     }
 
     override fun onBackPressed() {
