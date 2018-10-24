@@ -45,14 +45,18 @@ class PeopleListFragment : BaseListFragment(){
                 }?.observeOn(AndroidSchedulers.mainThread())
                 ?.subscribe({ results ->
                     if (list?.adapter == null) {
-                        list?.adapter = PeopleAdapter(results)
+                        if(vm.pageNumber == 1){
+                            vm.list.clear()
+                        }
+                        vm.list.addAll(results)
+                        list?.adapter = PeopleAdapter(vm.list)
                     } else {
                         val newList = mutableListOf<Person>().apply {
                             addAll((list.adapter as PeopleAdapter).items)
                             addAll(results)
                         }
-                        val diffCallback = PeopleDiffCallback((list.adapter as PeopleAdapter).items, newList)
-                        (list.adapter as PeopleAdapter).items = newList
+                        val diffCallback = PeopleDiffCallback(vm.list, newList)
+                        vm.list.addAll(results)
                         DiffUtil.calculateDiff(diffCallback).dispatchUpdatesTo(list.adapter as PeopleAdapter)
                     }
                     finishLoading()
@@ -63,4 +67,14 @@ class PeopleListFragment : BaseListFragment(){
 
         nextPage()
     }
+
+
+    override fun setPageNumber(pageNumber: Int) {
+        vm.pageNumber = pageNumber
+    }
+
+    override fun getPageNumber(): Int {
+        return vm.pageNumber
+    }
+
 }

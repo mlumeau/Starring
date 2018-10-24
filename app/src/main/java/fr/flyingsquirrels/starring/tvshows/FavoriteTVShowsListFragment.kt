@@ -50,4 +50,12 @@ class FavoriteTVShowsListFragment : BaseListFragment(){
                     disposables.add(it)
                 }
     }
+
+
+    override fun setPageNumber(pageNumber: Int) {
+    }
+
+    override fun getPageNumber(): Int {
+        return 0
+    }
 }

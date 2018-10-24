@@ -27,7 +27,6 @@ abstract class BaseListFragment : Fragment() {
 
     private var lastVisibleItem: Int = 0
     private var totalItemCount: Int = 0
-    private var pageNumber: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -88,30 +87,32 @@ abstract class BaseListFragment : Fragment() {
 
 
         swipe_refresh.setOnRefreshListener {
-            list.adapter=null
-            pageNumber = 0
+            list.adapter = null
+            setPageNumber(0)
             totalItemCount = 0
             nextPage()
         }
     }
 
-
+    protected abstract fun setPageNumber(pageNumber: Int)
+    protected abstract fun getPageNumber(): Int
 
     protected fun nextPage(){
         isLoading = true
-        paginator.onNext(++pageNumber)
+        setPageNumber(getPageNumber()+1)
+        paginator.onNext(getPageNumber())
     }
 
     protected fun handleError(t: Throwable){
         Timber.e(t)
         finishLoading()
         isLoading = false
-        pageNumber--
+        setPageNumber(getPageNumber()-1)
     }
 
     protected fun finishLoading() {
         swipe_refresh?.isRefreshing = false
-        totalItemCount = list.adapter?.itemCount ?: 0
+        totalItemCount = list?.adapter?.itemCount ?: 0
         isLoading = false
         loading?.visibility = View.GONE
     }

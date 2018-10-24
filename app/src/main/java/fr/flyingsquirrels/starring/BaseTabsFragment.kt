@@ -63,7 +63,7 @@ abstract class BaseTabsFragment : Fragment(){
                 tx.addUpdateListener { animation -> tabs.elevation = animation.animatedValue as Float }
                 tx.start()
                 isElevated = true
-            } else if (isElevated && offset <= 0) {
+            } else if (tabs != null && isElevated && offset <= 0) {
                 val tx = ValueAnimator.ofFloat(8.dpToPx.toFloat(), 0f)
                 val mDuration = 200 //in millis
                 tx.duration = mDuration.toLong()

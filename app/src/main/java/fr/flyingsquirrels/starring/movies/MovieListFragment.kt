@@ -16,6 +16,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
 class MovieListFragment : BaseListFragment(){
+
     companion object {
         fun newInstance(args: Bundle? = null): MovieListFragment {
             val fragment = MovieListFragment()
@@ -48,15 +49,19 @@ class MovieListFragment : BaseListFragment(){
                 }
                 ?.observeOn(AndroidSchedulers.mainThread())
                 ?.subscribe({ results ->
-                    if (list?.adapter == null) {
-                        list?.adapter = MovieAdapter(results)
+                    if (list?.adapter == null ) {
+                        if(vm.pageNumber == 1){
+                            vm.list.clear()
+                        }
+                        vm.list.addAll(results)
+                        list?.adapter = MovieAdapter(vm.list)
                     } else {
                         val newList = mutableListOf<Movie>().apply {
                             addAll((list.adapter as MovieAdapter).items)
                             addAll(results)
                         }
-                        val diffCallback = MovieDiffCallback((list.adapter as MovieAdapter).items, newList)
-                        (list.adapter as MovieAdapter).items = newList
+                        val diffCallback = MovieDiffCallback(vm.list, newList)
+                        vm.list.addAll(results)
                         DiffUtil.calculateDiff(diffCallback).dispatchUpdatesTo(list.adapter as MovieAdapter)
                     }
 
@@ -67,6 +72,14 @@ class MovieListFragment : BaseListFragment(){
                 }
 
         nextPage()
+    }
+
+    override fun setPageNumber(pageNumber: Int) {
+         vm.pageNumber = pageNumber
+    }
+
+    override fun getPageNumber(): Int {
+        return vm.pageNumber
     }
 
 }

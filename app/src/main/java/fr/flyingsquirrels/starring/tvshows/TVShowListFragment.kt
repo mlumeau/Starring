@@ -48,14 +48,18 @@ class TVShowListFragment : BaseListFragment(){
                 }?.observeOn(AndroidSchedulers.mainThread())
                 ?.subscribe({ results ->
                     if (list?.adapter == null) {
-                        list?.adapter = TVShowAdapter(results)
+                        if(vm.pageNumber == 1){
+                            vm.list.clear()
+                        }
+                        vm.list.addAll(results)
+                        list?.adapter = TVShowAdapter(vm.list)
                     } else {
                         val newList = mutableListOf<TVShow>().apply {
                             addAll((list.adapter as TVShowAdapter).items)
                             addAll(results)
                         }
-                        val diffCallback = TVShowDiffCallback((list.adapter as TVShowAdapter).items, newList)
-                        (list.adapter as TVShowAdapter).items = newList
+                        val diffCallback = TVShowDiffCallback(vm.list, newList)
+                        vm.list.addAll(results)
                         DiffUtil.calculateDiff(diffCallback).dispatchUpdatesTo(list.adapter as TVShowAdapter)
                     }
                     finishLoading()
@@ -65,5 +69,14 @@ class TVShowListFragment : BaseListFragment(){
                 }
 
         nextPage()
+    }
+
+
+    override fun setPageNumber(pageNumber: Int) {
+        vm.pageNumber = pageNumber
+    }
+
+    override fun getPageNumber(): Int {
+        return vm.pageNumber
     }
 }

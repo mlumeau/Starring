@@ -6,11 +6,11 @@ This is a v2.0 of my already published Starring app available on the [Google Pla
 The aim of this project is to play around with state-of-the-art Android development practices and libraries.
 
 ## Developed using:
+- Kotlin
 - MVVM architecture
 - Jetpack / Architecture Components : ViewModel, Navigation, Room DB...
 - RxAndroid
 - Retrofit
-- Kotlin
 
 ## Roadmap
 - ~~Movies lists~~
