@@ -30,7 +30,7 @@ class PeopleAdapter(var items: List<Person>) : RecyclerView.Adapter<PeopleAdapte
     override fun getItemCount(): Int = items.size
 
 
-    inner class PeopleHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class PeopleHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         fun bind(person : Person){
             Picasso.get().load(TMDBCONST.POSTER_URL_THUMBNAIL + person.profilePath).placeholder(R.color.grey600).fit().centerCrop().into(itemView.portrait)

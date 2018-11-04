@@ -19,7 +19,7 @@ data class Person(
         @SerializedName("images") var images: Images? = null,
         @SerializedName("combined_credits") var mediaCredits: MediaCredits? = null,
         @SerializedName("adult") var adult: Boolean? = null
-        ) : Parcelable {
+        ) : Parcelable, Searchable(PERSON) {
     constructor(parcel: Parcel) : this(
             parcel.readValue(Double::class.java.classLoader) as? Double,
             parcel.readValue(Int::class.java.classLoader) as? Int,

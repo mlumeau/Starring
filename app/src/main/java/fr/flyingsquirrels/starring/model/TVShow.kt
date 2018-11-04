@@ -84,7 +84,7 @@ data class TVShow(
         @SerializedName("status")
         var status: String? = null
 
-) : Parcelable {
+) : Parcelable, Searchable(TV){
     constructor(parcel: Parcel) : this(
             parcel.readString(),
             parcel.readValue(Int::class.java.classLoader) as? Int,

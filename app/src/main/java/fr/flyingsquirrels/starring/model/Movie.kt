@@ -93,7 +93,7 @@ data class Movie(
         @field:SerializedName("images")
         var images: Images? = null
 
-) : Parcelable{
+) : Parcelable, Searchable(MOVIE, id){
 
     companion object CREATOR : Parcelable.Creator<Movie>{
 

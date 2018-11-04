@@ -81,7 +81,7 @@ class MovieDetailActivity : BaseDetailActivity<Movie>() {
         }
 
 
-        val year = data.releaseDate?.substring(0,4)
+        val year = if(data.releaseDate?.isNotEmpty()==true) data.releaseDate?.substring(0,4) else null
         var info=""
 
         year?.let{

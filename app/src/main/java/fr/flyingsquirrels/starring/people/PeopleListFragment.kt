@@ -12,7 +12,7 @@ import fr.flyingsquirrels.starring.utils.PeopleDiffCallback
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_list.*
-import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class PeopleListFragment : BaseListFragment(){
 
@@ -29,7 +29,7 @@ class PeopleListFragment : BaseListFragment(){
         }
     }
 
-    private val vm : PeopleListViewModel by inject()
+    private val vm : PeopleListViewModel by viewModel()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

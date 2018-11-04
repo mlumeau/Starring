@@ -17,4 +17,8 @@
         android:id="@+id/people"
         android:name="fr.flyingsquirrels.starring.people.PeopleTabsFragment"
         android:label="PeopleTabsFragment" />
+    <fragment
+        android:id="@+id/search"
+        android:name="fr.flyingsquirrels.starring.search.SearchListFragment"
+        android:label="SearchListFragment" />
 </navigation>

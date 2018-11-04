@@ -97,6 +97,11 @@ abstract class BaseListFragment : Fragment() {
     protected abstract fun setPageNumber(pageNumber: Int)
     protected abstract fun getPageNumber(): Int
 
+    override fun onResume() {
+        super.onResume()
+        loading?.visibility = View.GONE
+    }
+
     protected fun nextPage(){
         isLoading = true
         setPageNumber(getPageNumber()+1)

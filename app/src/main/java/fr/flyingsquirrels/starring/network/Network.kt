@@ -55,15 +55,14 @@ val NetworkModule = module{
                 .baseUrl(BuildConfig.base_url)
                 .client(get())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(get()))
                 .build()
     }
 
 
     single{
         val retrofit: Retrofit = get()
-        retrofit
-                .create(TMDBRetrofitService::class.java)
+        retrofit.create(TMDBRetrofitService::class.java)
     }
 
 }

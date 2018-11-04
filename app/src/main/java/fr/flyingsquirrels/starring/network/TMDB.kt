@@ -7,6 +7,7 @@ import fr.flyingsquirrels.starring.network.TMDBCONST.NOW_PLAYING
 import fr.flyingsquirrels.starring.network.TMDBCONST.ON_THE_AIR
 import fr.flyingsquirrels.starring.network.TMDBCONST.PERSON
 import fr.flyingsquirrels.starring.network.TMDBCONST.POPULAR
+import fr.flyingsquirrels.starring.network.TMDBCONST.SEARCH
 import fr.flyingsquirrels.starring.network.TMDBCONST.TOP_RATED
 import fr.flyingsquirrels.starring.network.TMDBCONST.TV
 import fr.flyingsquirrels.starring.network.TMDBCONST.UPCOMING
@@ -26,6 +27,7 @@ object TMDBCONST {
     const val MOVIE = "movie"
     const val TV = "tv"
     const val PERSON = "person"
+    const val SEARCH = "search/multi"
 
     const val TOP_RATED = "top_rated"
     const val POPULAR = "popular"
@@ -75,5 +77,8 @@ interface TMDBRetrofitService {
 
     @GET("$PERSON/{personId}?append_to_response=combined_credits%2Cimages")
     fun getPersonDetails(@Path("personId") personId: Int): Single<Person>
+
+    @GET(SEARCH)
+    fun getSearchResults(@Query("query") query: String, @Query("page") page: Int): Single<SearchResponse>
 
 }

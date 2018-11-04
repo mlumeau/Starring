@@ -4,6 +4,7 @@ import androidx.recyclerview.widget.DiffUtil
 
 import fr.flyingsquirrels.starring.model.Movie
 import fr.flyingsquirrels.starring.model.Person
+import fr.flyingsquirrels.starring.model.Searchable
 import fr.flyingsquirrels.starring.model.TVShow
 
 class MovieDiffCallback(private val mOldMovieList: List<Movie>, private val mNewMovieList: List<Movie>) : DiffUtil.Callback() {
@@ -69,5 +70,24 @@ class PeopleDiffCallback(private val mOldPeople: List<Person>, private val mNewP
         val (_, _, _, _, _, _,  id1) = mNewPeople[newItemPosition]
 
         return id == id1
+    }
+}
+
+class SearchDiffCallback(private val mOldSearch: List<Searchable>, private val mNewSearch: List<Searchable>) : DiffUtil.Callback() {
+
+    override fun getOldListSize(): Int {
+        return mOldSearch.size
+    }
+
+    override fun getNewListSize(): Int {
+        return mNewSearch.size
+    }
+
+    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+        return mOldSearch[oldItemPosition]._id === mNewSearch[newItemPosition]._id
+    }
+
+    override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+        return mOldSearch[oldItemPosition]._id === mNewSearch[newItemPosition]._id
     }
 }

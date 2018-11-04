@@ -30,7 +30,7 @@ class MovieAdapter(var items: List<Movie>) : RecyclerView.Adapter<MovieAdapter.M
     override fun getItemCount(): Int = items.size
 
 
-    inner class MovieHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class MovieHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         fun bind(movie : Movie){
             Picasso.get().load(TMDBCONST.POSTER_URL_THUMBNAIL+ movie.posterPath).placeholder(R.color.grey600).fit().centerCrop().into(itemView.cover)

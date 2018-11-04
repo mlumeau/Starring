@@ -29,7 +29,7 @@ class TVShowAdapter(var items: List<TVShow>) : RecyclerView.Adapter<TVShowAdapte
 
     override fun getItemCount(): Int = items.size
 
-    inner class TVShowHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class TVShowHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         fun bind(tvShow : TVShow){
             Picasso.get().load(TMDBCONST.POSTER_URL_THUMBNAIL + tvShow.posterPath).placeholder(R.color.grey600).fit().centerCrop().into(itemView.cover)

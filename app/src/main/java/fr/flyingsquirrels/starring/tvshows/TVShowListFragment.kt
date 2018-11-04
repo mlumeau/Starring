@@ -12,7 +12,7 @@ import fr.flyingsquirrels.starring.utils.TVShowDiffCallback
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_list.*
-import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class TVShowListFragment : BaseListFragment(){
 
@@ -29,7 +29,7 @@ class TVShowListFragment : BaseListFragment(){
         }
     }
 
-    private val vm : TVShowListViewModel by inject()
+    private val vm : TVShowListViewModel by viewModel()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
