@@ -35,6 +35,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        window.setBackgroundDrawableResource(R.color.colorBackground)
+
         setSupportActionBar(toolbar)
 
         navController = findNavController(R.id.nav_host_fragment)
@@ -66,13 +68,13 @@ class MainActivity : AppCompatActivity() {
         // Set up the query listener that executes the search
         Observable.create(ObservableOnSubscribe<String> { subscriber ->
             searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-                override fun onQueryTextChange(newText: String?): Boolean {
-                    subscriber.onNext(newText!!)
+                override fun onQueryTextChange(newText: String): Boolean {
+                    subscriber.onNext(newText)
                     return false
                 }
 
-                override fun onQueryTextSubmit(query: String?): Boolean {
-                    subscriber.onNext(query!!)
+                override fun onQueryTextSubmit(query: String): Boolean {
+                    subscriber.onNext(query)
                     return false
                 }
             })
@@ -81,18 +83,22 @@ class MainActivity : AppCompatActivity() {
         .distinctUntilChanged()
         .filter { text -> text.isNotBlank() }
         .subscribe { text ->
-            Timber.d( "subscriber: $text")
-            if (navController.currentDestination?.id != R.id.search) {
-                val args = Bundle().apply { putString(SearchInterface.QUERY,text) }
-                navController.navigate(R.id.search, args)
-            }else {
-                searchViewModel.query.onNext(text)
-            }
+            search(text)
         }.let{
             disposables.add(it)
         }
 
         return super.onCreateOptionsMenu(menu)
+    }
+
+    private fun search(text: String?) {
+        Timber.d("subscriber: $text")
+        if (navController.currentDestination?.id != R.id.search) {
+            val args = Bundle().apply { putString(SearchInterface.QUERY, text) }
+            navController.navigate(R.id.search, args)
+        } else {
+            searchViewModel.query.onNext(text)
+        }
     }
 
     override fun onDestroy() {
