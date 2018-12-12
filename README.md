@@ -23,6 +23,7 @@ The aim of this project is to play around with state-of-the-art Android developm
 - ~~People details~~
 - ~~Paged lists & infinite scroll~~
 - ~~Search~~
+- Dark mode
 
 ## Usage
 
