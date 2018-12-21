@@ -1,6 +1,37 @@
 <resources>
-    <string name="app_name">Starring</string>
-    <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="app_name" translatable="false">Starring</string>
+    <string name="movies">Movies</string>
+    <string name="tv_shows">TV shows</string>
+    <string name="people">People</string>
+    <string name="popular">Popular</string>
+    <string name="top_rated">Top rated</string>
+    <string name="now_playing">Now playing</string>
+    <string name="upcoming">Upcoming</string>
+    <string name="media_poster">Media\'s poster</string>
+    <string name="starring">Starring</string>
+    <string name="directed_by">Directed by:</string>
+    <string name="watch_a_trailer">Watch a trailer…</string>
+
+    <string name="title_activity_images">ImagesActivity</string>
+    <string name="airing_today">Airing today</string>
+    <string name="on_the_air">On the air</string>
+    <string name="seasons">Seasons</string>
+    <string name="created_by">Created by:</string>
+    <string name="guests">Guests:</string>
+    <string name="episodes">Episodes</string>
+    <string name="age">%1$d years old</string>
+    <string name="known_for">Known for:</string>
+
+    <plurals name="seasons_nb">
+        <item quantity="one">%d season</item>
+        <item quantity="other">%d seasons</item>
+    </plurals>
+    <plurals name="episodes_nb">
+        <item quantity="one">%d episode</item>
+        <item quantity="other">%d episodes</item>
+    </plurals>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="search">Search TheMovieDatabase</string>
 </resources>

@@ -1,26 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.flyingsquirrels.starring">
+    package="fr.flyingsquirrels.starring">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:name=".StarringApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:name=".StarringApp"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme.Main"
+        android:fullBackupContent="@xml/backup_descriptor">
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+            android:launchMode="standard">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="fr.flyingsquirrels.starring.movies.MovieDetailActivity"
+            android:label="@string/app_name"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.Detail"
+            android:launchMode="standard">
+            <intent-filter android:label="@string/app_name">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="www.themoviedb.org" />
+                <data android:pathPattern="/movie/.*" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="fr.flyingsquirrels.starring.tvshows.TVShowDetailActivity"
+            android:label="@string/app_name"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.Detail"
+            android:launchMode="standard">
+            <intent-filter android:label="@string/app_name">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="www.themoviedb.org" />
+                <data android:pathPattern="/tv/.*" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="fr.flyingsquirrels.starring.tvshows.TVShowSeasonDetailActivity"
+            android:label="@string/app_name"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.Detail"
+            android:launchMode="standard" />
+        <activity
+            android:name="fr.flyingsquirrels.starring.people.PersonDetailActivity"
+            android:label="@string/app_name"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.Detail"
+            android:launchMode="standard">
+            <intent-filter android:label="@string/app_name">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="www.themoviedb.org" />
+                <data android:pathPattern="/person/.*" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".ImagesActivity"
+            android:configChanges="keyboardHidden|uiMode"
+            android:label="@string/title_activity_images"
+            android:theme="@style/AppTheme.Fullscreen" />
     </application>
 
 </manifest>
