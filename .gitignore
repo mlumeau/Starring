@@ -14,3 +14,7 @@ gradle/wrapper/gradle-wrapper\.jar
 gradle/wrapper/gradle-wrapper\.properties
 
 gradlew\.bat
+
+app/release/release/
+
+app/release/

@@ -5,7 +5,7 @@ import org.koin.dsl.module.module
 
 val MovieModule = module{
 
-     viewModel{
+    viewModel{
         MovieDetailViewModel(get(), get())
     }
 
