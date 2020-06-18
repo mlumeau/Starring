@@ -9,7 +9,7 @@ The aim of this project is to play around with state-of-the-art Android developm
 - Kotlin
 - MVVM architecture
 - Jetpack / Architecture Components : ViewModel, Navigation, Room DB...
-- RxAndroid
+- RxJava
 - Retrofit
 
 ## Roadmap
@@ -24,6 +24,7 @@ The aim of this project is to play around with state-of-the-art Android developm
 - ~~Paged lists & infinite scroll~~
 - ~~Search~~
 - Dark mode
+- Local theaters schedules for movies
 
 ## Usage
 
