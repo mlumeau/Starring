@@ -13,7 +13,7 @@ The aim of this project is to play around with state-of-the-art Android developm
 - Retrofit
 - Jetpack Compose (TODO)
 
-## Roadmap
+## Features roadmap
 - ~~Movies lists~~
 - ~~Movie details~~
 - ~~Favorites (Starred)~~
